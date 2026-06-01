@@ -1,20 +1,22 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { LayoutDashboard, Menu, ShoppingCart, X } from "lucide-react";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { useAuth } from "@/providers/auth-provider";
-import { ROLES } from "@/constants/roles";
+import { ROLES } from '@/constants/roles';
+import { useAuth } from '@/providers/auth-provider';
+import { LayoutDashboard, Menu, ShoppingCart, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 const navItems = [
-  { label: "Map", href: "/map" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Benefits", href: "/benefits" },
-  { label: "About", href: "/about" },
-  { label: "Contact us", href: "/contact" },
+  { label: 'Home', href: '/' },
+  { label: 'Ratings', href: '/ratings' },
+  { label: 'Schedule', href: '/schedule' },
+  { label: 'Results', href: '/results' },
+  { label: 'Champions', href: '/champions' },
+  { label: 'Fighters', href: '/fighters' },
+  { label: 'Events', href: '/events' },
+  { label: 'Titles', href: '/titles' },
 ];
 
 export default function Navbar() {
@@ -23,24 +25,22 @@ export default function Navbar() {
   const { user, isLoading } = useAuth();
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
-  const isDashboardRoute =
-    pathname === "/dashboard" || pathname.startsWith("/dashboard/");
-  const isNavItemActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`);
-  const isProfileActive =
-    pathname === "/profile" || pathname.startsWith("/profile/");
+  const isDashboardRoute = pathname === '/dashboard' || pathname.startsWith('/dashboard/');
+  const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const isProfileActive = pathname === '/profile' || pathname.startsWith('/profile/');
   const isProfileIconActive = isProfileActive || isDashboardRoute;
-  const profileHref = "/profile";
+  const profileHref = '/profile';
   const showLoggedInActions = !isLoading && Boolean(user);
 
   return (
     <header
       className={`relative z-30 bg-[#f1f5ec] ${
-        isDashboardRoute ? "" : "border-b border-line-weak"
-      }`}>
+        isDashboardRoute ? '' : 'border-b border-line-weak'
+      }`}
+    >
       <div className='mx-2 md:mx-12.5'>
         <div className='flex h-17 w-full items-center justify-between gap-4'>
-          <div className='flex min-w-0 items-center gap-10'>
+          <div className='flex items-center gap-10'>
             <Link href='/' className='shrink-0' onClick={closeMobileMenu}>
               {/* <Image
                 src="/home/logo.png"
@@ -52,21 +52,22 @@ export default function Navbar() {
               /> */}
               <p className='text-3xl font-medium'>Logo</p>
             </Link>
+          </div>
 
+          <div className=''>
             {!isDashboardRoute ? (
               <nav className='hidden items-center gap-7 lg:flex'>
                 {navItems.map((item) => (
                   <Link
                     key={item.label}
                     href={item.href}
-                    aria-current={
-                      isNavItemActive(item.href) ? "page" : undefined
-                    }
+                    aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                     className={`text-base transition-colors ${
                       isNavItemActive(item.href)
-                        ? "text-text-brand-strong text-2xl font-bold"
-                        : "font-normal text-gray-900 hover:text-text-brand-strong"
-                    }`}>
+                        ? 'text-text-brand-strong text-2xl font-bold'
+                        : 'font-normal text-gray-900 hover:text-text-brand-strong'
+                    }`}
+                  >
                     {item.label}
                   </Link>
                 ))}
@@ -82,7 +83,8 @@ export default function Navbar() {
                     <Link
                       href='/cart'
                       aria-label='Cart'
-                      className='text-text-strong transition-colors hover:text-[#0c3173]'>
+                      className='text-text-strong transition-colors hover:text-[#0c3173]'
+                    >
                       <ShoppingCart size={20} />
                     </Link>
                   )}
@@ -90,7 +92,8 @@ export default function Navbar() {
                     <Link
                       href='/dashboard'
                       aria-label='Go to dashboard'
-                      className='inline-flex items-center gap-2 rounded-md bg-[#516933] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#73914c]'>
+                      className='inline-flex items-center gap-2 rounded-md bg-[#516933] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#73914c]'
+                    >
                       <LayoutDashboard size={16} />
                       Dashboard
                     </Link>
@@ -100,9 +103,10 @@ export default function Navbar() {
                     aria-label='Go to profile'
                     className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
                       isProfileIconActive
-                        ? "border-brand-default"
-                        : "border-line-weaker hover:border-brand-default/60"
-                    }`}>
+                        ? 'border-brand-default'
+                        : 'border-line-weaker hover:border-brand-default/60'
+                    }`}
+                  >
                     <Image
                       src='/home/latest/latest1.jpg'
                       alt='Profile'
@@ -116,13 +120,15 @@ export default function Navbar() {
                 <>
                   <Link
                     href='/login'
-                    className='rounded-md bg-[#516933] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#73914c]'>
+                    className='rounded-md bg-[#516933] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#73914c]'
+                  >
                     Log in
                   </Link>
 
                   <Link
                     href='/signup'
-                    className='inline-flex items-center rounded-md bg-fill-brand-strong px-3 py-2 text-sm font-medium text-white transition-colors bg-[#12418f] hover:bg-[#09244d]'>
+                    className='inline-flex items-center rounded-md bg-fill-brand-strong px-3 py-2 text-sm font-medium text-white transition-colors bg-[#12418f] hover:bg-[#09244d]'
+                  >
                     Sign up
                   </Link>
                 </>
@@ -136,7 +142,8 @@ export default function Navbar() {
                     <Link
                       href='/cart'
                       aria-label='Cart'
-                      className='mr-1 text-text-strong transition-colors hover:text-[#0c3173]'>
+                      className='mr-1 text-text-strong transition-colors hover:text-[#0c3173]'
+                    >
                       <ShoppingCart size={18} />
                     </Link>
                   )}
@@ -144,7 +151,8 @@ export default function Navbar() {
                     <Link
                       href='/dashboard'
                       aria-label='Go to dashboard'
-                      className='inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#516933] text-white transition-colors hover:bg-[#73914c]'>
+                      className='inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#516933] text-white transition-colors hover:bg-[#73914c]'
+                    >
                       <LayoutDashboard size={16} />
                     </Link>
                   ) : null}
@@ -153,9 +161,10 @@ export default function Navbar() {
                     aria-label='Go to profile'
                     className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
                       isProfileIconActive
-                        ? "border-brand-default"
-                        : "border-line-weaker hover:border-brand-default/60"
-                    }`}>
+                        ? 'border-brand-default'
+                        : 'border-line-weaker hover:border-brand-default/60'
+                    }`}
+                  >
                     <Image
                       src='/home/latest/latest1.jpg'
                       alt='Profile'
@@ -171,13 +180,10 @@ export default function Navbar() {
                 <button
                   type='button'
                   aria-expanded={isMobileMenuOpen}
-                  aria-label={
-                    isMobileMenuOpen
-                      ? "Close navigation menu"
-                      : "Open navigation menu"
-                  }
+                  aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                   onClick={() => setIsMobileMenuOpen((prevState) => !prevState)}
-                  className='inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker text-text-strong'>
+                  className='inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker text-text-strong'
+                >
                   {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
                 </button>
               ) : null}
@@ -193,12 +199,13 @@ export default function Navbar() {
                   key={`mobile-${item.label}`}
                   href={item.href}
                   onClick={closeMobileMenu}
-                  aria-current={isNavItemActive(item.href) ? "page" : undefined}
+                  aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                   className={`rounded-sm px-2 py-2 text-sm transition-colors ${
                     isNavItemActive(item.href)
-                      ? "text-text-brand-strong font-bold"
-                      : "hover:text-text-brand-strong font-normal text-gray-900 hover:bg-fill-hover"
-                  }`}>
+                      ? 'text-text-brand-strong font-bold'
+                      : 'hover:text-text-brand-strong font-normal text-gray-900 hover:bg-fill-hover'
+                  }`}
+                >
                   {item.label}
                 </Link>
               ))}
@@ -208,14 +215,16 @@ export default function Navbar() {
                   <Link
                     href='/signup'
                     onClick={closeMobileMenu}
-                    className='mt-2 inline-flex h-10 items-center justify-center rounded-sm bg-fill-brand-strong px-2 text-sm font-medium text-white transition-colors hover:bg-[#12418f]'>
+                    className='mt-2 inline-flex h-10 items-center justify-center rounded-sm bg-fill-brand-strong px-2 text-sm font-medium text-white transition-colors hover:bg-[#12418f]'
+                  >
                     Sign up
                   </Link>
 
                   <Link
                     href='/login'
                     onClick={closeMobileMenu}
-                    className='mt-2 inline-flex h-10 items-center justify-center rounded-sm border border-line-weaker px-2 py-2 text-sm font-medium hover:bg-fill-hover text-white hover:text-white transition-colors bg-[#516933] hover:bg-[#73914c]'>
+                    className='mt-2 inline-flex h-10 items-center justify-center rounded-sm border border-line-weaker px-2 py-2 text-sm font-medium hover:bg-fill-hover text-white hover:text-white transition-colors bg-[#516933] hover:bg-[#73914c]'
+                  >
                     Log in
                   </Link>
                 </>

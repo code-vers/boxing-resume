@@ -1,32 +1,19 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /**
+   * @section 1. SHADCN CORE MAPPINGS
+   * @description Standard Shadcn UI variables mapped directly from the base theme.
+   */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
   --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -43,84 +30,176 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /**
+   * @section 2. FIGMA EXACT DESIGN TOKENS
+   * @description Explicit custom variables derived directly from Figma definitions.
+   */
+
+  /** @group Backgrounds & Surfaces */
+  --color-page-bg: var(--page-bg);
+  --color-section-bg: var(--section-bg);
+  --color-surface-white: var(--surface-white);
+
+  /** @group Cards */
+  --color-card-bg: var(--card-bg);
+  --color-card-muted: var(--card-muted);
+  --color-card-dark: var(--card-dark);
+  --color-card-border: var(--card-border);
+  --color-card-border-hover: var(--card-border-hover);
+  --color-card-border-accent: var(--card-border-accent);
+
+  /** @group Typography */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-placeholder: var(--text-placeholder);
+  --color-text-disabled: var(--text-disabled);
+  --color-text-accent: var(--text-accent);
+
+  /** @group Actions & Buttons */
+  --color-btn-primary: var(--btn-primary);
+  --color-btn-primary-hover: var(--btn-primary-hover);
+  --color-btn-secondary: var(--btn-secondary);
+  --color-btn-disabled: var(--btn-disabled);
+  --color-btn-disabled-text: var(--btn-disabled-text);
+
+  /** @group Inputs & Forms */
+  --color-input-fill: var(--input-fill);
+  --color-input-filled: var(--input-filled);
+  --color-input-border: var(--input-border);
+  --color-input-focused: var(--input-focused);
+  --color-input-error: var(--input-error);
+
+  /** @group Strokes & Dividers */
+  --color-divider: var(--divider);
+  --color-stroke-medium: var(--stroke-medium);
+  --color-stroke-strong: var(--stroke-strong);
+  --color-stroke-accent: var(--stroke-accent);
+
+  /** @group Status & Feedback */
+  --color-success-bg: var(--success-bg);
+  --color-success-text: var(--success-text);
+  --color-success-muted: var(--success-muted);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-text: var(--warning-text);
+  --color-warning-border: var(--warning-border);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /**
+   * @section SHADCN BASE
+   * @description Baseline variables mapped to Figma color equivalents for component compatibility.
+   */
+  --background: #f1ede1;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #d72322;
+  --primary-foreground: #ffffff;
+  --secondary: #0a0a0a;
+  --secondary-foreground: #ffffff;
+  --muted: #f0ebe1;
+  --muted-foreground: #3d3b38;
+  --accent: #d72322;
+  --accent-foreground: #ffffff;
+  --destructive: #d72322;
+  --destructive-foreground: #ffffff;
+  --border: #e8e2d8;
+  --input: #d4cec4;
+  --ring: #0a0a0a;
+  --radius: 0.5rem;
+
+  /**
+   * @section FIGMA RAW HEX TOKENS
+   * @description 1:1 mapped CSS custom properties straight from Figma inspection.
+   */
+
+  /** @group Backgrounds */
+  --page-bg: #f1ede1;
+  --section-bg: #faf8f4;
+  --surface-white: #ffffff;
+
+  /** @group Cards */
+  --card-bg: #ffffff;
+  --card-muted: #f0ebe1;
+  --card-dark: #0a0a0a;
+  --card-border: #e8e2d8;
+  --card-border-hover: #d4cec4;
+  --card-border-accent: #d72322;
+
+  /** @group Text */
+  --text-primary: #0a0a0a;
+  --text-secondary: #3d3b38;
+  --text-placeholder: #857f78;
+  --text-disabled: #b8b2a8;
+  --text-accent: #d72322;
+
+  /** @group Buttons */
+  --btn-primary: #d72322;
+  --btn-primary-hover: #b51d1c;
+  --btn-secondary: #0a0a0a;
+  --btn-disabled: #d9d9d9;
+  --btn-disabled-text: #b8b2a8;
+
+  /** @group Inputs */
+  --input-fill: #ffffff;
+  --input-filled: #faf8f4;
+  --input-border: #d4cec4;
+  --input-focused: #0a0a0a;
+  --input-error: #d72322;
+
+  /** @group Strokes */
+  --divider: #e8e2d8;
+  --stroke-medium: #d4cec4;
+  --stroke-strong: #0a0a0a;
+  --stroke-accent: #d72322;
+
+  /** @group Feedback */
+  --success-bg: #dcfce7;
+  --success-text: #16a34a;
+  --success-muted: #bbf7d0;
+  --warning-bg: #fef9c3;
+  --warning-text: #ca8a04;
+  --warning-border: #fef08a;
 }
 
+/**
+ * @section DARK MODE FALLBACK
+ * @description Inverts core variables to prevent Shadcn components from breaking if a user toggles dark mode.
+ */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0a0a0a;
+  --foreground: #f1ede1;
+  --card: #0a0a0a;
+  --card-foreground: #f1ede1;
+  --popover: #0a0a0a;
+  --popover-foreground: #f1ede1;
+  --primary: #d72322;
+  --primary-foreground: #ffffff;
+  --secondary: #3d3b38;
+  --secondary-foreground: #ffffff;
+  --muted: #3d3b38;
+  --muted-foreground: #857f78;
+  --accent: #d72322;
+  --accent-foreground: #ffffff;
+  --destructive: #d72322;
+  --destructive-foreground: #ffffff;
+  --border: #3d3b38;
+  --input: #3d3b38;
+  --ring: #f1ede1;
 }
 
+/**
+ * @section BASE UTILITIES
+ * @description Applies core background, text, and border defaults to standard HTML elements.
+ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
