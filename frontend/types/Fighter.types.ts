@@ -1,49 +1,76 @@
 /**
- * Enum representing the professional status of a fighter.
+ * @enum {string}
+ * @description Represents the professional status of a boxer.
  */
 export enum FighterStatus {
-  ACTIVE = "active",   // Currently competing
-  INACTIVE = "inactive", // Not currently competing but not retired
-  RETIRED = "retired", // Finished professional career
+  /** Fighter is actively competing in professional bouts */
+  ACTIVE = "active",
+  /** Fighter is currently not scheduled but hasn't officially retired */
+  INACTIVE = "inactive",
+  /** Fighter has officially retired from professional boxing */
+  RETIRED = "retired",
 }
 
 /**
- * Enum representing the boxing stance of a fighter.
+ * @enum {string}
+ * @description Represents the boxing stance of a fighter.
  */
 export enum Stance {
-  ORTHODOX = "orthodox", // Left hand and foot forward
-  SOUTHPAW = "southpaw", // Right hand and foot forward
-  SWITCH = "switch",     // Capable of fighting in both stances
+  /** Left hand and foot forward (Right-handed) */
+  ORTHODOX = "orthodox",
+  /** Right hand and foot forward (Left-handed) */
+  SOUTHPAW = "southpaw",
+  /** Capable of fighting effectively in both stances */
+  SWITCH = "switch",
 }
 
 /**
- * Interface for creating or updating a fighter's record (POST/PUT).
+ * @interface FighterPost
+ * @description Data structure for creating or updating a fighter record via API.
  */
 export interface FighterPost {
-  firstName: string;     // Fighter's first name
-  lastName: string;      // Fighter's last name
-  nickname?: string;     // Optional ring name or nickname
-  image?: string;        // URL to the fighter's profile image
-  nationality?: string;  // Country the fighter represents
-  birthDate?: Date;      // Date of birth
-  division: string;      // Weight class (e.g., "Heavyweight")
-  stance?: Stance;       // Primary boxing stance
-  height?: string;       // Fighter's height (e.g., "6' 3\"")
-  reach?: string;        // Fighter's arm span (e.g., "78\"")
-  status: FighterStatus; // Professional status
-  record?: {             // Career statistics
+  /** Fighter's first name */
+  firstName: string;
+  /** Fighter's last name */
+  lastName: string;
+  /** Optional ring name or nickname */
+  nickname?: string;
+  /** URL to the fighter's profile image */
+  image?: string;
+  /** Country the fighter represents */
+  nationality?: string;
+  /** Fighter's date of birth */
+  birthDate?: Date;
+  /** Weight division (e.g., "Heavyweight", "Welterweight") */
+  division: string;
+  /** Primary boxing stance */
+  stance?: Stance;
+  /** Height in feet and inches (e.g., "5' 11\"") */
+  height?: string;
+  /** Arm span in inches (e.g., "72\"") */
+  reach?: string;
+  /** Current professional status */
+  status: FighterStatus;
+  /** Optional career statistics */
+  record?: {
+    /** Total professional wins */
     wins: number;
+    /** Total professional losses */
     losses: number;
+    /** Total professional draws */
     draws: number;
   };
-  ko_rate?: number;      // Knockout percentage
+  /** Percentage of wins by knockout */
+  ko_rate?: number;
 }
 
 /**
- * Interface for retrieving fighter data (GET).
+ * @interface FighterGet
+ * @description Data structure for fighter details retrieved from the API.
  */
 export interface FighterGet {
-  id: number | string;   // Unique identifier
+  /** Unique identifier for the fighter */
+  id: number | string;
   firstName: string;
   lastName: string;
   nickname?: string;
@@ -54,13 +81,17 @@ export interface FighterGet {
   stance?: Stance;
   height?: string;
   reach?: string;
+  /** Detailed career statistics */
   record: {
     wins: number;
     losses: number;
     draws: number;
   };
+  /** Calculated knockout rate percentage */
   ko_rate: number;
   status: FighterStatus;
-  createdAt: Date;       // Timestamp when the record was created
-  updatedAt: Date;       // Timestamp of the last update
+  /** ISO timestamp of record creation */
+  createdAt: Date;
+  /** ISO timestamp of the most recent update */
+  updatedAt: Date;
 }
