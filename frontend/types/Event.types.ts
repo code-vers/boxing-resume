@@ -4,10 +4,12 @@ export enum EventStatus {
   COMPLETED = "completed",
 }
 
-interface addEvent {
+export interface addEvent {
   eventName: string;
   mainBout: string;
   venue: string;
+  location?: string; // e.g., "Las Vegas, NV"
+  image?: string;    // Poster image URL
   bouts: number;
   broadcast: string;
   date: Date;
@@ -19,10 +21,12 @@ export interface EventGet {
   eventName: string;
   mainBout: string;
   venue: string;
+  location?: string;
+  image?: string;
   bouts: number;
   broadcast: string;
   date: Date;
   status: EventStatus;
   createdAt: Date;
-  updatedAt: Date; // here find the last update date of the event
+  updatedAt: Date;
 }
