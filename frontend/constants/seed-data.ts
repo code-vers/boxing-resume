@@ -4,6 +4,11 @@ import { MatchResult, WinMethod } from "../types/MatchRecords.types";
 import { rankingGet } from "../types/Ranking.types";
 import { TitleGet, TitleTier, TitleHistory, BoxingOrg } from "../types/Title.types";
 
+/**
+ * @const fighters
+ * @type {FighterGet[]}
+ * @description A collection of world-class professional fighters across various divisions.
+ */
 export const fighters: FighterGet[] = [
   {
     id: "f1",
@@ -115,6 +120,11 @@ export const fighters: FighterGet[] = [
   },
 ];
 
+/**
+ * @const events
+ * @type {EventGet[]}
+ * @description Major boxing events and fight nights.
+ */
 export const events: EventGet[] = [
   {
     id: "e1",
@@ -174,8 +184,18 @@ export const events: EventGet[] = [
   },
 ];
 
+/**
+ * @const featuredFighters
+ * @type {FighterGet[]}
+ * @description A curated list of fighters for the landing page or sidebar.
+ */
 export const featuredFighters: FighterGet[] = fighters.slice(0, 4);
 
+/**
+ * @const recentResults
+ * @type {MatchResult[]}
+ * @description The latest 8 match results to display in results widgets.
+ */
 export const recentResults: MatchResult[] = [
   {
     id: "m1",
@@ -205,6 +225,7 @@ export const recentResults: MatchResult[] = [
     updatedAt: new Date("2024-05-07"),
     poster: "https://example.com/posters/inoue-nery.jpg",
   },
+  // Generated sample results for UI filling
   ...[1, 2, 3, 4, 5, 6].map(i => ({
     id: `m-recent-${i}`,
     date: new Date(2024, 3, i),
@@ -213,7 +234,7 @@ export const recentResults: MatchResult[] = [
     method: WinMethod.UD,
     round: 12,
     weight: "Welterweight",
-    title: "WBC Title",
+    title: "WBC Regional Title",
     event: { id: "e-old", eventName: `Old Event ${i}`, date: new Date(2024, 3, i) },
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -221,6 +242,11 @@ export const recentResults: MatchResult[] = [
   }))
 ];
 
+/**
+ * @const topRankings
+ * @type {rankingGet[]}
+ * @description A list of top 20 ranked fighters across divisions.
+ */
 export const topRankings: rankingGet[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(i => ({
   id: `r-${i}`,
   fighter: {
@@ -240,23 +266,18 @@ export const topRankings: rankingGet[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
   updatedAt: new Date(),
 }));
 
-export const upcomingSchedule: EventGet[] = [
-  {
-    id: "e4",
-    eventName: "Crawford vs Madrimov",
-    mainBout: "Terence Crawford vs Israil Madrimov",
-    venue: "BMO Stadium",
-    location: "Los Angeles, USA",
-    image: "https://example.com/events/crawford-madrimov.jpg",
-    bouts: 10,
-    broadcast: "DAZN PPV",
-    date: new Date("2024-08-03"),
-    status: EventStatus.UPCOMING,
-    createdAt: new Date("2024-04-01"),
-    updatedAt: new Date("2024-04-01"),
-  }
-];
+/**
+ * @const upcomingSchedule
+ * @type {EventGet[]}
+ * @description Only the events that are scheduled for the future.
+ */
+export const upcomingSchedule: EventGet[] = events.filter(e => e.status === EventStatus.UPCOMING);
 
+/**
+ * @const allResults
+ * @type {MatchResult[]}
+ * @description A comprehensive history of 40 past matches for testing list views.
+ */
 export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) => ({
   id: `m-all-${i}`,
   date: new Date(2023, i % 12, (i % 28) + 1),
@@ -272,13 +293,28 @@ export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) =
   poster: "https://example.com/posters/generic.jpg",
 }));
 
+/**
+ * @const fightSchedule
+ * @type {EventGet[]}
+ * @description Convenient export for all scheduled events.
+ */
 export const fightSchedule: EventGet[] = [
   ...events,
   ...upcomingSchedule
 ];
 
+/**
+ * @const allFightResults
+ * @type {MatchResult[]}
+ * @description Convenient export for all past match results.
+ */
 export const allFightResults: MatchResult[] = allResults;
 
+/**
+ * @const fightHistory
+ * @type {TitleHistory[]}
+ * @description Historical record of championship wins for specific fighters.
+ */
 export const fightHistory: TitleHistory[] = [
   {
     id: "th1",
@@ -303,5 +339,17 @@ export const fightHistory: TitleHistory[] = [
     updatedAt: new Date(),
   },
 ];
+
+/**
+ * @const allFighters
+ * @type {FighterGet[]}
+ * @description Global list of all fighters.
+ */
 export const allFighters: FighterGet[] = fighters;
+
+/**
+ * @const allEvents
+ * @type {EventGet[]}
+ * @description Global list of all events.
+ */
 export const allEvents: EventGet[] = events;
