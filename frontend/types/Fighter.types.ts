@@ -1,4 +1,4 @@
-enum FighterStatus {
+export enum FighterStatus {
   ACTIVE = "active",
   INACTIVE = "inactive",
   RETIRED = "retired",

@@ -1,4 +1,4 @@
-interface AddMatchRecord {
+export interface AddMatchRecord {
   id: number | string;
   date: Date;
   winnerId: number | string;
@@ -9,7 +9,7 @@ interface AddMatchRecord {
   title: string;
   eventId: string; // event id
 }
-interface MatchResult {
+export interface MatchResult {
   id: number | string;
   date: Date;
   winner: {
