@@ -8,6 +8,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
+/**
+ * @constant navItems
+ * @description Array of navigation links used to populate the desktop and mobile menus.
+ * @type {Array<{label: string, href: string}>}
+ */
 const navItems = [
   { label: 'Home', href: '/' },
   { label: 'Ratings', href: '/ratings' },
@@ -19,99 +24,138 @@ const navItems = [
   { label: 'Titles', href: '/titles' },
 ];
 
+/**
+ * @component Navbar
+ * @description Main application navigation header. Features a dark-themed responsive design,
+ * authenticates user state for specific call-to-actions, and handles mobile menu toggling.
+ * @returns {JSX.Element} The rendered navigation bar component.
+ */
 export default function Navbar() {
+  /**
+   * @state isMobileMenuOpen
+   * @description Tracks the visibility state of the mobile navigation dropdown.
+   */
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
 
+  /**
+   * @function closeMobileMenu
+   * @description Helper function to close the mobile menu when a navigation event occurs.
+   * @returns {void}
+   */
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  /**
+   * @constant isDashboardRoute
+   * @description Determines if the current route is within the dashboard area to conditionally hide standard navigation.
+   * @type {boolean}
+   */
   const isDashboardRoute = pathname === '/dashboard' || pathname.startsWith('/dashboard/');
+
+  /**
+   * @function isNavItemActive
+   * @description Evaluates if a given navigation link matches the current active route.
+   * @param {string} href - The target URL path of the navigation item.
+   * @returns {boolean} True if the route is active, false otherwise.
+   */
   const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
   const isProfileActive = pathname === '/profile' || pathname.startsWith('/profile/');
   const isProfileIconActive = isProfileActive || isDashboardRoute;
   const profileHref = '/profile';
   const showLoggedInActions = !isLoading && Boolean(user);
 
+  /**
+   * @section Header Container
+   * @description Enforces a high z-index (z-50) to ensure the mobile dropdown and navbar
+   * always sit above all other page content.
+   */
   return (
-    <header
-      className={`relative z-30 bg-[#f1f5ec] ${
-        isDashboardRoute ? '' : 'border-b border-line-weak'
-      }`}
-    >
-      <div className='mx-2 md:mx-12.5'>
-        <div className='flex h-17 w-full items-center justify-between gap-4'>
-          <div className='flex items-center gap-10'>
+    <header className='relative z-50 w-full bg-card-dark text-surface-white border-b border-stroke-strong'>
+      <div className='mx-auto px-4 sm:px-6 md:px-8 xl:px-12'>
+        <div className='flex h-20 w-full items-center justify-between gap-4'>
+          {/* * @section Logo Brand
+           * @description CSS-styled replica of the "BOXING RESUME" logo for crisp rendering on all screens.
+           */}
+          <div className='flex items-center'>
             <Link href='/' className='shrink-0' onClick={closeMobileMenu}>
-              {/* <Image
-                src="/home/logo.png"
-                alt="Logo"
-                width={194}
-                height={40}
-                priority
-                className="h-8 w-auto sm:h-9"
-              /> */}
-              <p className='text-3xl font-medium'>Logo</p>
+              <div className='flex flex-col uppercase font-black leading-none tracking-wide'>
+                <span className='text-[22px] sm:text-[24px] text-surface-white'>Boxing</span>
+                <span className='text-[11px] sm:text-[12px] text-text-accent tracking-[0.15em]'>
+                  Resume
+                </span>
+              </div>
             </Link>
           </div>
 
-          <div className=''>
-            {!isDashboardRoute ? (
-              <nav className='hidden items-center gap-7 lg:flex'>
-                {navItems.map((item) => (
+          {/* * @section Desktop Navigation
+           * @description Hidden on mobile (lg:hidden), displayed as a flex row on large screens.
+           */}
+          {!isDashboardRoute && (
+            <nav className='hidden lg:flex items-center gap-6 xl:gap-8'>
+              {navItems.map((item) => {
+                const active = isNavItemActive(item.href);
+                return (
                   <Link
                     key={item.label}
                     href={item.href}
-                    aria-current={isNavItemActive(item.href) ? 'page' : undefined}
-                    className={`text-base transition-colors ${
-                      isNavItemActive(item.href)
-                        ? 'text-text-brand-strong text-2xl font-bold'
-                        : 'font-normal text-gray-900 hover:text-text-brand-strong'
+                    aria-current={active ? 'page' : undefined}
+                    className={`text-[16px] font-medium transition-colors duration-200 ${
+                      active ? 'text-text-accent' : 'text-text-disabled hover:text-surface-white'
                     }`}
                   >
                     {item.label}
                   </Link>
-                ))}
-              </nav>
-            ) : null}
-          </div>
+                );
+              })}
+            </nav>
+          )}
 
-          <div className='flex items-center gap-2 sm:gap-4'>
-            <div className='hidden items-center gap-3 sm:gap-4 lg:flex'>
+          {/* * @section Actions & Utilities
+           * @description Contains Auth buttons, Profile icon, and Mobile Menu Toggle.
+           */}
+          <div className='flex items-center gap-3 sm:gap-4'>
+            {/* * @block Desktop Actions
+             * @description Authentication and profile links, hidden on small devices.
+             */}
+            <div className='hidden lg:flex items-center gap-4'>
               {showLoggedInActions || isDashboardRoute ? (
                 <>
                   {user?.role === ROLES.USER && (
                     <Link
                       href='/cart'
                       aria-label='Cart'
-                      className='text-text-strong transition-colors hover:text-[#0c3173]'
+                      className='text-text-disabled transition-colors hover:text-surface-white'
                     >
                       <ShoppingCart size={20} />
                     </Link>
                   )}
-                  {showLoggedInActions ? (
+                  {showLoggedInActions && (
                     <Link
                       href='/dashboard'
                       aria-label='Go to dashboard'
-                      className='inline-flex items-center gap-2 rounded-md bg-[#516933] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#73914c]'
+                      className='inline-flex items-center gap-2 rounded-md border border-stroke-medium px-4 py-2 text-sm font-medium text-surface-white transition-colors hover:bg-surface-white/10'
                     >
                       <LayoutDashboard size={16} />
                       Dashboard
                     </Link>
-                  ) : null}
+                  )}
                   <Link
                     href={profileHref}
                     aria-label='Go to profile'
-                    className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
+                    className={`inline-flex h-10 w-10 overflow-hidden rounded-full border-2 transition-all ${
                       isProfileIconActive
-                        ? 'border-brand-default'
-                        : 'border-line-weaker hover:border-brand-default/60'
+                        ? 'border-text-accent'
+                        : 'border-stroke-medium hover:border-surface-white'
                     }`}
                   >
                     <Image
                       src='/home/latest/latest1.jpg'
                       alt='Profile'
-                      width={36}
-                      height={36}
+                      width={40}
+                      height={40}
                       className='h-full w-full object-cover'
                     />
                   </Link>
@@ -120,115 +164,99 @@ export default function Navbar() {
                 <>
                   <Link
                     href='/login'
-                    className='rounded-md bg-[#516933] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#73914c]'
+                    className='rounded-md border border-stroke-medium px-5 py-2 text-sm font-medium text-surface-white transition-colors hover:bg-surface-white/10'
                   >
-                    Log in
+                    Log In
                   </Link>
-
                   <Link
                     href='/signup'
-                    className='inline-flex items-center rounded-md bg-fill-brand-strong px-3 py-2 text-sm font-medium text-white transition-colors bg-[#12418f] hover:bg-[#09244d]'
+                    className='rounded-md bg-btn-primary px-5 py-2 text-sm font-medium text-surface-white transition-colors hover:bg-btn-primary-hover'
                   >
-                    Sign up
+                    Register
                   </Link>
                 </>
               )}
             </div>
 
-            <div className='flex items-center gap-2 lg:hidden'>
-              {showLoggedInActions || isDashboardRoute ? (
-                <>
-                  {user?.role === ROLES.USER && (
-                    <Link
-                      href='/cart'
-                      aria-label='Cart'
-                      className='mr-1 text-text-strong transition-colors hover:text-[#0c3173]'
-                    >
-                      <ShoppingCart size={18} />
-                    </Link>
-                  )}
-                  {showLoggedInActions ? (
-                    <Link
-                      href='/dashboard'
-                      aria-label='Go to dashboard'
-                      className='inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#516933] text-white transition-colors hover:bg-[#73914c]'
-                    >
-                      <LayoutDashboard size={16} />
-                    </Link>
-                  ) : null}
-                  <Link
-                    href={profileHref}
-                    aria-label='Go to profile'
-                    className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
-                      isProfileIconActive
-                        ? 'border-brand-default'
-                        : 'border-line-weaker hover:border-brand-default/60'
-                    }`}
-                  >
-                    <Image
-                      src='/home/latest/latest1.jpg'
-                      alt='Profile'
-                      width={32}
-                      height={32}
-                      className='h-full w-full object-cover'
-                    />
-                  </Link>
-                </>
-              ) : null}
-
-              {!isDashboardRoute ? (
+            {/* * @block Mobile Controls
+             * @description Mobile-specific profile shortcut and hamburger menu toggle.
+             */}
+            <div className='flex items-center gap-3 lg:hidden'>
+              {showLoggedInActions && (
+                <Link
+                  href={profileHref}
+                  className='inline-flex h-9 w-9 overflow-hidden rounded-full border border-stroke-medium'
+                >
+                  <Image
+                    src='/home/latest/latest1.jpg'
+                    alt='Profile'
+                    width={36}
+                    height={36}
+                    className='h-full w-full object-cover'
+                  />
+                </Link>
+              )}
+              {!isDashboardRoute && (
                 <button
                   type='button'
                   aria-expanded={isMobileMenuOpen}
                   aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-                  onClick={() => setIsMobileMenuOpen((prevState) => !prevState)}
-                  className='inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker text-text-strong'
+                  onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                  className='inline-flex h-10 w-10 items-center justify-center rounded-md border border-stroke-medium text-surface-white transition-colors hover:bg-surface-white/10 active:scale-95'
                 >
-                  {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
-              ) : null}
+              )}
             </div>
           </div>
         </div>
 
+        {/* * @section Mobile Navigation Dropdown
+         * @description Absolute positioned full-width menu with explicit z-index, max-height, and scrolling
+         * to prevent clipping on small devices. Includes smooth animation.
+         */}
         {!isDashboardRoute && isMobileMenuOpen && (
-          <div className='absolute top-full right-0 left-0 border-t border-black/5 bg-white px-4 py-4 shadow-[0_14px_30px_rgba(0,0,0,0.08)] sm:px-6'>
-            <nav className='flex flex-col'>
-              {navItems.map((item) => (
-                <Link
-                  key={`mobile-${item.label}`}
-                  href={item.href}
-                  onClick={closeMobileMenu}
-                  aria-current={isNavItemActive(item.href) ? 'page' : undefined}
-                  className={`rounded-sm px-2 py-2 text-sm transition-colors ${
-                    isNavItemActive(item.href)
-                      ? 'text-text-brand-strong font-bold'
-                      : 'hover:text-text-brand-strong font-normal text-gray-900 hover:bg-fill-hover'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              {!showLoggedInActions ? (
-                <>
+          <div className='absolute top-full left-0 right-0 z-50 flex max-h-[calc(100vh-5rem)] flex-col overflow-y-auto border-b border-stroke-strong bg-card-dark px-4 pb-6 pt-4 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 lg:hidden'>
+            <nav className='flex flex-col gap-1'>
+              {navItems.map((item) => {
+                const active = isNavItemActive(item.href);
+                return (
                   <Link
-                    href='/signup'
+                    key={`mobile-${item.label}`}
+                    href={item.href}
                     onClick={closeMobileMenu}
-                    className='mt-2 inline-flex h-10 items-center justify-center rounded-sm bg-fill-brand-strong px-2 text-sm font-medium text-white transition-colors hover:bg-[#12418f]'
+                    className={`rounded-md px-4 py-3.5 text-base font-medium transition-colors ${
+                      active
+                        ? 'bg-text-accent/10 text-text-accent'
+                        : 'text-text-disabled hover:bg-surface-white/5 hover:text-surface-white'
+                    }`}
                   >
-                    Sign up
+                    {item.label}
                   </Link>
+                );
+              })}
 
+              {/* * @block Mobile Auth Actions
+               * @description Renders prominent authentication buttons at the bottom of the mobile drawer.
+               */}
+              {!showLoggedInActions && (
+                <div className='mt-4 flex flex-col gap-3 border-t border-stroke-medium pt-5'>
                   <Link
                     href='/login'
                     onClick={closeMobileMenu}
-                    className='mt-2 inline-flex h-10 items-center justify-center rounded-sm border border-line-weaker px-2 py-2 text-sm font-medium hover:bg-fill-hover text-white hover:text-white transition-colors bg-[#516933] hover:bg-[#73914c]'
+                    className='flex w-full items-center justify-center rounded-md border border-stroke-medium px-4 py-3.5 text-base font-medium text-surface-white hover:bg-surface-white/10 transition-colors active:bg-surface-white/20'
                   >
-                    Log in
+                    Log In
                   </Link>
-                </>
-              ) : null}
+                  <Link
+                    href='/signup'
+                    onClick={closeMobileMenu}
+                    className='flex w-full items-center justify-center rounded-md bg-btn-primary px-4 py-3.5 text-base font-medium text-surface-white hover:bg-btn-primary-hover transition-colors active:scale-[0.98]'
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         )}
