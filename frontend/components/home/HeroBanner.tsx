@@ -70,7 +70,7 @@ export default function HeroBanner() {
    * @description Sets the dark background and ensures content does not overflow on smaller screens.
    */
   return (
-    <section className='flex min-h-[800px] w-full flex-col justify-between bg-card-dark pt-16 md:pt-24'>
+    <section className='flex min-h-[800px] border-t-2 border-muted-foreground w-full flex-col justify-between bg-card-dark pt-16 md:pt-24'>
       {/*
        * @section Top Content Area
        * @description Contains the headline, description, search input, and filter chips.
