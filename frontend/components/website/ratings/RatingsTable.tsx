@@ -244,7 +244,7 @@ export default function RatingsTable() {
   return (
     <div className='flex w-full flex-col font-sans'>
       {/* 1. TOP TABS NAVIGATION */}
-      <div className='w-full border-b border-[#E8E2D8] bg-[#F5F3ED]'>
+      <div className='w-full border-b border-[#E8E2D8] bg-white'>
         <div className='hide-scrollbar mx-auto flex items-center overflow-x-auto px-4 sm:px-6 md:px-8 xl:px-12'>
           {TABS.map((tab) => {
             const isActive = activeTab === tab;
