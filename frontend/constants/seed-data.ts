@@ -8,6 +8,86 @@ import {
   ITitleHistory,
   BoxingOrg,
 } from "../types/Title.types";
+import { IOverviewData } from "../types/Overview.types";
+
+/**
+ * ==========================================
+ * ADMIN DASHBOARD DATA
+ * ==========================================
+ */
+
+/**
+ * @const dashboardOverview
+ * @type {IOverviewData}
+ * @description Mock data for the administrative overview dashboard.
+ */
+export const dashboardOverview: IOverviewData = {
+  title: "KO Rate Overview",
+  stats: [
+    {
+      label: "Total Fighters",
+      value: "1,247",
+      trend: { value: "+12", label: "this week", type: "up" },
+      icon: "👤",
+      source: "Database",
+    },
+    {
+      label: "Total Bouts",
+      value: "3,892",
+      trend: { value: "+8", label: "this week", type: "up" },
+      icon: "🥊",
+      source: "Records",
+    },
+    {
+      label: "Registered Users",
+      value: "12,384",
+      trend: { value: "+156", label: "this week", type: "up" },
+      icon: "👥",
+      source: "Platform",
+    },
+    {
+      label: "Active Title Holders",
+      value: "68",
+      trend: { value: "-", label: "No change", type: "stable" },
+      icon: "🏆",
+      source: "Belts",
+    },
+    {
+      label: "Pending Reviews",
+      value: "23",
+      trend: { value: "-5", label: "today", type: "down" },
+      icon: "⏳",
+      source: "Admin",
+    },
+    {
+      label: "Events This Month",
+      value: "14",
+      trend: { value: "+2", label: "this month", type: "up" },
+      icon: "📅",
+      source: "Events",
+    },
+    {
+      label: "New Fighters",
+      value: "12",
+      trend: { value: "This week", label: "", type: "up" },
+      icon: "✨",
+      source: "Database",
+    },
+    {
+      label: "Total Belts Tracked",
+      value: "124",
+      trend: { value: "-", label: "Stable", type: "stable" },
+      icon: "🏅",
+      source: "Titles",
+    },
+  ],
+};
+
+/**
+ * ==========================================
+ * CORE DOMAIN DATA (Fighters, Events, etc.)
+ * ==========================================
+ */
 
 /**
  * @const fighters

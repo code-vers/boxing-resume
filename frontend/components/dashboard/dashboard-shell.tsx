@@ -1,8 +1,8 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -11,7 +11,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const closeMobileSidebar = () => setIsMobileOpen(false);
 
   return (
-    <div className='min-h-screen bg-slate-50 md:flex'>
+    <div className='min-h-screen bg-background md:flex'>
       <div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden'>
         <div className='flex items-center gap-3'>
           <span className='flex h-9 w-9 items-center justify-center rounded-xl bg-[#e8f0df] text-[#516933]'>
