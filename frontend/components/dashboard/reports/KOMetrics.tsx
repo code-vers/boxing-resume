@@ -12,17 +12,18 @@ export function KOMetrics() {
   const { metrics } = statsAndReportsData;
 
   return (
-    <Card className='p-6' data-purpose='ko-metrics'>
-      <h2 className='font-oswald mb-4 text-sm font-bold tracking-wide uppercase'>
+    <Card className='p-6 ' data-purpose='ko-metrics'>
+      <h2 className='font-oswald mb-4 text-[18px] text-foreground font-normal tracking-wide uppercase'>
         KO Rate Overview
       </h2>
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
         {metrics.map((metric, index) => (
           <div
             key={index}
-            className='flex flex-col justify-center rounded border border-slate-100 bg-slate-50 p-4'>
+            className='flex flex-col -mt-4 justify-center rounded bg-section-bg p-4'>
             <div className='font-oswald text-3xl font-bold text-red-600'>
-              {metric.value}{metric.unit}
+              {metric.value}
+              {metric.unit}
             </div>
             <div className='mt-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase'>
               {metric.label}
