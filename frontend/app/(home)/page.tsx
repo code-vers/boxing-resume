@@ -2,6 +2,8 @@ import CurrentChampions from '@/components/home/CurrentChampions';
 import FeaturedFighters from '@/components/home/FeaturedFighters';
 import HeroBanner from '@/components/home/HeroBanner';
 import RecentResults from '@/components/home/RecentResults';
+import TopRankings from '@/components/home/TopRankings';
+import UpcomingSchedule from '@/components/home/UpcomingSchedule';
 
 export default function Home() {
   return (
@@ -12,6 +14,8 @@ export default function Home() {
         <RecentResults />
         <CurrentChampions />
       </div>
+      <TopRankings />
+      <UpcomingSchedule />
     </section>
   );
 }
