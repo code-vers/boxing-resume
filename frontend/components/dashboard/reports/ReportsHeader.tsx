@@ -1,43 +1,41 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 
 /**
  * @component ReportsHeader
  * @description Header for the Stats & Reports page with title, description, and period filters.
  */
 export function ReportsHeader() {
-  return (
-    <header className='space-y-4' data-purpose='dashboard-header'>
-      <div>
-        <h1 className='font-oswald text-3xl font-bold tracking-wide uppercase'>
-          Stats & Reports
-        </h1>
-        <p className='mt-1 text-sm text-slate-500'>
-          Platform-wide statistics, KO data, weight class breakdowns, and performance reports.
-        </p>
-      </div>
+  const periods = ["Last 7 days", "Last 30 days", "Last 12 months", "All time"];
 
+  return (
+    <header
+      className='-mt-5 -ml-3.5 space-y-3.75'
+      data-purpose='dashboard-header'>
       {/* Filters */}
-      <div className='flex flex-wrap items-center gap-3 text-xs'>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="h-8 px-3 text-[11px] font-medium bg-white">Last 7 days</Button>
-          <Button variant="outline" size="sm" className="h-8 px-3 text-[11px] font-medium bg-white">Last 30 days</Button>
-          <Button variant="outline" size="sm" className="h-8 px-3 text-[11px] font-medium bg-white">Last 12 months</Button>
-          <Button variant="outline" size="sm" className="h-8 px-3 text-[11px] font-medium bg-white">All time</Button>
+      <div className='flex flex-wrap ml-4 mt-4 items-center gap-x-2.5 gap-y-2 text-[9px] leading-none text-[#27231e]'>
+        <div className='flex gap-2.5'>
+          {periods.map((period) => (
+            <button
+              key={period}
+              type='button'
+              className='h-5.25 rounded-[3px] border border-[#d9d2c7] bg-[#f5f1e8] px-3  text-[11px] font-medium leading-none text-[#27231e] shadow-none transition-colors hover:bg-[#f8f5ef]'>
+              {period}
+            </button>
+          ))}
         </div>
-        
-        <div className='flex items-center space-x-2 lg:ml-4'>
+
+        <div className='flex items-center gap-2'>
           <input
-            className='w-24 rounded border border-slate-300 bg-white px-2 py-1.5 focus:border-red-600 focus:ring-red-600 outline-none transition-all'
-            placeholder='Start Date'
+            className='h-5 w-20.75rounded-[3px] border border-[#d9d2c7] bg-[#f5f1e8] px-2 text-[9px] text-[#27231e] outline-none transition-colors focus:border-[#d72322] focus:ring-0'
+            aria-label='Start date'
             type='text'
           />
-          <span className='text-slate-500'>to</span>
+          <span className='text-[9px] leading-none text-[#858178]'>to</span>
           <input
-            className='w-24 rounded border border-slate-300 bg-white px-2 py-1.5 focus:border-red-600 focus:ring-red-600 outline-none transition-all'
-            placeholder='End Date'
+            className='h-5 w-20.75 rounded-[3px] border border-[#d9d2c7] bg-[#f5f1e8] px-2 text-[9px] text-[#27231e] outline-none transition-colors focus:border-[#d72322] focus:ring-0'
+            aria-label='End date'
             type='text'
           />
         </div>

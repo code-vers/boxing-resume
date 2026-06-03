@@ -1,8 +1,8 @@
-import React from "react";
-import { ReportsHeader } from "@/components/dashboard/reports/ReportsHeader";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { KOMetrics } from "@/components/dashboard/reports/KOMetrics";
-import { PlatformCharts } from "@/components/dashboard/reports/PlatformCharts";
 import { PeopleDatabase } from "@/components/dashboard/reports/PeopleDatabase";
+import { PlatformCharts } from "@/components/dashboard/reports/PlatformCharts";
+import { ReportsHeader } from "@/components/dashboard/reports/ReportsHeader";
 
 /**
  * @page ReportsPage
@@ -11,6 +11,10 @@ import { PeopleDatabase } from "@/components/dashboard/reports/PeopleDatabase";
 export default function ReportsPage() {
   return (
     <div className='mx-auto  space-y-8'>
+      <PageHeader
+        title='STATS & REPORTS'
+        description='Platform-wide statistics, KO data, weight class breakdowns, and performance reports.'
+      />
       {/* 1. Header & Filters */}
       <ReportsHeader />
 
