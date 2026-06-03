@@ -11,14 +11,6 @@ import {
 import { IOverviewData } from "../types/Overview.types";
 
 /**
- * ==========================================
- * ADMIN DASHBOARD DATA
- * ==========================================
- */
-
-/**
- * @const dashboardOverview
- * @type {IOverviewData}
  * @description Mock data for the administrative overview dashboard.
  */
 export const dashboardOverview: IOverviewData = {
@@ -28,56 +20,56 @@ export const dashboardOverview: IOverviewData = {
       label: "Total Fighters",
       value: "1,247",
       trend: { value: "+12", label: "this week", type: "up" },
-      icon: "👤",
+      icon:  "👤",
       source: "Database",
     },
     {
       label: "Total Bouts",
       value: "3,892",
       trend: { value: "+8", label: "this week", type: "up" },
-      icon: "🥊",
+      icon:  "🥊",
       source: "Records",
     },
     {
       label: "Registered Users",
       value: "12,384",
       trend: { value: "+156", label: "this week", type: "up" },
-      icon: "👥",
+      icon:  "👥",
       source: "Platform",
     },
     {
       label: "Active Title Holders",
       value: "68",
       trend: { value: "-", label: "No change", type: "stable" },
-      icon: "🏆",
+      icon:  "🏆",
       source: "Belts",
     },
     {
       label: "Pending Reviews",
       value: "23",
       trend: { value: "-5", label: "today", type: "down" },
-      icon: "⏳",
+      icon:  "⏳",
       source: "Admin",
     },
     {
       label: "Events This Month",
       value: "14",
       trend: { value: "+2", label: "this month", type: "up" },
-      icon: "📅",
+      icon:  "📅",
       source: "Events",
     },
     {
       label: "New Fighters",
       value: "12",
       trend: { value: "This week", label: "", type: "up" },
-      icon: "✨",
+      icon:  "✨",
       source: "Database",
     },
     {
       label: "Total Belts Tracked",
       value: "124",
       trend: { value: "-", label: "Stable", type: "stable" },
-      icon: "🏅",
+      icon:  "🏅",
       source: "Titles",
     },
   ],
