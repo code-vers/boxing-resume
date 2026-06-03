@@ -22,37 +22,10 @@ export enum WinMethod {
 }
 
 /**
- * @interface AddMatchRecord
- * @description Input schema for recording a new match result.
- */
-export interface AddMatchRecord {
-  /** Internal tracking ID */
-  id: number | string;
-  /** Date the fight took place */
-  date: Date;
-  /** System ID of the winning fighter */
-  winner: number | string;
-  /** System ID of the losing fighter */
-  loser: number | string;
-  /** Method of victory */
-  method: WinMethod;
-  /** The round number in which the fight ended */
-  round: number;
-  /** Weight class for this specific match */
-  weight: string;
-  /** Name of the title belt(s) contested, if any */
-  title?: string;
-  /** ID of the associated boxing event */
-  event: string;
-  /** Optional match-specific poster image */
-  poster?: string;
-}
-
-/**
- * @interface MatchResult
+ * @interface IMatch
  * @description Complete match result object with populated entity details.
  */
-export interface MatchResult {
+export interface IMatch {
   /** Unique match record ID */
   id: number | string;
   /** Date the fight took place */
@@ -96,14 +69,37 @@ export interface MatchResult {
 }
 
 /**
- * @interface FightHistory
+ * @type IMatchPost
+ * @description Input schema for recording a new match result.
+ */
+export type IMatchPost = Omit<
+  IMatch,
+  "winner" | "loser" | "event" | "createdAt" | "updatedAt"
+> & {
+  /** System ID of the winning fighter */
+  winner: number | string;
+  /** System ID of the losing fighter */
+  loser: number | string;
+  /** ID of the associated boxing event */
+  event: string;
+};
+
+/**
+ * @interface IFightHistory
  * @description A fighter's professional record and full list of match outcomes.
  */
-export interface FightHistory {
+export interface IFightHistory {
   /** The fighter's unique identifier */
   fighterId: number | string;
   /** Cumulative count of professional fights */
   totalFights: number;
   /** Sequential list of all match results */
-  results: MatchResult[];
+  results: IMatch[];
 }
+
+/** @deprecated Use IMatchPost */
+export type AddMatchRecord = IMatchPost;
+/** @deprecated Use IMatch */
+export type MatchResult = IMatch;
+/** @deprecated Use IFightHistory */
+export type FightHistory = IFightHistory;

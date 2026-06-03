@@ -1,15 +1,15 @@
-import { FighterGet, FighterStatus, Stance } from "../types/Fighter.types";
-import { EventGet, EventStatus } from "../types/Event.types";
-import { MatchResult, WinMethod } from "../types/MatchRecords.types";
-import { rankingGet } from "../types/Ranking.types";
-import { TitleGet, TitleTier, TitleHistory, BoxingOrg } from "../types/Title.types";
+import { IFighter, FighterStatus, Stance } from "../types/Fighter.types";
+import { IEvent, EventStatus } from "../types/Event.types";
+import { IMatch, WinMethod } from "../types/MatchRecords.types";
+import { IRanking } from "../types/Ranking.types";
+import { ITitle, TitleTier, IITitleHistory, BoxingOrg } from "../types/Title.types";
 
 /**
  * @const fighters
- * @type {FighterGet[]}
+ * @type {IFighter[]}
  * @description A collection of world-class professional fighters across various divisions.
  */
-export const fighters: FighterGet[] = [
+export const fighters: IFighter[] = [
   {
     id: "f1",
     firstName: "Canelo",
@@ -122,10 +122,10 @@ export const fighters: FighterGet[] = [
 
 /**
  * @const events
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Major boxing events and fight nights.
  */
-export const events: EventGet[] = [
+export const events: IEvent[] = [
   {
     id: "e1",
     eventName: "Fury vs Usyk: Ring of Fire",
@@ -186,17 +186,17 @@ export const events: EventGet[] = [
 
 /**
  * @const featuredFighters
- * @type {FighterGet[]}
+ * @type {IFighter[]}
  * @description A curated list of fighters for the landing page or sidebar.
  */
-export const featuredFighters: FighterGet[] = fighters.slice(0, 4);
+export const featuredFighters: IFighter[] = fighters.slice(0, 4);
 
 /**
  * @const recentResults
- * @type {MatchResult[]}
+ * @type {IMatch[]}
  * @description The latest 8 match results to display in results widgets.
  */
-export const recentResults: MatchResult[] = [
+export const recentResults: IMatch[] = [
   {
     id: "m1",
     date: new Date("2024-05-18"),
@@ -244,10 +244,10 @@ export const recentResults: MatchResult[] = [
 
 /**
  * @const topRankings
- * @type {rankingGet[]}
+ * @type {IRanking[]}
  * @description A list of top 20 ranked fighters across divisions.
  */
-export const topRankings: rankingGet[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(i => ({
+export const topRankings: IRanking[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(i => ({
   id: `r-${i}`,
   fighter: {
     id: fighters[i % fighters.length].id,
@@ -268,17 +268,17 @@ export const topRankings: rankingGet[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
 
 /**
  * @const upcomingSchedule
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Only the events that are scheduled for the future.
  */
-export const upcomingSchedule: EventGet[] = events.filter(e => e.status === EventStatus.UPCOMING);
+export const upcomingSchedule: IEvent[] = events.filter(e => e.status === EventStatus.UPCOMING);
 
 /**
  * @const allResults
- * @type {MatchResult[]}
+ * @type {IMatch[]}
  * @description A comprehensive history of 40 past matches for testing list views.
  */
-export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) => ({
+export const allResults: IMatch[] = Array.from({ length: 40 }).map((_, i) => ({
   id: `m-all-${i}`,
   date: new Date(2023, i % 12, (i % 28) + 1),
   winner: { id: "fw", firstName: "Fighter", lastName: "Winner" },
@@ -295,27 +295,27 @@ export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) =
 
 /**
  * @const fightSchedule
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Convenient export for all scheduled events.
  */
-export const fightSchedule: EventGet[] = [
+export const fightSchedule: IEvent[] = [
   ...events,
   ...upcomingSchedule
 ];
 
 /**
  * @const allFightResults
- * @type {MatchResult[]}
+ * @type {IMatch[]}
  * @description Convenient export for all past match results.
  */
-export const allFightResults: MatchResult[] = allResults;
+export const allFightResults: IMatch[] = allResults;
 
 /**
  * @const fightHistory
- * @type {TitleHistory[]}
+ * @type {ITitleHistory[]}
  * @description Historical record of championship wins for specific fighters.
  */
-export const fightHistory: TitleHistory[] = [
+export const fightHistory: ITitleHistory[] = [
   {
     id: "th1",
     fighterId: "f1",
@@ -342,14 +342,14 @@ export const fightHistory: TitleHistory[] = [
 
 /**
  * @const allFighters
- * @type {FighterGet[]}
+ * @type {IFighter[]}
  * @description Global list of all fighters.
  */
-export const allFighters: FighterGet[] = fighters;
+export const allFighters: IFighter[] = fighters;
 
 /**
  * @const allEvents
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Global list of all events.
  */
-export const allEvents: EventGet[] = events;
+export const allEvents: IEvent[] = events;

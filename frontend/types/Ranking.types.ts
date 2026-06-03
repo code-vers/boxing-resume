@@ -1,8 +1,8 @@
 /**
- * @interface rankingGet
+ * @interface IRanking
  * @description Data structure for a fighter's rank within a specific weight division.
  */
-export interface rankingGet {
+export interface IRanking {
   /** Unique ranking record identifier */
   id: number | string;
   /** Essential details of the ranked fighter */
@@ -39,3 +39,18 @@ export interface rankingGet {
   /** Timestamp of the most recent rank update */
   updatedAt: Date;
 }
+
+/**
+ * @type IRankingPost
+ * @description Input schema for creating or updating a ranking record.
+ */
+export type IRankingPost = Omit<
+  IRanking,
+  "id" | "fighter" | "createdAt" | "updatedAt"
+> & {
+  /** Fighter's unique ID */
+  fighterId: number | string;
+};
+
+/** @deprecated Use IRanking */
+export type rankingGet = IRanking;

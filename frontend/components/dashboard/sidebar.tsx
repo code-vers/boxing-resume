@@ -1,15 +1,10 @@
 "use client";
 
-import { useAuth } from "@/providers/auth-provider";
 import { DASHBOARD_NAVIGATION } from "@/config/navigation";
+import { useAuth } from "@/providers/auth-provider";
+import { ChevronsLeft, ChevronsRight, LogOut, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ChevronsLeft,
-  ChevronsRight,
-  LogOut,
-  X,
-} from "lucide-react";
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -122,7 +117,9 @@ export function Sidebar({
                 } ${showLabels ? "gap-3" : "justify-center"}`}>
                 <Icon size={22} className='shrink-0' />
                 {showLabels ? (
-                  <span className='truncate font-medium text-sm'>{item.label}</span>
+                  <span className='truncate font-medium text-sm'>
+                    {item.label}
+                  </span>
                 ) : null}
               </Link>
             );
@@ -137,7 +134,9 @@ export function Sidebar({
               showLabels ? "gap-3 justify-start" : "justify-center"
             }`}>
             <LogOut size={22} className='shrink-0' />
-            {showLabels ? <span className='font-medium text-sm'>Logout</span> : null}
+            {showLabels ? (
+              <span className='font-medium text-sm'>Logout</span>
+            ) : null}
           </button>
 
           {showLabels ? (

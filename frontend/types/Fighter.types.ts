@@ -25,10 +25,12 @@ export enum Stance {
 }
 
 /**
- * @interface FighterPost
- * @description Data structure for creating or updating a fighter record via API.
+ * @interface IFighter
+ * @description Data structure for fighter details retrieved from the API.
  */
-export interface FighterPost {
+export interface IFighter {
+  /** Unique identifier for the fighter */
+  id: number | string;
   /** Fighter's first name */
   firstName: string;
   /** Fighter's last name */
@@ -49,38 +51,6 @@ export interface FighterPost {
   height?: string;
   /** Arm span in inches (e.g., "72\"") */
   reach?: string;
-  /** Current professional status */
-  status: FighterStatus;
-  /** Optional career statistics */
-  record?: {
-    /** Total professional wins */
-    wins: number;
-    /** Total professional losses */
-    losses: number;
-    /** Total professional draws */
-    draws: number;
-  };
-  /** Percentage of wins by knockout */
-  ko_rate?: number;
-}
-
-/**
- * @interface FighterGet
- * @description Data structure for fighter details retrieved from the API.
- */
-export interface FighterGet {
-  /** Unique identifier for the fighter */
-  id: number | string;
-  firstName: string;
-  lastName: string;
-  nickname?: string;
-  image?: string;
-  nationality?: string;
-  birthDate?: Date;
-  division: string;
-  stance?: Stance;
-  height?: string;
-  reach?: string;
   /** Detailed career statistics */
   record: {
     wins: number;
@@ -89,9 +59,22 @@ export interface FighterGet {
   };
   /** Calculated knockout rate percentage */
   ko_rate: number;
+  /** Current professional status */
   status: FighterStatus;
   /** ISO timestamp of record creation */
   createdAt: Date;
   /** ISO timestamp of the most recent update */
   updatedAt: Date;
 }
+
+/**
+ * @type IFighterPost
+ * @description Data structure for creating or updating a fighter record via API.
+ */
+export type IFighterPost = Omit<Partial<IFighter>, "id" | "createdAt" | "updatedAt"> &
+  Pick<IFighter, "firstName" | "lastName" | "division" | "status">;
+
+/** @deprecated Use IFighterPost */
+export type FighterPost = IFighterPost;
+/** @deprecated Use IFighter */
+export type FighterGet = IFighter;
