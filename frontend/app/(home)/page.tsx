@@ -1,9 +1,9 @@
-import CurrentChampions from '@/components/home/CurrentChampions';
-import FeaturedFighters from '@/components/home/FeaturedFighters';
-import HeroBanner from '@/components/home/HeroBanner';
-import RecentResults from '@/components/home/RecentResults';
-import TopRankings from '@/components/home/TopRankings';
-import UpcomingSchedule from '@/components/home/UpcomingSchedule';
+import CurrentChampions from '@/components/website/home/CurrentChampions';
+import FeaturedFighters from '@/components/website/home/FeaturedFighters';
+import HeroBanner from '@/components/website/home/HeroBanner';
+import RecentResults from '@/components/website/home/RecentResults';
+import TopRankings from '@/components/website/home/TopRankings';
+import UpcomingSchedule from '@/components/website/home/UpcomingSchedule';
 
 export default function Home() {
   return (
