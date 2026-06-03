@@ -20,14 +20,14 @@ export function PeopleDatabase() {
   const { peopleDatabase } = statsAndReportsData;
 
   return (
-    <section data-purpose='people-database' className="space-y-4">
-      <h2 className='font-oswald text-xl font-bold tracking-wide uppercase'>
+    <section data-purpose='people-database' className='space-y-4'>
+      <h2 className='font-oswald mb-4 text-[18px] text-foreground  font-normal tracking-wide uppercase'>
         People Database
       </h2>
       <Card className='overflow-hidden'>
         <Table>
           <TableHeader>
-            <TableRow className="bg-white hover:bg-white">
+            <TableRow className='bg-white hover:bg-white'>
               <TableHead className='font-oswald px-6 py-4 text-xs font-semibold tracking-wider text-slate-500 uppercase'>
                 Role
               </TableHead>
@@ -44,8 +44,10 @@ export function PeopleDatabase() {
           </TableHeader>
           <TableBody className='bg-white'>
             {peopleDatabase.map((row) => (
-              <TableRow key={row.id} className='hover:bg-slate-50 border-b border-slate-100 last:border-0'>
-                <TableCell className='px-6 py-4 text-sm font-medium text-slate-600'>
+              <TableRow
+                key={row.id}
+                className='hover:bg-slate-50 border-b border-slate-100 last:border-0'>
+                <TableCell className='px-6 py-4 text-sm  text-[#656464]'>
                   {row.role}
                 </TableCell>
                 <TableCell className='font-oswald px-6 py-4 text-sm font-bold text-slate-900'>
@@ -54,7 +56,7 @@ export function PeopleDatabase() {
                 <TableCell className='px-6 py-4 text-sm font-bold text-emerald-600'>
                   {row.active}
                 </TableCell>
-                <TableCell className='px-6 py-4 text-sm text-slate-400'>
+                <TableCell className='px-6 py-4 text-sm text-[#857F78]'>
                   {row.notable}
                 </TableCell>
               </TableRow>

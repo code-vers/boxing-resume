@@ -25,7 +25,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 /**
@@ -110,8 +110,10 @@ export function PlatformCharts() {
   return (
     <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
       {/* Platform Growth Line Chart */}
-      <Card className='flex flex-col p-6 lg:col-span-2' data-purpose='platform-growth-chart'>
-        <h2 className='font-oswald mb-4 text-sm font-bold tracking-wide uppercase'>
+      <Card
+        className='flex flex-col p-6 lg:col-span-2'
+        data-purpose='platform-growth-chart'>
+        <h2 className='font-oswald mb-4 text-[18px] text-foreground  font-normal tracking-wide uppercase'>
           Platform Growth
         </h2>
         <div className='h-64 w-full'>
@@ -121,7 +123,7 @@ export function PlatformCharts() {
 
       {/* Weight Class Breakdown Bar Chart */}
       <Card className='flex flex-col p-6' data-purpose='weight-class-chart'>
-        <h2 className='font-oswald mb-4 text-sm font-bold tracking-wide uppercase'>
+        <h2 className='font-oswald mb-4 text-[18px] text-foreground  font-normal tracking-wide uppercase'>
           Weight Class Breakdown
         </h2>
         <div className='h-64 w-full'>

@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { statsAndReportsData } from "@/constants/seed-data";
 import { Card } from "@/components/ui/card";
+import { statsAndReportsData } from "@/constants/seed-data";
 
 /**
  * @component KOMetrics
@@ -25,7 +24,7 @@ export function KOMetrics() {
               {metric.value}
               {metric.unit}
             </div>
-            <div className='mt-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase'>
+            <div className='mt-1 text-[11px] font-normal tracking-wider text-muted-foreground uppercase'>
               {metric.label}
             </div>
           </div>
