@@ -10,6 +10,7 @@ import {
 } from "../types/Title.types";
 import { IOverviewData } from "../types/Overview.types";
 import { IRecentActivity, IPendingReview } from "../types/Dashboard.types";
+import { IReportsData } from "../types/Reports.types";
 
 /**
  * ==========================================
@@ -190,6 +191,57 @@ export const pendingReviews: IPendingReview[] = [
     content: "Fighter stats update: Muhammad Ali Jr.",
   },
 ];
+
+/**
+ * ==========================================
+ * STATS & REPORTS DATA
+ * ==========================================
+ */
+
+/**
+ * @const statsAndReportsData
+ * @type {IReportsData}
+ */
+export const statsAndReportsData: IReportsData = {
+  metrics: [
+    { label: "Platform KO Rate", value: "64.8", unit: "%" },
+    { label: "Average KOs per event", value: "4.2" },
+    { label: "Most KOs in a month", value: "127" },
+    { label: "KO Streak record", value: "15" },
+  ],
+  growth: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [
+      {
+        label: "Fighters",
+        data: [120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340],
+        color: "#d92c2c",
+      },
+      {
+        label: "Bouts",
+        data: [80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300],
+        color: "#374151",
+      },
+    ],
+  },
+  weightClassBreakdown: [
+    { label: "Heavyweight", count: 250 },
+    { label: "Cruiserweight", count: 160 },
+    { label: "Light Heavyweight", count: 190 },
+    { label: "Super Middleweight", count: 200 },
+    { label: "Middleweight", count: 180 },
+    { label: "Welterweight", count: 320 },
+    { label: "Lightweight", count: 280 },
+    { label: "Featherweight", count: 200 },
+  ],
+  peopleDatabase: [
+    { id: 1, role: "Trainer", total: 342, active: 289, notable: "Freddie Roach" },
+    { id: 2, role: "Coach", total: 156, active: 142, notable: "Eddy Reynoso" },
+    { id: 3, role: "Manager", total: 89, active: 76, notable: "Al Haymon" },
+    { id: 4, role: "Promoter", total: 45, active: 38, notable: "Eddie Hearn" },
+    { id: 5, role: "Referee", total: 112, active: 95, notable: "Kenny Bayless" },
+  ],
+};
 
 /**
  * ==========================================
