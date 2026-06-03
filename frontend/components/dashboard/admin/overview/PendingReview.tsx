@@ -12,19 +12,19 @@ const PendingReview = () => {
   return (
     <section className='flex flex-col' data-purpose='pending-reviews'>
       {/* Header */}
-      <div className='mb-3 flex items-center justify-between px-2'>
-        <h2 className='text-[13px] font-bold tracking-wide text-slate-900 uppercase'>
+      <div className='px-3 rounded-t-xl pt-2 pb-4 border-2 border-border bg-se flex items-center justify-between'>
+        <h2 className='text-[13px] font-bold tracking-wide text-secondary uppercase'>
           Pending Reviews
         </h2>
       </div>
 
       {/* Reviews List Container */}
-      <div className='min-h-[500px] overflow-hidden rounded-xl border border-slate-200 bg-white pb-4 shadow-sm'>
+      <div className='min-h-[500px] overflow-hidden bg-white shadow-sm'>
         <div className='flex flex-col'>
           {pendingReviews.map((review) => (
             <div
               key={review.id}
-              className='flex items-center justify-between border-b border-slate-50 px-4 py-4 last:border-b-0'>
+              className='flex items-center justify-between border border-border px-4 py-4 last:border-b-0'>
               <div className='flex items-center gap-4'>
                 <span
                   className={cn(
