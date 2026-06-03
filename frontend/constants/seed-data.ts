@@ -8,6 +8,194 @@ import {
   ITitleHistory,
   BoxingOrg,
 } from "../types/Title.types";
+import { IOverviewData } from "../types/Overview.types";
+import { IRecentActivity, IPendingReview } from "../types/Dashboard.types";
+
+/**
+ * ==========================================
+ * ADMIN DASHBOARD DATA
+ * ==========================================
+ */
+
+/**
+ * @description Mock data for the administrative overview dashboard.
+ */
+export const dashboardOverview: IOverviewData = {
+  title: "KO Rate Overview",
+  stats: [
+    {
+      label: "Total Fighters",
+      value: "1,247",
+      trend: { value: "+12", label: "this week", type: "up" },
+      icon: "👤",
+      source: "Database",
+    },
+    {
+      label: "Total Bouts",
+      value: "3,892",
+      trend: { value: "+8", label: "this week", type: "up" },
+      icon: "🥊",
+      source: "Records",
+    },
+    {
+      label: "Registered Users",
+      value: "12,384",
+      trend: { value: "+156", label: "this week", type: "up" },
+      icon: "👥",
+      source: "Platform",
+    },
+    {
+      label: "Active Title Holders",
+      value: "68",
+      trend: { value: "-", label: "No change", type: "stable" },
+      icon: "🏆",
+      source: "Belts",
+    },
+    {
+      label: "Pending Reviews",
+      value: "23",
+      trend: { value: "-5", label: "today", type: "down" },
+      icon: "⏳",
+      source: "Admin",
+    },
+    {
+      label: "Events This Month",
+      value: "14",
+      trend: { value: "+2", label: "this month", type: "up" },
+      icon: "📅",
+      source: "Events",
+    },
+    {
+      label: "New Fighters",
+      value: "12",
+      trend: { value: "This week", label: "", type: "up" },
+      icon: "✨",
+      source: "Database",
+    },
+    {
+      label: "Total Belts Tracked",
+      value: "124",
+      trend: { value: "-", label: "Stable", type: "stable" },
+      icon: "🏅",
+      source: "Titles",
+    },
+  ],
+};
+
+/**
+ * @const recentActivities
+ * @type {IRecentActivity[]}
+ */
+export const recentActivities: IRecentActivity[] = [
+  {
+    id: 1,
+    content: "New fighter added: Mike Tyson Jr.",
+    user: "Admin John",
+    timestamp: "2m ago",
+    type: "fighter",
+  },
+  {
+    id: 2,
+    content: "Fight result added: Smith vs Jones",
+    user: "Admin Sarah",
+    timestamp: "15m ago",
+    type: "result",
+  },
+  {
+    id: 3,
+    content: "WBC Heavyweight belt updated",
+    user: "Admin Mike",
+    timestamp: "1h ago",
+    type: "belt",
+  },
+  {
+    id: 4,
+    content: "New user registered: boxer_fan_2024",
+    user: "System",
+    timestamp: "2h ago",
+    type: "user",
+  },
+  {
+    id: 5,
+    content: "Fighter profile updated: Floyd Jr.",
+    user: "Admin John",
+    timestamp: "3h ago",
+    type: "fighter",
+  },
+  {
+    id: 6,
+    content: "Fight result edited: Garcia vs Lopez",
+    user: "Admin Sarah",
+    timestamp: "4h ago",
+    type: "result",
+  },
+  {
+    id: 7,
+    content: "Database backup completed",
+    user: "System",
+    timestamp: "5h ago",
+    type: "system",
+  },
+  {
+    id: 8,
+    content: "IBF Welterweight belt transferred",
+    user: "Admin Mike",
+    timestamp: "6h ago",
+    type: "belt",
+  },
+  {
+    id: 9,
+    content: "User role changed: moderator_alex",
+    user: "Admin John",
+    timestamp: "7h ago",
+    type: "user",
+  },
+  {
+    id: 10,
+    content: "Fighter photo uploaded: Anderson",
+    user: "Admin Sarah",
+    timestamp: "8h ago",
+    type: "fighter",
+  },
+];
+
+/**
+ * @const pendingReviews
+ * @type {IPendingReview[]}
+ */
+export const pendingReviews: IPendingReview[] = [
+  {
+    id: 1,
+    category: "Fighter",
+    content: "New fighter submission: Carlos Rodriguez",
+  },
+  {
+    id: 2,
+    category: "Result",
+    content: "Fight result pending approval: Davis KO3",
+  },
+  {
+    id: 3,
+    category: "Belt",
+    content: "Belt transfer request: WBA Lightweight",
+  },
+  {
+    id: 4,
+    category: "User",
+    content: "User verification needed: pro_boxer_2024",
+  },
+  {
+    id: 5,
+    category: "Fighter",
+    content: "Fighter stats update: Muhammad Ali Jr.",
+  },
+];
+
+/**
+ * ==========================================
+ * CORE DOMAIN DATA (Fighters, Events, etc.)
+ * ==========================================
+ */
 
 /**
  * @const fighters

@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
+import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers/app-providers";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  variable: "--font-oswald",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Template",
@@ -13,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='antialiased'>
+    <html lang='en' className={`${inter.variable} ${oswald.variable} antialiased`}>
       <body className='min-h-full flex flex-col'>
         <Providers>{children}</Providers>
       </body>
