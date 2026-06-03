@@ -12,10 +12,12 @@ export enum EventStatus {
 }
 
 /**
- * @interface addEvent
- * @description Schema for creating a new boxing event or fight night.
+ * @interface IEvent
+ * @description Full event details retrieved from the system.
  */
-export interface addEvent {
+export interface IEvent {
+  /** Unique system identifier for the event */
+  id: number | string;
   /** Title of the event (e.g., "Rumble in the Jungle") */
   eventName: string;
   /** The headline fight/main event */
@@ -34,26 +36,19 @@ export interface addEvent {
   date: Date;
   /** Current state of the event */
   status: EventStatus;
-}
-
-/**
- * @interface EventGet
- * @description Full event details retrieved from the system.
- */
-export interface EventGet {
-  /** Unique system identifier for the event */
-  id: number | string;
-  eventName: string;
-  mainBout: string;
-  venue: string;
-  location?: string;
-  image?: string;
-  bouts: number;
-  broadcast: string;
-  date: Date;
-  status: EventStatus;
   /** System timestamp of creation */
   createdAt: Date;
   /** System timestamp of last modification */
   updatedAt: Date;
 }
+
+/**
+ * @type IEventPost
+ * @description Schema for creating a new boxing event or fight night.
+ */
+export type IEventPost = Omit<IEvent, "id" | "createdAt" | "updatedAt">;
+
+/** @deprecated Use IEventPost */
+export type addEvent = IEventPost;
+/** @deprecated Use IEvent */
+export type EventGet = IEvent;

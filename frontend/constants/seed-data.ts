@@ -1,15 +1,20 @@
-import { FighterGet, FighterStatus, Stance } from "../types/Fighter.types";
-import { EventGet, EventStatus } from "../types/Event.types";
-import { MatchResult, WinMethod } from "../types/MatchRecords.types";
-import { rankingGet } from "../types/Ranking.types";
-import { TitleGet, TitleTier, TitleHistory, BoxingOrg } from "../types/Title.types";
+import { IFighter, FighterStatus, Stance } from "../types/Fighter.types";
+import { IEvent, EventStatus } from "../types/Event.types";
+import { IMatch, WinMethod } from "../types/MatchRecords.types";
+import { IRanking } from "../types/Ranking.types";
+import {
+  ITitle,
+  TitleTier,
+  ITitleHistory,
+  BoxingOrg,
+} from "../types/Title.types";
 
 /**
  * @const fighters
- * @type {FighterGet[]}
+ * @type {IFighter[]}
  * @description A collection of world-class professional fighters across various divisions.
  */
-export const fighters: FighterGet[] = [
+export const fighters: IFighter[] = [
   {
     id: "f1",
     firstName: "Canelo",
@@ -21,7 +26,7 @@ export const fighters: FighterGet[] = [
     division: "Super Middleweight",
     stance: Stance.ORTHODOX,
     height: "5' 8\"",
-    reach: "70\"",
+    reach: '70"',
     record: { wins: 60, losses: 2, draws: 2 },
     ko_rate: 65,
     status: FighterStatus.ACTIVE,
@@ -39,7 +44,7 @@ export const fighters: FighterGet[] = [
     division: "Heavyweight",
     stance: Stance.ORTHODOX,
     height: "6' 9\"",
-    reach: "85\"",
+    reach: '85"',
     record: { wins: 34, losses: 1, draws: 1 },
     ko_rate: 70,
     status: FighterStatus.ACTIVE,
@@ -57,7 +62,7 @@ export const fighters: FighterGet[] = [
     division: "Heavyweight",
     stance: Stance.SOUTHPAW,
     height: "6' 3\"",
-    reach: "78\"",
+    reach: '78"',
     record: { wins: 22, losses: 0, draws: 0 },
     ko_rate: 64,
     status: FighterStatus.ACTIVE,
@@ -75,7 +80,7 @@ export const fighters: FighterGet[] = [
     division: "Super Bantamweight",
     stance: Stance.ORTHODOX,
     height: "5' 5\"",
-    reach: "67\"",
+    reach: '67"',
     record: { wins: 27, losses: 0, draws: 0 },
     ko_rate: 89,
     status: FighterStatus.ACTIVE,
@@ -93,7 +98,7 @@ export const fighters: FighterGet[] = [
     division: "Welterweight",
     stance: Stance.SWITCH,
     height: "5' 8\"",
-    reach: "74\"",
+    reach: '74"',
     record: { wins: 40, losses: 0, draws: 0 },
     ko_rate: 77,
     status: FighterStatus.ACTIVE,
@@ -111,7 +116,7 @@ export const fighters: FighterGet[] = [
     division: "Lightweight",
     stance: Stance.SOUTHPAW,
     height: "5' 5\"",
-    reach: "67\"",
+    reach: '67"',
     record: { wins: 29, losses: 0, draws: 0 },
     ko_rate: 93,
     status: FighterStatus.ACTIVE,
@@ -122,10 +127,10 @@ export const fighters: FighterGet[] = [
 
 /**
  * @const events
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Major boxing events and fight nights.
  */
-export const events: EventGet[] = [
+export const events: IEvent[] = [
   {
     id: "e1",
     eventName: "Fury vs Usyk: Ring of Fire",
@@ -186,27 +191,43 @@ export const events: EventGet[] = [
 
 /**
  * @const featuredFighters
- * @type {FighterGet[]}
+ * @type {IFighter[]}
  * @description A curated list of fighters for the landing page or sidebar.
  */
-export const featuredFighters: FighterGet[] = fighters.slice(0, 4);
+export const featuredFighters: IFighter[] = fighters.slice(0, 4);
 
 /**
  * @const recentResults
- * @type {MatchResult[]}
+ * @type {IMatch[]}
  * @description The latest 8 match results to display in results widgets.
  */
-export const recentResults: MatchResult[] = [
+export const recentResults: IMatch[] = [
   {
     id: "m1",
     date: new Date("2024-05-18"),
-    winner: { id: "f3", firstName: "Oleksandr", lastName: "Usyk", nickname: "The Cat", image: "https://example.com/fighters/usyk.jpg" },
-    loser: { id: "f2", firstName: "Tyson", lastName: "Fury", nickname: "The Gypsy King", image: "https://example.com/fighters/fury.jpg" },
+    winner: {
+      id: "f3",
+      firstName: "Oleksandr",
+      lastName: "Usyk",
+      nickname: "The Cat",
+      image: "https://example.com/fighters/usyk.jpg",
+    },
+    loser: {
+      id: "f2",
+      firstName: "Tyson",
+      lastName: "Fury",
+      nickname: "The Gypsy King",
+      image: "https://example.com/fighters/fury.jpg",
+    },
     method: WinMethod.SD,
     round: 12,
     weight: "Heavyweight",
     title: "Undisputed Heavyweight Title",
-    event: { id: "e1", eventName: "Fury vs Usyk", date: new Date("2024-05-18") },
+    event: {
+      id: "e1",
+      eventName: "Fury vs Usyk",
+      date: new Date("2024-05-18"),
+    },
     createdAt: new Date("2024-05-19"),
     updatedAt: new Date("2024-05-19"),
     poster: "https://example.com/posters/fury-usyk.jpg",
@@ -214,19 +235,34 @@ export const recentResults: MatchResult[] = [
   {
     id: "m2",
     date: new Date("2024-05-06"),
-    winner: { id: "f4", firstName: "Naoya", lastName: "Inoue", nickname: "The Monster", image: "https://example.com/fighters/inoue.jpg" },
-    loser: { id: "f7", firstName: "Luis", lastName: "Nery", image: "https://example.com/fighters/nery.jpg" },
+    winner: {
+      id: "f4",
+      firstName: "Naoya",
+      lastName: "Inoue",
+      nickname: "The Monster",
+      image: "https://example.com/fighters/inoue.jpg",
+    },
+    loser: {
+      id: "f7",
+      firstName: "Luis",
+      lastName: "Nery",
+      image: "https://example.com/fighters/nery.jpg",
+    },
     method: WinMethod.KO,
     round: 6,
     weight: "Super Bantamweight",
     title: "Undisputed Super Bantamweight Title",
-    event: { id: "e2", eventName: "Inoue vs Nery", date: new Date("2024-05-06") },
+    event: {
+      id: "e2",
+      eventName: "Inoue vs Nery",
+      date: new Date("2024-05-06"),
+    },
     createdAt: new Date("2024-05-07"),
     updatedAt: new Date("2024-05-07"),
     poster: "https://example.com/posters/inoue-nery.jpg",
   },
   // Generated sample results for UI filling
-  ...[1, 2, 3, 4, 5, 6].map(i => ({
+  ...[1, 2, 3, 4, 5, 6].map((i) => ({
     id: `m-recent-${i}`,
     date: new Date(2024, 3, i),
     winner: { id: "fw", firstName: "Winner", lastName: `${i}` },
@@ -235,19 +271,25 @@ export const recentResults: MatchResult[] = [
     round: 12,
     weight: "Welterweight",
     title: "WBC Regional Title",
-    event: { id: "e-old", eventName: `Old Event ${i}`, date: new Date(2024, 3, i) },
+    event: {
+      id: "e-old",
+      eventName: `Old Event ${i}`,
+      date: new Date(2024, 3, i),
+    },
     createdAt: new Date(),
     updatedAt: new Date(),
     poster: "https://example.com/posters/generic.jpg",
-  }))
+  })),
 ];
 
 /**
  * @const topRankings
- * @type {rankingGet[]}
+ * @type {IRanking[]}
  * @description A list of top 20 ranked fighters across divisions.
  */
-export const topRankings: rankingGet[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(i => ({
+export const topRankings: IRanking[] = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+].map((i) => ({
   id: `r-${i}`,
   fighter: {
     id: fighters[i % fighters.length].id,
@@ -268,17 +310,19 @@ export const topRankings: rankingGet[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
 
 /**
  * @const upcomingSchedule
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Only the events that are scheduled for the future.
  */
-export const upcomingSchedule: EventGet[] = events.filter(e => e.status === EventStatus.UPCOMING);
+export const upcomingSchedule: IEvent[] = events.filter(
+  (e) => e.status === EventStatus.UPCOMING,
+);
 
 /**
  * @const allResults
- * @type {MatchResult[]}
+ * @type {IMatch[]}
  * @description A comprehensive history of 40 past matches for testing list views.
  */
-export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) => ({
+export const allResults: IMatch[] = Array.from({ length: 40 }).map((_, i) => ({
   id: `m-all-${i}`,
   date: new Date(2023, i % 12, (i % 28) + 1),
   winner: { id: "fw", firstName: "Fighter", lastName: "Winner" },
@@ -287,7 +331,11 @@ export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) =
   round: i % 3 === 0 ? (i % 10) + 1 : 12,
   weight: "Middleweight",
   title: i % 5 === 0 ? "WBA World Title" : "Non-title",
-  event: { id: `e-${i}`, eventName: `Great Fight Night ${i}`, date: new Date(2023, i % 12, (i % 28) + 1) },
+  event: {
+    id: `e-${i}`,
+    eventName: `Great Fight Night ${i}`,
+    date: new Date(2023, i % 12, (i % 28) + 1),
+  },
   createdAt: new Date(),
   updatedAt: new Date(),
   poster: "https://example.com/posters/generic.jpg",
@@ -295,33 +343,35 @@ export const allResults: MatchResult[] = Array.from({ length: 40 }).map((_, i) =
 
 /**
  * @const fightSchedule
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Convenient export for all scheduled events.
  */
-export const fightSchedule: EventGet[] = [
-  ...events,
-  ...upcomingSchedule
-];
+export const fightSchedule: IEvent[] = [...events, ...upcomingSchedule];
 
 /**
  * @const allFightResults
- * @type {MatchResult[]}
+ * @type {IMatch[]}
  * @description Convenient export for all past match results.
  */
-export const allFightResults: MatchResult[] = allResults;
+export const allFightResults: IMatch[] = allResults;
 
 /**
  * @const fightHistory
- * @type {TitleHistory[]}
+ * @type {ITitleHistory[]}
  * @description Historical record of championship wins for specific fighters.
  */
-export const fightHistory: TitleHistory[] = [
+export const fightHistory: ITitleHistory[] = [
   {
     id: "th1",
     fighterId: "f1",
     titleId: "t1",
     fighter: { firstName: "Canelo", lastName: "Alvarez", nickname: "Saul" },
-    title: { beltName: "WBC World Super Middle", org: BoxingOrg.WBC, tier: TitleTier.WORLD, division: "Super Middleweight" },
+    title: {
+      beltName: "WBC World Super Middle",
+      org: BoxingOrg.WBC,
+      tier: TitleTier.WORLD,
+      division: "Super Middleweight",
+    },
     wonDate: new Date("2020-12-19"),
     isCurrent: true,
     createdAt: new Date(),
@@ -332,7 +382,12 @@ export const fightHistory: TitleHistory[] = [
     fighterId: "f3",
     titleId: "t2",
     fighter: { firstName: "Oleksandr", lastName: "Usyk", nickname: "The Cat" },
-    title: { beltName: "Undisputed Heavyweight", org: BoxingOrg.WBA, tier: TitleTier.WORLD, division: "Heavyweight" },
+    title: {
+      beltName: "Undisputed Heavyweight",
+      org: BoxingOrg.WBA,
+      tier: TitleTier.WORLD,
+      division: "Heavyweight",
+    },
     wonDate: new Date("2024-05-18"),
     isCurrent: true,
     createdAt: new Date(),
@@ -342,14 +397,14 @@ export const fightHistory: TitleHistory[] = [
 
 /**
  * @const allFighters
- * @type {FighterGet[]}
+ * @type {IFighter[]}
  * @description Global list of all fighters.
  */
-export const allFighters: FighterGet[] = fighters;
+export const allFighters: IFighter[] = fighters;
 
 /**
  * @const allEvents
- * @type {EventGet[]}
+ * @type {IEvent[]}
  * @description Global list of all events.
  */
-export const allEvents: EventGet[] = events;
+export const allEvents: IEvent[] = events;

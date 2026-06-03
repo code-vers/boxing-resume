@@ -37,10 +37,12 @@ export enum BoxingOrg {
 }
 
 /**
- * @interface TitleEntry
- * @description Basic definition of a championship title belt.
+ * @interface ITitle
+ * @description Full championship title details retrieved from the API.
  */
-export interface TitleEntry {
+export interface ITitle {
+  /** Unique system ID for the title */
+  id: string | number;
   /** Official name of the belt (e.g., "Silver Belt") */
   beltName: string;
   /** Sanctioning body */
@@ -49,16 +51,6 @@ export interface TitleEntry {
   tier: TitleTier;
   /** Weight division the belt belongs to */
   division: string;
-}
-
-/**
- * @interface TitleGet
- * @description Full championship title details retrieved from the API.
- * @extends TitleEntry
- */
-export interface TitleGet extends TitleEntry {
-  /** Unique system ID for the title */
-  id: string | number;
   /** System timestamp of creation */
   createdAt: Date;
   /** System timestamp of last modification */
@@ -66,10 +58,16 @@ export interface TitleGet extends TitleEntry {
 }
 
 /**
- * @interface TitleHistory
+ * @type ITitlePost
+ * @description Basic definition for creating a championship title belt.
+ */
+export type ITitlePost = Omit<ITitle, "id" | "createdAt" | "updatedAt">;
+
+/**
+ * @interface ITitleHistory
  * @description Historical record of a title's possession by a fighter.
  */
-export interface TitleHistory {
+export interface ITitleHistory {
   /** Unique historical record ID */
   id: string | number;
   /** ID of the fighter who won the title */
@@ -83,7 +81,7 @@ export interface TitleHistory {
     nickname?: string;
   };
   /** Populated title belt information */
-  title?: TitleEntry;
+  title?: ITitlePost;
   /** Date the fighter won the title */
   wonDate: Date;
   /** Date the fighter lost or vacated the title (optional) */
@@ -95,3 +93,10 @@ export interface TitleHistory {
   /** Record update timestamp */
   updatedAt: Date;
 }
+
+/** @deprecated Use ITitlePost */
+export type TitleEntry = ITitlePost;
+/** @deprecated Use ITitle */
+export type TitleGet = ITitle;
+/** @deprecated Use ITitleHistory */
+export type TitleHistory = ITitleHistory;

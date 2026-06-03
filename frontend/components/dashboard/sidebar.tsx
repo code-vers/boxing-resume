@@ -1,16 +1,10 @@
 "use client";
 
-import { useAuth } from "@/providers/auth-provider";
 import { DASHBOARD_NAVIGATION } from "@/config/navigation";
+import { useAuth } from "@/providers/auth-provider";
+import { ChevronsLeft, ChevronsRight, LogOut, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ChevronsLeft,
-  ChevronsRight,
-  LayoutDashboard,
-  LogOut,
-  X,
-} from "lucide-react";
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -40,31 +34,32 @@ export function Sidebar({
           type='button'
           aria-label='Close sidebar'
           onClick={onCloseMobile}
-          className='fixed inset-0 z-30 bg-slate-950/40 md:hidden'
+          className='fixed inset-0 z-30 bg-black/50 md:hidden'
         />
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-col border-r border-slate-200 bg-white p-4 shadow-lg transition-transform duration-300 md:sticky md:top-0 md:z-auto md:shadow-none md:transition-[width,transform] ${
-          isCollapsed ? "md:w-24" : "md:w-72"
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r border-slate-800 bg-slate-950 p-4 shadow-2xl transition-transform duration-300 md:sticky md:top-0 md:z-auto md:shadow-none md:transition-[width,transform] ${
+          isCollapsed ? "md:w-24 w-72" : "md:w-80 w-72"
         } ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-        <div className='mb-6 flex items-center justify-between gap-3 rounded-2xl px-3 py-3'>
+        {/* Header Section */}
+        <div className='mb-8 flex items-center justify-between gap-3'>
           <Link
             href='/dashboard'
             onClick={onCloseMobile}
             className='flex min-w-0 items-center gap-3 overflow-hidden'>
-            <span className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#516933] to-[#73914c] text-white shadow-sm'>
-              <LayoutDashboard size={18} />
+            <span className='flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-btn-primary text-white font-bold text-lg'>
+              B
             </span>
             {showLabels ? (
-              <span className='flex min-w-0 flex-col leading-tight'>
-                <span className='truncate text-base font-semibold text-slate-900'>
-                  Logo
+              <div className='flex min-w-0 flex-col'>
+                <span className='truncate text-base font-bold text-white'>
+                  BOXING
                 </span>
-                <span className='truncate text-xs uppercase tracking-[0.2em] text-slate-500'>
-                  Dashboard
+                <span className='truncate text-xs font-semibold text-btn-primary uppercase'>
+                  ADMIN
                 </span>
-              </span>
+              </div>
             ) : null}
           </Link>
 
@@ -72,11 +67,11 @@ export function Sidebar({
             type='button'
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className='hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl   text-slate-700 transition-colors md:inline-flex'>
+            className='hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:text-white hover:bg-slate-800 md:inline-flex'>
             {isCollapsed ? (
-              <ChevronsRight size={18} />
+              <ChevronsRight size={20} />
             ) : (
-              <ChevronsLeft size={18} />
+              <ChevronsLeft size={20} />
             )}
           </button>
 
@@ -84,21 +79,28 @@ export function Sidebar({
             type='button'
             onClick={onCloseMobile}
             aria-label='Close sidebar'
-            className='inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition-colors hover:bg-slate-100 md:hidden'>
-            <X size={18} />
+            className='inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-colors hover:text-white hover:bg-slate-800 md:hidden'>
+            <X size={20} />
           </button>
         </div>
 
-        <div className='mb-6 rounded-2xl bg-slate-50 px-3 py-3 md:mb-8'>
-          <p
-            className={`truncate font-bold text-slate-900 ${showLabels ? "text-lg" : "text-center text-sm"}`}>
-            {showLabels ? user.name : user.name.charAt(0)}
-          </p>
-          {showLabels ? (
-            <p className='truncate text-sm text-slate-500'>{user.role}</p>
-          ) : null}
+        {/* User Profile Section */}
+        <div className='mb-8 rounded-lg bg-slate-900 px-4 py-4 border border-slate-800'>
+          <div className='flex items-center gap-3'>
+            <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-700 text-text-secondary'>
+              <span className='font-bold text-sm'>{user.name.charAt(0)}</span>
+            </div>
+            {showLabels ? (
+              <div className='min-w-0 flex-1'>
+                <p className='truncate text-sm font-bold text-white'>
+                  {user.name}
+                </p>
+              </div>
+            ) : null}
+          </div>
         </div>
 
+        {/* Navigation Menu */}
         <nav className='flex-1 space-y-1 overflow-y-auto'>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -108,28 +110,44 @@ export function Sidebar({
                 key={item.href}
                 href={item.href}
                 onClick={onCloseMobile}
-                className={`flex items-center rounded-xl px-3 py-3 transition-colors ${
+                className={`flex items-center rounded-lg px-4 py-3 transition-all duration-200 ${
                   isActive
-                    ? "bg-[#eef4e4] text-[#516933]"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-btn-primary text-white shadow-lg"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
                 } ${showLabels ? "gap-3" : "justify-center"}`}>
-                <Icon size={20} className='shrink-0' />
+                <Icon size={22} className='shrink-0' />
                 {showLabels ? (
-                  <span className='truncate'>{item.label}</span>
+                  <span className='truncate font-medium text-sm'>
+                    {item.label}
+                  </span>
                 ) : null}
               </Link>
             );
           })}
         </nav>
 
-        <button
-          onClick={logout}
-          className={`mt-auto flex items-center rounded-xl px-3 py-3 text-red-600 transition-colors hover:bg-red-50 ${
-            showLabels ? "gap-3" : "justify-center"
-          }`}>
-          <LogOut size={20} className='shrink-0' />
-          {showLabels ? <span>Logout</span> : null}
-        </button>
+        {/* Logout & Footer */}
+        <div className='mt-auto space-y-3 border-t border-slate-800 pt-4'>
+          <button
+            onClick={logout}
+            className={`flex w-full items-center rounded-lg px-4 py-3 text-btn-primary transition-all duration-200 hover:bg-red-950 ${
+              showLabels ? "gap-3 justify-start" : "justify-center"
+            }`}>
+            <LogOut size={22} className='shrink-0' />
+            {showLabels ? (
+              <span className='font-medium text-sm'>Logout</span>
+            ) : null}
+          </button>
+
+          {showLabels ? (
+            <Link
+              href='/'
+              onClick={onCloseMobile}
+              className='flex items-center justify-center py-2 text-xs font-medium text-slate-500 hover:text-slate-300 transition-colors'>
+              ← Back to site
+            </Link>
+          ) : null}
+        </div>
       </aside>
     </>
   );
