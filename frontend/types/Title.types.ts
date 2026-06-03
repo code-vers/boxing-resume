@@ -81,7 +81,7 @@ export interface ITitleHistory {
     nickname?: string;
   };
   /** Populated title belt information */
-  title?: ITitle;
+  title?: ITitlePost;
   /** Date the fighter won the title */
   wonDate: Date;
   /** Date the fighter lost or vacated the title (optional) */
