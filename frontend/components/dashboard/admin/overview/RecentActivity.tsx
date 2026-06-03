@@ -8,13 +8,14 @@ import Link from "next/link";
 /**
  * @component RecentActivity
  * @description Displays a list of recent administrative actions with status indicators.
+ * Optimized for equal height and fixed border alignment.
  */
 const RecentActivity = () => {
   return (
-    <section className='flex flex-col ' data-purpose='recent-activity'>
+    <section className='flex flex-col h-full' data-purpose='recent-activity'>
       {/* Header */}
-      <div className=' px-3 rounded-t-xl pt-2 pb-4  border-2 border-border  bg-se flex items-center justify-between '>
-        <h2 className='text-[13px] font-bold tracking-wide text-secondary uppercase'>
+      <div className='px-3  rounded-t-xl pt-2 pb-4 border-2 border-border  flex items-center justify-between'>
+        <h2 className='text-[13px]  font-bold tracking-wide text-secondary uppercase'>
           Recent Activity
         </h2>
         <Link
@@ -25,13 +26,13 @@ const RecentActivity = () => {
         </Link>
       </div>
 
-      {/* Activity List Container */}
-      <div className='overflow-hidden  bg-white shadow-sm'>
-        <div className='flex flex-col'>
+      {/* Activity List Container - flex-1 and bg-white ensures it fills height */}
+      <div className='flex-1 flex flex-col overflow-hidden bg-white border-x-2 border-b-2 border-border rounded-b-xl shadow-sm'>
+        <div className='flex-1'>
           {recentActivities.map((activity) => (
             <div
               key={activity.id}
-              className='flex items-center justify-between border border-border px-4 py-3.5 last:border-b-0'>
+              className='flex items-center justify-between border-b border-border px-4 py-3.5 last:border-b-0'>
               <div className='flex items-start gap-3'>
                 {/* Status Dot */}
                 <div
@@ -45,23 +46,23 @@ const RecentActivity = () => {
                   )}
                 />
                 <div>
-                  <p className='text-[14px] leading-tight text-slate-800'>
+                  <p className='text-[12px] font-normal  leading-tight text-[#0A0A0A]'>
                     {activity.content}
                   </p>
-                  <p className='mt-0.5 text-[12px] text-slate-400'>
+                  <p className='mt-0.5 text-[12px] text-text-placeholder'>
                     {activity.user}
                   </p>
                 </div>
               </div>
-              <span className='ml-4 whitespace-nowrap text-[12px] text-slate-400'>
+              <span className='ml-4 whitespace-nowrap text-[12px] text-text-placeholder'>
                 {activity.timestamp}
               </span>
             </div>
           ))}
         </div>
 
-        {/* Load More Button */}
-        <div className='border-t border- bg-white py-4 text-center'>
+        {/* Load More Button - Fixed border misalignment */}
+        <div className='border-t-2 border-border bg-white py-4 text-center mt-auto'>
           <button className='text-[13px] font-medium text-red-600 transition-colors hover:text-red-700'>
             Load more
           </button>
