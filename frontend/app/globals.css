@@ -31,6 +31,9 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
+  --font-inter: var(--font-inter);
+  --font-oswald: var(--font-oswald);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
