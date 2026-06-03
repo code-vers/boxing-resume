@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import { dashboardOverview } from "@/constants/seed-data";
-import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
 /**
  * @component KorateOverview
@@ -14,10 +13,10 @@ const KorateOverview = () => {
   const { title, stats } = dashboardOverview;
 
   return (
-    <section className='mx-auto  rounded-lg border border-border bg-primary-foreground mt-12 p-6 shadow-sm'>
+    <section className='mx-auto rounded-lg border-2 border-card-border bg-section-bg p-6'>
       {/* Section Header */}
       <header className='mb-6'>
-        <h2 className='font-oswald text-sm font-semibold tracking-wider text-foreground text-[18px] uppercase'>
+        <h2 className='text-[13px] font-bold tracking-widest text-secondary uppercase'>
           {title}
         </h2>
       </header>
@@ -27,12 +26,12 @@ const KorateOverview = () => {
         {stats.map((stat, index) => (
           <article
             key={`${stat.label}-${index}`}
-            className='flex h-48 flex-col justify-between rounded-xl border border-border  bg-white p-4'>
+            className='flex h-48 flex-col justify-between rounded-lg border-2 border-card-border bg-card p-5'>
             <div>
-              <h3 className='mb-2 text-[11px] tracking-[0.66px]   text-text-placeholder uppercase'>
+              <h3 className='mb-2 text-[11px] tracking-wider text-text-placeholder uppercase'>
                 {stat.label}
               </h3>
-              <p className='font-oswald py-2 text-foreground mb-3 text-4xl font-semibold '>
+              <p className='font-heading py-2 text-text-primary mb-3 text-4xl font-bold'>
                 {stat.value}
               </p>
 
@@ -41,9 +40,9 @@ const KorateOverview = () => {
                 <div
                   className={cn(
                     "flex items-center text-[11px] font-medium",
-                    stat.trend.type === "up" && "text-emerald-500",
-                    stat.trend.type === "down" && "text-red-500",
-                    stat.trend.type === "stable" && "text-slate-400",
+                    stat.trend.type === "up" && "text-emerald-600",
+                    stat.trend.type === "down" && "text-btn-primary",
+                    stat.trend.type === "stable" && "text-text-placeholder",
                   )}>
                   {stat.trend.type === "up" && (
                     <ArrowUp className='mr-1 h-3 w-3' />
@@ -62,7 +61,7 @@ const KorateOverview = () => {
             </div>
 
             {/* Source Footer */}
-            <div className='mt-4 px-3 py-1 flex items-center border border-border  text-xs text-slate-400'>
+            <div className='mt-4 px-3 py-2 flex items-center border border-card-border rounded text-xs text-text-placeholder'>
               <span
                 className='mr-2 text-lg'
                 role='img'

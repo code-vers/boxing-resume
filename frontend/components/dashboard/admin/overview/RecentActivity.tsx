@@ -61,7 +61,7 @@ const RecentActivity = () => {
         </div>
 
         {/* Load More Button */}
-        <div className='border-t border-border bg-white py-4 text-center'>
+        <div className='border-t border- bg-white py-4 text-center'>
           <button className='text-[13px] font-medium text-red-600 transition-colors hover:text-red-700'>
             Load more
           </button>

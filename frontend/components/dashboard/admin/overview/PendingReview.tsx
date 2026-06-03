@@ -29,17 +29,19 @@ const PendingReview = () => {
                 <span
                   className={cn(
                     "rounded px-2 py-1 text-[10px] font-bold tracking-wider uppercase",
-                    review.category === "Fighter" && "bg-indigo-50 text-indigo-700",
-                    review.category === "Result" && "bg-emerald-50 text-emerald-700",
+                    review.category === "Fighter" &&
+                      "bg-indigo-50 text-indigo-700",
+                    review.category === "Result" &&
+                      "bg-emerald-50 text-emerald-700",
                     review.category === "Belt" && "bg-red-50 text-red-700",
-                    review.category === "User" && "bg-blue-50 text-blue-700"
+                    review.category === "User" && "bg-blue-50 text-blue-700",
                   )}>
                   {review.category}
                 </span>
                 <p className='text-[14px] text-slate-800'>{review.content}</p>
               </div>
               <div className='ml-4 flex flex-col items-end gap-1.5'>
-                <button className='rounded bg-[#d92d20] px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-red-700'>
+                <button className='rounded bg-[#d92d20] px-3 py-1  text-[12px] font-medium text-white transition-colors hover:bg-red-700'>
                   Review
                 </button>
                 <button className='text-[11px] text-slate-400 transition-colors hover:text-slate-600'>
