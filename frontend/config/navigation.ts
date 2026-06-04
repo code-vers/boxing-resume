@@ -36,7 +36,7 @@ export const DASHBOARD_NAVIGATION: Record<
       icon: Dumbbell,
     },
     { label: "Match Records", href: "/dashboard/match-records", icon: Trophy },
-    { label: "Bouts & Rings", href: "/dashboard/bouts", icon: Zap },
+    { label: "Belts", href: "/dashboard/belts", icon: Zap },
     { label: "Rankings", href: "/dashboard/rankings", icon: Trophy },
     { label: "Events Management", href: "/dashboard/events", icon: Calendar },
     { label: "User Management", href: "/dashboard/users", icon: Users },
