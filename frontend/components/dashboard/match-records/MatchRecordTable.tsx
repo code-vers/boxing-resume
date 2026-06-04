@@ -30,7 +30,7 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
       case WinMethod.KO:
       case WinMethod.TKO:
         return (
-          <Badge className='bg-red-50 text-red-600 border-none shadow-none font-bold uppercase text-[10px] px-2 py-0.5'>
+          <Badge className='bg-red-50 text-red-600 border-none shadow-none font-medium uppercase text-[10px] px-2 py-0.5'>
             {method}
           </Badge>
         );
@@ -57,11 +57,11 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
   };
 
   return (
-    <div className='bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden'>
+    <div className='bg-white rounded-xl shadow-sm border border-[#e8e2d8] overflow-hidden'>
       <div className='overflow-x-auto'>
         <Table className='whitespace-nowrap'>
           <TableHeader>
-            <TableRow className='border-slate-100 hover:bg-transparent'>
+            <TableRow className='border-[#e8e2d8] hover:bg-transparent'>
               <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
                 Date
               </TableHead>
@@ -96,8 +96,8 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
               matches.map((match) => (
                 <TableRow
                   key={match.id}
-                  className='hover:bg-slate-50/50 transition-colors border-slate-100'>
-                  <td className='px-6 py-5 text-sm text-[#656464] font-medium'>
+                  className='hover:bg-slate-50/50 transition-colors border-[#e8e2d8]'>
+                  <td className='px-6 py-5 text-[11px] text-[#857F78] font-normal'>
                     {format(new Date(match.date), "MMM d, yyyy")}
                   </td>
                   <td className='px-6 py-5'>
@@ -116,7 +116,7 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
                         )}
                       </div>
                       <div className='ml-3'>
-                        <div className='text-sm font-bold text-emerald-600'>
+                        <div className='text-[12px] font-medium text-[#166534]'>
                           {match.winner.firstName} {match.winner.lastName}
                         </div>
                       </div>
@@ -126,7 +126,7 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
                     <div className='flex items-center'>
                       <div className='flex-shrink-0 h-8 w-8 rounded-full bg-slate-100 overflow-hidden'>
                         {match.loser.image ? (
-                          <img
+                          <Image
                             src={match.loser.image}
                             alt={match.loser.firstName}
                             className='h-full w-full object-cover'
@@ -138,17 +138,19 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
                         )}
                       </div>
                       <div className='ml-3'>
-                        <div className='text-sm font-bold text-primary'>
+                        <div className='text-[12px] font-normal text-[#991B1B]'>
                           {match.loser.firstName} {match.loser.lastName}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className='px-6 py-5'>{getMethodBadge(match.method)}</td>
-                  <td className='px-6 py-5 text-sm text-slate-900 font-bold'>
+                  <td className='px-6 py-5 text-[10px]'>
+                    {getMethodBadge(match.method)}
+                  </td>
+                  <td className='px-6 py-5 text-[11px] text-slate-900 font-normal'>
                     {match.round} / 12
                   </td>
-                  <td className='px-6 py-5 text-sm text-slate-900 font-bold capitalize'>
+                  <td className='px-6 py-5 text-[12px] text-slate-900 font-normal capitalize'>
                     {match.weight}
                   </td>
                   <td className='px-6 py-5 text-center'>
@@ -158,22 +160,20 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
                       <span className='text-slate-300'>-</span>
                     )}
                   </td>
-                  <td className='px-6 py-5 text-sm text-slate-400 font-medium'>
+                  <td className='px-6 py-5 text-[11px] text-[#857F78] font-medium'>
                     {match.event.eventName}
                   </td>
-                  <td className='px-6 py-5 text-sm font-bold'>
-                    <div className='flex gap-3'>
-                      <button className='text-primary hover:underline'>
-                        Edit
-                      </button>
-                      <button className='text-[#656464] hover:text-slate-800 hover:underline'>
-                        View
-                      </button>
-                      <button className='text-primary hover:underline'>
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+                  <TableCell className='px-6 text-[11px] py-4 whitespace-nowrap text-sm font-medium'>
+                    <button className='text-[#dc2626] text-[11px] hover:text-[#b91c1c] mr-3 font-semibold transition-colors'>
+                      Edit
+                    </button>
+                    <button className='text-slate-600 text-[11px] hover:text-slate-900 mr-3 font-semibold transition-colors'>
+                      View
+                    </button>
+                    <button className='text-[#dc2626] text-[11px] hover:text-[#b91c1c] font-semibold transition-colors'>
+                      Delete
+                    </button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
