@@ -26,21 +26,24 @@ interface RankingTabsProps {
  */
 export function RankingTabs({ activeTab, onTabChange }: RankingTabsProps) {
   return (
-    <nav aria-label="Weight Classes" className="bg-white rounded-md shadow-sm overflow-hidden flex whitespace-nowrap overflow-x-auto no-scrollbar">
-      <ul className="flex w-full items-center text-sm font-medium text-slate-600">
+    <nav
+      aria-label='Weight Classes'
+      className='bg-white mt-16 rounded-md shadow-sm overflow-hidden flex whitespace-nowrap overflow-x-auto no-scrollbar'>
+      <ul className='flex w-full items-center text-sm font-medium text-slate-600'>
         {weightClasses.map((weight) => (
-          <li key={weight} className="relative">
+          <li key={weight} className='relative'>
             <button
               onClick={() => onTabChange(weight)}
               className={cn(
-                "inline-block py-3 px-6 transition-colors",
-                activeTab === weight ? "text-slate-900" : "hover:text-slate-900"
-              )}
-            >
+                "inline-block cursor-pointer py-3 px-6 transition-colors",
+                activeTab === weight
+                  ? "text-[#0A0A0A]"
+                  : "text-[#857F78] text-[12px]",
+              )}>
               {weight}
             </button>
             {activeTab === weight && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
+              <div className='absolute bottom-0 left-0 w-full h-0.5 bg-primary' />
             )}
           </li>
         ))}
