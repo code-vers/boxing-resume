@@ -14,7 +14,10 @@ import {
   LogOut,
 } from "lucide-react";
 
-export const DASHBOARD_NAVIGATION: Record<Role, { label: string; href: string; icon: any }[]> = {
+export const DASHBOARD_NAVIGATION: Record<
+  Role,
+  { label: string; href: string; icon: any }[]
+> = {
   [ROLES.USER]: [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "My Profile", href: "/dashboard/profile", icon: Users },
@@ -26,8 +29,12 @@ export const DASHBOARD_NAVIGATION: Record<Role, { label: string; href: string; i
   ],
   [ROLES.ADMIN]: [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Stats & Reports", href: "/dashboard/stats", icon: BarChart3 },
-    { label: "Fighter Management", href: "/dashboard/fighters", icon: Dumbbell },
+    { label: "Stats & Reports", href: "/dashboard/reports", icon: BarChart3 },
+    {
+      label: "Fighter Management",
+      href: "/dashboard/fighters",
+      icon: Dumbbell,
+    },
     { label: "Match Records", href: "/dashboard/matches", icon: Trophy },
     { label: "Bouts & Rings", href: "/dashboard/bouts", icon: Zap },
     { label: "Rankings", href: "/dashboard/rankings", icon: Trophy },

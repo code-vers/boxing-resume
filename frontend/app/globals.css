@@ -33,6 +33,7 @@
 
   --font-inter: var(--font-inter);
   --font-oswald: var(--font-oswald);
+  --font-bebas: var(--font-bebas-neue);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
