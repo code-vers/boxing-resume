@@ -40,13 +40,15 @@ export function FighterFilters({
   };
 
   return (
-    <div className='space-y-4`'>
+    <div className='space-y-10 mb-28`'>
       <div className='flex min-h-10.5 w-full items-start justify-between bg-transparent'>
         <button
           type='button'
-          className='inline-flex h-8 items-center gap-2.25 rounded-[3px] bg-[#dc2626] px-4.5 text-[10px] font-semibold leading-none text-white transition-colors hover:bg-[#b91c1c]'>
+          className='inline-flex   py-3 items-center gap-2.25 rounded-[3px] bg-[#dc2626] px-4.5 text-[10px] font-semibold leading-none text-white transition-colors hover:bg-[#b91c1c]'>
           <Plus className='h-3 w-3 stroke-[2.5]' />
-          <span>ADD FIGHTER</span>
+          <span className='font-bebas font-normal text-[14px]'>
+            ADD FIGHTER
+          </span>
         </button>
 
         <div className='flex items-center gap-2'>
