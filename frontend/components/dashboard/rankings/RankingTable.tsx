@@ -28,33 +28,33 @@ export function RankingTable({ rankings }: RankingTableProps) {
     <div className='bg-white shadow-sm rounded-lg overflow-hidden border border-slate-100'>
       <div className='overflow-x-auto'>
         <table className='min-w-full divide-y divide-slate-200 text-sm'>
-          <thead className='bg-white'>
-            <tr className='text-[12px]'>
-              <th className='px-6 py-4 text-left font-semibold text-[#656464] uppercase tracking-wider '>
+          <thead className='bg-white border-b border-gray-200'>
+            <tr>
+              <th className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Rank
               </th>
-              <th className='px-6 py-4 text-left font-semibold text-[#656464] uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Fighter
               </th>
-              <th className='px-6 py-4 text-center font-semibold text-[#656464] uppercase tracking-wider w-28'>
+              <th className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-28'>
                 Record
               </th>
-              <th className='px-6 py-4 text-[12px] text-center font-semibold text-[#656464] uppercase tracking-wider w-24'>
+              <th className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-24'>
                 KOs
               </th>
-              <th className='px-6 py-4 text-[12px] text-center font-semibold text-[#656464] uppercase tracking-wider w-32'>
+              <th className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-32'>
                 Last 6
               </th>
-              <th className='px-6 py-4 text-[12px] text-center font-semibold text-[#656464] uppercase tracking-wider w-24'>
+              <th className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-24'>
                 Rating
               </th>
-              <th className='px-6 py-4 text-[12px] text-center font-semibold text-[#656464] uppercase tracking-wider w-24'>
+              <th className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-24'>
                 Change
               </th>
-              <th className='px-6 py-4 text-[12px] text-center font-semibold text-[#656464] uppercase tracking-wider w-28'>
+              <th className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-28'>
                 Status
               </th>
-              <th className='px-6 py-4 text-[12px] text-right font-semibold text-[#656464] uppercase tracking-wider w-24'>
+              <th className='px-6 py-4 text-right font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider w-24'>
                 Actions
               </th>
             </tr>

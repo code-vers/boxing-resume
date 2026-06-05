@@ -34,16 +34,15 @@ export default function RankingManagementPage() {
 
   return (
     <div className='mx-auto space-y-6 pb-10'>
-      {/* 1. Page Header with Title (Consistent with other dashboard pages) */}
-      <div className='mb-6'>
-        <h1 className='font-bebas text-4xl text-black mb-1 tracking-wider uppercase'>
-          WORLD RANKINGS
+      {/* 1. Page Header with Title */}
+      <header className='mb-8'>
+        <h1 className='text-3xl font-bold text-gray-900 tracking-tight uppercase font-heading'>
+          Belts & Titles
         </h1>
-        <p className='text-slate-500 text-sm'>
-          Update and maintain official world rankings across all professional
-          divisions.
+        <p className='text-sm text-gray-500 mt-1'>
+          Manage weight class rankings and pound-for-pound list.
         </p>
-      </div>
+      </header>
 
       {/* 2. Weight Class Navigation Tabs */}
       <RankingTabs activeTab={activeTab} onTabChange={setActiveTab} />

@@ -71,27 +71,27 @@ export function BeltTable({ belts }: BeltTableProps) {
     <div className='bg-white shadow-sm rounded-lg overflow-hidden border border-slate-100'>
       <div className='overflow-x-auto'>
         <table className='min-w-full divide-y divide-slate-200 text-sm'>
-          <thead className='bg-slate-50/50'>
+          <thead className='bg-white border-b border-gray-200'>
             <tr>
-              <th className='py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-[#656464] uppercase tracking-wider sm:pl-6'>
+              <th className='py-4 pl-6 pr-3 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Belt Name
               </th>
-              <th className='px-3 py-3.5 text-center text-xs font-semibold text-[#656464] uppercase tracking-wider'>
+              <th className='px-3 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 ORG
               </th>
-              <th className='px-3 py-3.5 text-center text-xs font-semibold text-[#656464] uppercase tracking-wider'>
+              <th className='px-3 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Tier
               </th>
-              <th className='px-3 py-3.5 text-left text-xs font-semibold text-[#656464] uppercase tracking-wider'>
+              <th className='px-3 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Division
               </th>
-              <th className='px-3 py-3.5 text-left text-xs font-semibold text-[#656464] uppercase tracking-wider'>
+              <th className='px-3 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Held Since
               </th>
-              <th className='px-3 py-3.5 text-center text-xs font-semibold text-[#656464] uppercase tracking-wider'>
+              <th className='px-3 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Status
               </th>
-              <th className='py-3.5 pl-3 pr-4 text-center text-xs font-semibold text-[#656464] uppercase tracking-wider sm:pr-6'>
+              <th className='py-4 pl-3 pr-6 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Actions
               </th>
             </tr>
@@ -99,13 +99,13 @@ export function BeltTable({ belts }: BeltTableProps) {
           <tbody className='divide-y divide-slate-100 bg-white'>
             {belts.map((belt) => (
               <tr key={belt.id} className='hover:bg-slate-50 transition-colors'>
-                <td className='whitespace-nowrap py-4 pl-4 pr-3 font-medium text-[12px]  text-[#0A0A0A] sm:pl-6'>
+                <td className='whitespace-nowrap py-4 pl-6 pr-3 font-medium text-[12px] text-[#0A0A0A]'>
                   {belt.name}
                 </td>
                 <td className='whitespace-nowrap px-3 py-4 text-center'>
                   <span
                     className={cn(
-                      "inline-flex fontb items-center justify-center px-2 py-1 text-[10px] font-bold rounded uppercase",
+                      "inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold rounded uppercase",
                       getOrgStyles(belt.org),
                     )}>
                     {belt.org}
@@ -135,7 +135,7 @@ export function BeltTable({ belts }: BeltTableProps) {
                     {belt.status}
                   </span>
                 </td>
-                <td className='relative whitespace-nowrap py-4 pl-3 pr-4 text-center sm:pr-6'>
+                <td className='relative whitespace-nowrap py-4 pl-3 pr-6 text-center'>
                   <button className='text-primary hover:text-red-900 font-medium text-[11px]'>
                     Edit
                   </button>
