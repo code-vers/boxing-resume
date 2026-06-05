@@ -12,14 +12,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='min-h-screen pb-8 bg-background md:flex overflow-hidden'>
+      {/* Mobile Header */}
       <div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden'>
         <div className='flex items-center gap-3'>
-          <span className='flex h-9 w-9 items-center justify-center rounded-xl bg-[#e8f0df] text-[#516933]'>
-            <span className='text-lg font-black'>V</span>
-          </span>
           <div>
-            <p className='text-sm font-semibold text-slate-900'>Veritas</p>
-            <p className='text-xs text-slate-500'>Dashboard</p>
+            <h1 className='font-heading text-2xl font-bold tracking-wider leading-none text-gray-900'>
+              BOXING
+            </h1>
+            <p className='font-heading text-primary text-xs tracking-widest mt-1 uppercase font-semibold'>
+              Resume
+            </p>
           </div>
         </div>
 
