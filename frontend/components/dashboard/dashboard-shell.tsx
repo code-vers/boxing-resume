@@ -1,8 +1,9 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { Topbar } from "@/components/dashboard/topbar";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -11,15 +12,17 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const closeMobileSidebar = () => setIsMobileOpen(false);
 
   return (
-    <div className='min-h-screen bg-slate-50 md:flex'>
-      <div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden'>
+    <div className='h-screen bg-background md:flex overflow-hidden'>
+      {/* Mobile Header */}
+      <div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden shrink-0'>
         <div className='flex items-center gap-3'>
-          <span className='flex h-9 w-9 items-center justify-center rounded-xl bg-[#e8f0df] text-[#516933]'>
-            <span className='text-lg font-black'>V</span>
-          </span>
           <div>
-            <p className='text-sm font-semibold text-slate-900'>Veritas</p>
-            <p className='text-xs text-slate-500'>Dashboard</p>
+            <h1 className='font-heading text-2xl font-bold tracking-wider leading-none text-gray-900'>
+              BOXING
+            </h1>
+            <p className='font-heading text-primary text-xs tracking-widest mt-1 uppercase font-semibold'>
+              Resume
+            </p>
           </div>
         </div>
 
@@ -39,7 +42,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         onCloseMobile={closeMobileSidebar}
       />
 
-      <main className='flex-1 p-4 md:p-8'>{children}</main>
+      {/* Main Content Wrapper */}
+      <div className='flex-1 flex flex-col min-w-0 h-full'>
+        <Topbar />
+        <main className='flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar bg-background'>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
