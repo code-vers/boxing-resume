@@ -48,7 +48,7 @@ export default function UserManagementPage() {
   }, [filters]);
 
   return (
-    <div className='mx-auto space-y-6 pb-10'>
+    <div className='mx-auto space-y-6 pb-10 overflow-x-hidden'>
       {/* 1. Page Header */}
       <UserHeader />
 

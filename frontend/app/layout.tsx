@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Oswald, Bebas_Neue } from "next/font/google";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { Providers } from "@/providers/app-providers";
 
