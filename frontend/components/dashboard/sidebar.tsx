@@ -126,7 +126,7 @@ export function Sidebar({
         </div>
 
         {/* Navigation Menu */}
-        <nav className='flex-1 overflow-y-auto py-4 scrollbar-hide'>
+        <nav className='flex-1 overflow-y-auto py-4 sidebar-scrollbar'>
           {/* MAIN Section */}
           {mainItems.length > 0 && (
             <div className='mb-6'>
