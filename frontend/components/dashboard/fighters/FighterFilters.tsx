@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Download, Plus, Search, Upload } from "lucide-react";
 import { FighterStatus } from "@/types/Fighter.types";
 import { cn } from "@/lib/utils";
+import { AddFighterDrawer } from "./AddFighterDrawer";
 
 export type FighterStatusFilter = "all" | FighterStatus | "pending_review";
 
@@ -35,15 +36,18 @@ export function FighterFilters({
   divisions,
   onChange,
 }: FighterFiltersProps) {
+  const [isAddFighterOpen, setIsAddFighterOpen] = useState(false);
+
   const updateFilters = (nextValues: Partial<FighterFilterValues>) => {
     onChange({ ...values, ...nextValues });
   };
 
   return (
-    <div className='space-y-4`'>
+    <div className='space-y-4'>
       <div className='flex min-h-10.5 w-full items-start justify-between bg-transparent'>
         <button
           type='button'
+          onClick={() => setIsAddFighterOpen(true)}
           className='inline-flex h-8 items-center gap-2.25 rounded-[3px] bg-[#dc2626] px-4.5 text-[10px] font-semibold leading-none text-white transition-colors hover:bg-[#b91c1c]'>
           <Plus className='h-3 w-3 stroke-[2.5]' />
           <span>ADD FIGHTER</span>
@@ -65,7 +69,7 @@ export function FighterFilters({
         </div>
       </div>
 
-      <div className='flex min-h-16` w-full flex-col items-stretch gap-2.25 rounded-[5px] border border-[#e3ded4] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] lg:flex-row lg:items-center llg:gap-2'>
+      <div className='flex min-h-16 w-full flex-col items-stretch gap-2.25 rounded-[5px] border border-[#e3ded4] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] lg:flex-row lg:items-center lg:gap-2'>
         <div className='relative min-w-0 flex-1 lg:max-w-175'>
           <Search className='pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#8a867f]' />
           <input
@@ -104,6 +108,13 @@ export function FighterFilters({
           ))}
         </div>
       </div>
+
+      {/* Add Fighter Side Drawer */}
+      <AddFighterDrawer
+        isOpen={isAddFighterOpen}
+        onClose={() => setIsAddFighterOpen(false)}
+        divisions={divisions}
+      />
     </div>
   );
 }
