@@ -11,6 +11,8 @@ import {
 import { IOverviewData } from "../types/Overview.types";
 import { IRecentActivity, IPendingReview } from "../types/Dashboard.types";
 import { IReportsData } from "../types/Reports.types";
+import { IUser, UserStatus } from "../types/User.types";
+import { ROLES } from "./roles";
 
 /**
  * ==========================================
@@ -242,6 +244,97 @@ export const statsAndReportsData: IReportsData = {
     { id: 5, role: "Referee", total: 112, active: 95, notable: "Kenny Bayless" },
   ],
 };
+
+/**
+ * ==========================================
+ * USER MANAGEMENT DATA
+ * ==========================================
+ */
+
+/**
+ * @const userManagementStats
+ * @description Statistics for the User Management dashboard.
+ */
+export const userManagementStats = [
+  {
+    label: "TOTAL USERS",
+    value: "12,384",
+    trend: { value: "+156", label: "this month", type: "up" },
+  },
+  {
+    label: "ACTIVE TODAY",
+    value: "2,847",
+    trend: { value: "+43", label: "today", type: "up" },
+  },
+  {
+    label: "NEW THIS MONTH",
+    value: "156",
+    trend: { value: "+12", label: "this week", type: "up" },
+  },
+  {
+    label: "PENDING VERIFICATION",
+    value: "23",
+    trend: { value: "-5", label: "today", type: "down" },
+  },
+];
+
+/**
+ * @const users
+ * @type {IUser[]}
+ * @description Global list of all users for administrative management.
+ */
+export const users: IUser[] = [
+  {
+    id: "u1",
+    username: "boxing_fan_2024",
+    fullName: "John Smith",
+    email: "john.smith@email.com",
+    role: ROLES.USER,
+    submissions: 12,
+    joinedDate: new Date("2024-12-15"),
+    status: UserStatus.ACTIVE,
+  },
+  {
+    id: "u2",
+    username: "ring_master_99",
+    fullName: "Sarah Johnson",
+    email: "sarah.j@example.com",
+    role: ROLES.ADMIN,
+    submissions: 45,
+    joinedDate: new Date("2023-11-20"),
+    status: UserStatus.ACTIVE,
+  },
+  {
+    id: "u3",
+    username: "corner_man_mike",
+    fullName: "Michael Brown",
+    email: "mike.b@boxing.com",
+    role: ROLES.USER,
+    submissions: 5,
+    joinedDate: new Date("2024-01-10"),
+    status: UserStatus.PENDING,
+  },
+  {
+    id: "u4",
+    username: "punch_driller",
+    fullName: "David Wilson",
+    email: "david.w@email.net",
+    role: ROLES.USER,
+    submissions: 28,
+    joinedDate: new Date("2023-05-14"),
+    status: UserStatus.SUSPENDED,
+  },
+  {
+    id: "u5",
+    username: "gloves_off",
+    fullName: "Emily Davis",
+    email: "emily.d@boxing-fan.com",
+    role: ROLES.USER,
+    submissions: 0,
+    joinedDate: new Date("2024-05-02"),
+    status: UserStatus.ACTIVE,
+  },
+];
 
 /**
  * ==========================================
