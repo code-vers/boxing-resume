@@ -11,9 +11,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const closeMobileSidebar = () => setIsMobileOpen(false);
 
   return (
-    <div className='min-h-screen pb-8 bg-background md:flex overflow-hidden'>
+    <div className='h-screen bg-background md:flex overflow-hidden'>
       {/* Mobile Header */}
-      <div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden'>
+      <div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden shrink-0'>
         <div className='flex items-center gap-3'>
           <div>
             <h1 className='font-heading text-2xl font-bold tracking-wider leading-none text-gray-900'>
@@ -41,7 +41,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         onCloseMobile={closeMobileSidebar}
       />
 
-      <main className='flex-1 p-4 md:p-8 pb-1 md:pb-1 overflow-x-hidden'>
+      <main className='flex-1 h-full p-4 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar'>
         {children}
       </main>
     </div>
