@@ -29,7 +29,7 @@ export function SecuritySettings() {
         {/* Session Timeout */}
         <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
           <div>
-            <h3 className='text-[12px] font-medium   tracking-wide'>
+            <h3 className='text-[12px] font-medium text-[#0A0A0A]   tracking-wide'>
               Session Timeout
             </h3>
             <p className='text-[11px] font-normal text-[#857F78]'>
