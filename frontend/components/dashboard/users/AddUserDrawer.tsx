@@ -4,29 +4,22 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface AddFighterDrawerProps {
+interface AddUserDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  divisions: string[];
 }
 
 /**
- * @component AddFighterDrawer
- * @description A side drawer that slides in from the right to add a new fighter.
+ * @component AddUserDrawer
+ * @description A side drawer that slides in from the right to add a new user.
  */
-export function AddFighterDrawer({
-  isOpen,
-  onClose,
-  divisions,
-}: AddFighterDrawerProps) {
+export function AddUserDrawer({ isOpen, onClose }: AddUserDrawerProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      // Double requestAnimationFrame ensures the DOM has painted the initial "hidden" state
-      // before we flip isVisible to true, which guarantees the CSS transition will trigger.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsVisible(true);
@@ -35,7 +28,6 @@ export function AddFighterDrawer({
       document.body.style.overflow = "hidden";
     } else {
       setIsVisible(false);
-      // Wait for transition (500ms) before unmounting
       const timer = setTimeout(() => setShouldRender(false), 500);
       document.body.style.overflow = "unset";
       return () => clearTimeout(timer);
@@ -64,7 +56,7 @@ export function AddFighterDrawer({
         {/* Header */}
         <div className='flex justify-between items-center px-6 pt-6 pb-4 border-b border-[#F5F5F5]'>
           <h2 className='text-xl font-bold text-[#333333] tracking-wide uppercase font-heading'>
-            Add Fighter
+            Add User
           </h2>
           <button
             onClick={onClose}
@@ -77,119 +69,88 @@ export function AddFighterDrawer({
         {/* Body (Form) */}
         <div className='px-6 py-8 flex-grow overflow-y-auto custom-scrollbar'>
           <form className='space-y-6'>
-            {/* First Row: First Name & Last Name */}
+            {/* First Row: Username & Full Name */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='firstName'>
-                  First Name
+                  htmlFor='username'>
+                  Username
                 </label>
                 <input
-                  id='firstName'
+                  id='username'
                   type='text'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='Enter first name'
+                  placeholder='e.g. boxing_fan_2024'
                 />
               </div>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='lastName'>
-                  Last Name
+                  htmlFor='fullName'>
+                  Full Name
                 </label>
                 <input
-                  id='lastName'
+                  id='fullName'
                   type='text'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='Enter last name'
+                  placeholder='e.g. John Smith'
                 />
               </div>
             </div>
 
-            {/* Second Row: Alias / Nickname */}
+            {/* Second Row: Email */}
             <div>
               <label
                 className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                htmlFor='alias'>
-                Alias / Nickname
+                htmlFor='email'>
+                Email Address
               </label>
               <input
-                id='alias'
-                type='text'
+                id='email'
+                type='email'
                 className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                placeholder='e.g. The Monster'
+                placeholder='e.g. john.smith@example.com'
               />
             </div>
 
-            {/* Third Row: DOB & Nationality */}
+            {/* Third Row: Role & Status */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='dob'>
-                  Date of Birth
+                  htmlFor='role'>
+                  Role
                 </label>
-                <input
-                  id='dob'
-                  type='text'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='YYYY-MM-DD'
-                />
+                <select
+                  id='role'
+                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
+                  <option value='USER'>User</option>
+                  <option value='ADMIN'>Admin</option>
+                </select>
               </div>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='nationality'>
-                  Nationality
+                  htmlFor='status'>
+                  Account Status
                 </label>
                 <select
-                  id='nationality'
+                  id='status'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Nationality</option>
-                  <option value='USA'>USA</option>
-                  <option value='Mexico'>Mexico</option>
-                  <option value='UK'>United Kingdom</option>
-                  <option value='Ukraine'>Ukraine</option>
-                  <option value='Japan'>Japan</option>
+                  <option value='active'>Active</option>
+                  <option value='suspended'>Suspended</option>
+                  <option value='pending'>Pending</option>
                 </select>
               </div>
             </div>
 
-            {/* Fourth Row: Weight Division & Stance */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='weightDivision'>
-                  Weight Division
-                </label>
-                <select
-                  id='weightDivision'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Division</option>
-                  {divisions.map((division) => (
-                    <option key={division} value={division}>
-                      {division}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='stance'>
-                  Stance
-                </label>
-                <select
-                  id='stance'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Stance</option>
-                  <option value='Orthodox'>Orthodox</option>
-                  <option value='Southpaw'>Southpaw</option>
-                  <option value='Switch'>Switch</option>
-                </select>
-              </div>
+            {/* Fourth Row: Password Setup Note */}
+            <div className='bg-gray-50 border border-[#E0E0E0] rounded-[4px] p-4'>
+              <p className='text-xs text-[#757575]'>
+                A temporary password will be automatically generated and sent to
+                the user's email address upon creation.
+              </p>
             </div>
           </form>
         </div>
@@ -199,7 +160,7 @@ export function AddFighterDrawer({
           <button
             type='button'
             className='bg-[#D32F2F] hover:bg-[#B71C1C] text-white px-10 py-2.5 rounded-[4px] text-xs tracking-widest font-bold uppercase font-heading transition-all duration-200 active:scale-[0.98] shadow-sm'>
-            Save Fighter
+            Save User
           </button>
           <button
             type='button'

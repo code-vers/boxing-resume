@@ -4,29 +4,22 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface AddFighterDrawerProps {
+interface AddBeltDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  divisions: string[];
 }
 
 /**
- * @component AddFighterDrawer
- * @description A side drawer that slides in from the right to add a new fighter.
+ * @component AddBeltDrawer
+ * @description A side drawer that slides in from the right to add a new belt.
  */
-export function AddFighterDrawer({
-  isOpen,
-  onClose,
-  divisions,
-}: AddFighterDrawerProps) {
+export function AddBeltDrawer({ isOpen, onClose }: AddBeltDrawerProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      // Double requestAnimationFrame ensures the DOM has painted the initial "hidden" state
-      // before we flip isVisible to true, which guarantees the CSS transition will trigger.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsVisible(true);
@@ -35,7 +28,6 @@ export function AddFighterDrawer({
       document.body.style.overflow = "hidden";
     } else {
       setIsVisible(false);
-      // Wait for transition (500ms) before unmounting
       const timer = setTimeout(() => setShouldRender(false), 500);
       document.body.style.overflow = "unset";
       return () => clearTimeout(timer);
@@ -64,7 +56,7 @@ export function AddFighterDrawer({
         {/* Header */}
         <div className='flex justify-between items-center px-6 pt-6 pb-4 border-b border-[#F5F5F5]'>
           <h2 className='text-xl font-bold text-[#333333] tracking-wide uppercase font-heading'>
-            Add Fighter
+            Add New Belt
           </h2>
           <button
             onClick={onClose}
@@ -77,117 +69,90 @@ export function AddFighterDrawer({
         {/* Body (Form) */}
         <div className='px-6 py-8 flex-grow overflow-y-auto custom-scrollbar'>
           <form className='space-y-6'>
-            {/* First Row: First Name & Last Name */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='firstName'>
-                  First Name
-                </label>
-                <input
-                  id='firstName'
-                  type='text'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='Enter first name'
-                />
-              </div>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='lastName'>
-                  Last Name
-                </label>
-                <input
-                  id='lastName'
-                  type='text'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='Enter last name'
-                />
-              </div>
-            </div>
-
-            {/* Second Row: Alias / Nickname */}
+            {/* First Row: Belt Name */}
             <div>
               <label
                 className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                htmlFor='alias'>
-                Alias / Nickname
+                htmlFor='beltName'>
+                Belt Name
               </label>
               <input
-                id='alias'
+                id='beltName'
                 type='text'
                 className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                placeholder='e.g. The Monster'
+                placeholder='e.g. WBC Silver Middle'
               />
             </div>
 
-            {/* Third Row: DOB & Nationality */}
+            {/* Second Row: Organization & Tier */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='dob'>
-                  Date of Birth
+                  htmlFor='org'>
+                  Organization
                 </label>
-                <input
-                  id='dob'
-                  type='text'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='YYYY-MM-DD'
-                />
+                <select
+                  id='org'
+                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
+                  <option value=''>Select ORG</option>
+                  <option value='WBC'>WBC</option>
+                  <option value='WBA'>WBA</option>
+                  <option value='IBF'>IBF</option>
+                  <option value='WBO'>WBO</option>
+                  <option value='IBO'>IBO</option>
+                </select>
               </div>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='nationality'>
-                  Nationality
+                  htmlFor='tier'>
+                  Tier
                 </label>
                 <select
-                  id='nationality'
+                  id='tier'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Nationality</option>
-                  <option value='USA'>USA</option>
-                  <option value='Mexico'>Mexico</option>
-                  <option value='UK'>United Kingdom</option>
-                  <option value='Ukraine'>Ukraine</option>
-                  <option value='Japan'>Japan</option>
+                  <option value=''>Select Tier</option>
+                  <option value='World'>World Title</option>
+                  <option value='Intercontinental'>Intercontinental</option>
+                  <option value='Continental'>Continental</option>
+                  <option value='National'>National / Regional</option>
                 </select>
               </div>
             </div>
 
-            {/* Fourth Row: Weight Division & Stance */}
+            {/* Third Row: Division & Status */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='weightDivision'>
-                  Weight Division
+                  htmlFor='division'>
+                  Division
                 </label>
                 <select
-                  id='weightDivision'
+                  id='division'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
                   <option value=''>Select Division</option>
-                  {divisions.map((division) => (
-                    <option key={division} value={division}>
-                      {division}
-                    </option>
-                  ))}
+                  <option value='Heavyweight'>Heavyweight</option>
+                  <option value='Cruiserweight'>Cruiserweight</option>
+                  <option value='Light Heavyweight'>Light Heavyweight</option>
+                  <option value='Super Middleweight'>Super Middleweight</option>
+                  <option value='Middleweight'>Middleweight</option>
+                  <option value='Welterweight'>Welterweight</option>
                 </select>
               </div>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='stance'>
-                  Stance
+                  htmlFor='status'>
+                  Status
                 </label>
                 <select
-                  id='stance'
+                  id='status'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Stance</option>
-                  <option value='Orthodox'>Orthodox</option>
-                  <option value='Southpaw'>Southpaw</option>
-                  <option value='Switch'>Switch</option>
+                  <option value='Vacant'>Vacant</option>
+                  <option value='Active'>Active</option>
+                  <option value='Interim'>Interim</option>
                 </select>
               </div>
             </div>
@@ -199,7 +164,7 @@ export function AddFighterDrawer({
           <button
             type='button'
             className='bg-[#D32F2F] hover:bg-[#B71C1C] text-white px-10 py-2.5 rounded-[4px] text-xs tracking-widest font-bold uppercase font-heading transition-all duration-200 active:scale-[0.98] shadow-sm'>
-            Save Fighter
+            Save Belt
           </button>
           <button
             type='button'

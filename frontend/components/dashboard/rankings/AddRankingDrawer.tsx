@@ -4,29 +4,22 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface AddFighterDrawerProps {
+interface AddRankingDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  divisions: string[];
 }
 
 /**
- * @component AddFighterDrawer
- * @description A side drawer that slides in from the right to add a new fighter.
+ * @component AddRankingDrawer
+ * @description A side drawer that slides in from the right to add a fighter to rankings.
  */
-export function AddFighterDrawer({
-  isOpen,
-  onClose,
-  divisions,
-}: AddFighterDrawerProps) {
+export function AddRankingDrawer({ isOpen, onClose }: AddRankingDrawerProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      // Double requestAnimationFrame ensures the DOM has painted the initial "hidden" state
-      // before we flip isVisible to true, which guarantees the CSS transition will trigger.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsVisible(true);
@@ -35,7 +28,6 @@ export function AddFighterDrawer({
       document.body.style.overflow = "hidden";
     } else {
       setIsVisible(false);
-      // Wait for transition (500ms) before unmounting
       const timer = setTimeout(() => setShouldRender(false), 500);
       document.body.style.overflow = "unset";
       return () => clearTimeout(timer);
@@ -64,7 +56,7 @@ export function AddFighterDrawer({
         {/* Header */}
         <div className='flex justify-between items-center px-6 pt-6 pb-4 border-b border-[#F5F5F5]'>
           <h2 className='text-xl font-bold text-[#333333] tracking-wide uppercase font-heading'>
-            Add Fighter
+            Add to Rankings
           </h2>
           <button
             onClick={onClose}
@@ -77,119 +69,107 @@ export function AddFighterDrawer({
         {/* Body (Form) */}
         <div className='px-6 py-8 flex-grow overflow-y-auto custom-scrollbar'>
           <form className='space-y-6'>
-            {/* First Row: First Name & Last Name */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='firstName'>
-                  First Name
-                </label>
-                <input
-                  id='firstName'
-                  type='text'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='Enter first name'
-                />
-              </div>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='lastName'>
-                  Last Name
-                </label>
-                <input
-                  id='lastName'
-                  type='text'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='Enter last name'
-                />
-              </div>
-            </div>
-
-            {/* Second Row: Alias / Nickname */}
+            {/* First Row: Select Fighter */}
             <div>
               <label
                 className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                htmlFor='alias'>
-                Alias / Nickname
+                htmlFor='fighter'>
+                Select Fighter
               </label>
-              <input
-                id='alias'
-                type='text'
-                className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                placeholder='e.g. The Monster'
-              />
+              <select
+                id='fighter'
+                className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
+                <option value=''>Search and select a fighter</option>
+                <option value='f1'>Canelo Alvarez</option>
+                <option value='f2'>Tyson Fury</option>
+                <option value='f3'>Oleksandr Usyk</option>
+                <option value='f4'>Naoya Inoue</option>
+                <option value='f5'>Terence Crawford</option>
+              </select>
             </div>
 
-            {/* Third Row: DOB & Nationality */}
+            {/* Second Row: Division & Rank */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='dob'>
-                  Date of Birth
+                  htmlFor='division'>
+                  Target Division
+                </label>
+                <select
+                  id='division'
+                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
+                  <option value=''>Select Division</option>
+                  <option value='P4P'>Pound for Pound</option>
+                  <option value='Heavyweight'>Heavyweight</option>
+                  <option value='Cruiserweight'>Cruiserweight</option>
+                  <option value='Light Heavyweight'>Light Heavyweight</option>
+                  <option value='Super Middleweight'>Super Middleweight</option>
+                  <option value='Middleweight'>Middleweight</option>
+                  <option value='Welterweight'>Welterweight</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
+                  htmlFor='rank'>
+                  New Rank Position
                 </label>
                 <input
-                  id='dob'
-                  type='text'
+                  id='rank'
+                  type='number'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
-                  placeholder='YYYY-MM-DD'
+                  placeholder='e.g. 1'
+                  min={1}
+                />
+              </div>
+            </div>
+
+            {/* Third Row: Rating & Status */}
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+              <div>
+                <label
+                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
+                  htmlFor='rating'>
+                  Rating Score
+                </label>
+                <input
+                  id='rating'
+                  type='number'
+                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
+                  placeholder='0 - 100'
+                  min={0}
+                  max={100}
                 />
               </div>
               <div>
                 <label
                   className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='nationality'>
-                  Nationality
+                  htmlFor='status'>
+                  Status
                 </label>
                 <select
-                  id='nationality'
+                  id='status'
                   className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Nationality</option>
-                  <option value='USA'>USA</option>
-                  <option value='Mexico'>Mexico</option>
-                  <option value='UK'>United Kingdom</option>
-                  <option value='Ukraine'>Ukraine</option>
-                  <option value='Japan'>Japan</option>
+                  <option value='Active'>Active</option>
+                  <option value='Inactive'>Inactive</option>
                 </select>
               </div>
             </div>
 
-            {/* Fourth Row: Weight Division & Stance */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='weightDivision'>
-                  Weight Division
-                </label>
-                <select
-                  id='weightDivision'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Division</option>
-                  {divisions.map((division) => (
-                    <option key={division} value={division}>
-                      {division}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
-                  htmlFor='stance'>
-                  Stance
-                </label>
-                <select
-                  id='stance'
-                  className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all text-[#333333] cursor-pointer'>
-                  <option value=''>Select Stance</option>
-                  <option value='Orthodox'>Orthodox</option>
-                  <option value='Southpaw'>Southpaw</option>
-                  <option value='Switch'>Switch</option>
-                </select>
-              </div>
+            {/* Fourth Row: Justification Note */}
+            <div>
+              <label
+                className='block text-[10px] font-bold text-[#757575] uppercase mb-1.5 tracking-wider'
+                htmlFor='notes'>
+                Ranking Notes / Justification
+              </label>
+              <textarea
+                id='notes'
+                rows={3}
+                className='w-full border-[#E0E0E0] rounded-[4px] focus:ring-[#D32F2F] focus:border-[#D32F2F] text-sm py-2.5 px-3 outline-none border transition-all placeholder:text-gray-300'
+                placeholder='Briefly explain the reason for this ranking change...'
+              />
             </div>
           </form>
         </div>
@@ -199,7 +179,7 @@ export function AddFighterDrawer({
           <button
             type='button'
             className='bg-[#D32F2F] hover:bg-[#B71C1C] text-white px-10 py-2.5 rounded-[4px] text-xs tracking-widest font-bold uppercase font-heading transition-all duration-200 active:scale-[0.98] shadow-sm'>
-            Save Fighter
+            Save Ranking
           </button>
           <button
             type='button'
