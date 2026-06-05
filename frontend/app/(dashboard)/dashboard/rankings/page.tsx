@@ -33,7 +33,7 @@ export default function RankingManagementPage() {
   }, [search, activeTab]);
 
   return (
-    <div className='mx-auto space-y-6 pb-10'>
+    <div className='mx-auto space-y-6 pb-10 overflow-x-hidden'>
       {/* 1. Page Header with Title */}
       <header className='mb-8'>
         <h1 className='text-3xl font-bold text-gray-900 tracking-tight uppercase font-heading'>
