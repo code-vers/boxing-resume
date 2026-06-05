@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { SettingsHeader } from "@/components/dashboard/settings/SettingsHeader";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { GeneralSettings } from "@/components/dashboard/settings/GeneralSettings";
 import { SecuritySettings } from "@/components/dashboard/settings/SecuritySettings";
 import { SettingsFooter } from "@/components/dashboard/settings/SettingsFooter";
@@ -14,7 +13,10 @@ export default function SettingsPage() {
   return (
     <div className='mx-auto max-w-5xl space-y-6 pb-10'>
       {/* 1. Page Header */}
-      <SettingsHeader />
+      <PageHeader
+        title='Settings'
+        description='System configuration and preferences'
+      />
 
       {/* 2. Main Content Sections */}
       <main className='space-y-6'>
