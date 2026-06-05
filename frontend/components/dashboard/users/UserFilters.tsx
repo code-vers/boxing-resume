@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { ROLES } from "@/constants/roles";
 
 export interface UserFilterValues {
   search: string;
@@ -23,8 +24,8 @@ const statusFilters = [
 
 const roleFilters = [
   { label: "All Roles", value: "all" },
-  { label: "User", value: "USER" },
-  { label: "Admin", value: "ADMIN" },
+  { label: "User", value: ROLES.USER },
+  { label: "Admin", value: ROLES.ADMIN },
 ];
 
 export function UserFilters({ values, onChange }: UserFiltersProps) {
@@ -48,15 +49,14 @@ export function UserFilters({ values, onChange }: UserFiltersProps) {
         </div>
 
         {/* Status Filters */}
-        <div className='flex   rounded-[5px] text-[13px] overflow-hidden'>
-          {statusFilters.map((filter, index) => (
+        <div className='flex rounded-[5px] text-[13px] overflow-hidden'>
+          {statusFilters.map((filter) => (
             <button
               key={filter.value}
               type='button'
               onClick={() => updateFilters({ status: filter.value })}
               className={cn(
-                "px-3 py-[5px]  leading-[1.5] border border-[#D4CEC4] mx-1 rounded transition-colors whitespace-nowrap",
-                index < statusFilters.length - 1 && "",
+                "px-3 py-[5px] leading-[1.5] border border-[#D4CEC4] mx-1 rounded transition-colors whitespace-nowrap",
                 values.status === filter.value
                   ? "bg-gray-100 font-medium text-gray-900"
                   : "text-gray-500 hover:bg-gray-50",
@@ -68,15 +68,14 @@ export function UserFilters({ values, onChange }: UserFiltersProps) {
       </div>
 
       {/* Role Filters */}
-      <div className='flex  rounded-[5px] text-[13px] overflow-hidden'>
-        {roleFilters.map((filter, index) => (
+      <div className='flex rounded-[5px] text-[13px] overflow-hidden'>
+        {roleFilters.map((filter) => (
           <button
             key={filter.value}
             type='button'
             onClick={() => updateFilters({ role: filter.value })}
             className={cn(
-              "px-3 py-[5px]  leading-[1.5] border border-[#D4CEC4] mx-1 rounded transition-colors whitespace-nowrap",
-              index < roleFilters.length - 1 && "",
+              "px-3 py-[5px] leading-[1.5] border border-[#D4CEC4] mx-1 rounded transition-colors whitespace-nowrap",
               values.role === filter.value
                 ? "bg-gray-100 font-medium text-gray-900"
                 : "text-gray-500 hover:bg-gray-50",

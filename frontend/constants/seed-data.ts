@@ -259,22 +259,22 @@ export const userManagementStats = [
   {
     label: "TOTAL USERS",
     value: "12,384",
-    trend: { value: "+156", label: "this month", type: "up" },
+    trend: { value: "+156", label: "this month", type: "up" as const },
   },
   {
     label: "ACTIVE TODAY",
     value: "2,847",
-    trend: { value: "+43", label: "today", type: "up" },
+    trend: { value: "+43", label: "today", type: "up" as const },
   },
   {
     label: "NEW THIS MONTH",
     value: "156",
-    trend: { value: "+12", label: "this week", type: "up" },
+    trend: { value: "+12", label: "this week", type: "up" as const },
   },
   {
     label: "PENDING VERIFICATION",
     value: "23",
-    trend: { value: "-5", label: "today", type: "down" },
+    trend: { value: "-5", label: "today", type: "down" as const },
   },
 ];
 

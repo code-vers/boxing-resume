@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { IUser, UserStatus } from "@/types/User.types";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { ROLES } from "@/constants/roles";
 
 interface UserTableProps {
   users: IUser[];
@@ -53,7 +54,7 @@ export function UserTable({ users }: UserTableProps) {
   };
 
   const getRoleBadge = (role: string) => {
-    const isAdmin = role.toUpperCase() === "ADMIN";
+    const isAdmin = role.toLowerCase() === ROLES.ADMIN;
     return (
       <span
         className={cn(
@@ -108,7 +109,7 @@ export function UserTable({ users }: UserTableProps) {
                       <div
                         className={cn(
                           "w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs",
-                          user.role === "ADMIN" && "shadow-[0_0_0_2px_#d72322]",
+                          user.role === ROLES.ADMIN && "shadow-[0_0_0_2px_#d72322]",
                         )}>
                         {user.fullName
                           .split(" ")
