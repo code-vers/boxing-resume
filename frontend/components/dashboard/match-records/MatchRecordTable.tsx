@@ -61,32 +61,32 @@ export function MatchRecordTable({ matches }: MatchRecordTableProps) {
       <div className='overflow-x-auto'>
         <Table className='whitespace-nowrap'>
           <TableHeader>
-            <TableRow className='border-[#e8e2d8] hover:bg-transparent'>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+            <TableRow className='border-[#e8e2d8] hover:bg-transparent bg-white border-b border-gray-200'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Date
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Winner
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Loser
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Method
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Rounds
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Weight
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider text-center'>
+              <TableHead className='px-6 py-4 text-center font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Title
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Event
               </TableHead>
-              <TableHead className='px-6 py-4 text-left text-[12px] font-bold text-[#656464] uppercase tracking-wider'>
+              <TableHead className='px-6 py-4 text-left font-sans font-semibold text-[#555] text-[0.75rem] uppercase tracking-wider'>
                 Actions
               </TableHead>
             </TableRow>

@@ -102,15 +102,14 @@ export default function BeltManagementPage() {
   return (
     <div className='mx-auto space-y-6 pb-10 overflow-hidden'>
       {/* 1. Page Header with Title */}
-      <div className='mb-6'>
-        <h1 className='font-bebas text-4xl text-black mb-1 tracking-wider uppercase'>
-          CHAMPIONSHIP BELTS
+      <header className='mb-8'>
+        <h1 className='text-3xl font-bold text-gray-900 tracking-tight uppercase font-heading'>
+          Championship Belts
         </h1>
-        <p className='text-slate-500 text-sm'>
-          Manage and track all professional boxing titles and their current
-          statuses.
+        <p className='text-sm text-gray-500 mt-1'>
+          Manage and track all professional boxing titles and their current statuses.
         </p>
-      </div>
+      </header>
 
       {/* 2. Navigation Tabs */}
       <BeltTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -121,7 +120,7 @@ export default function BeltManagementPage() {
       </div>
 
       {/* 4. Section Title */}
-      <h2 className='text-2xl font-bold text-[#0A0A0A] uppercase tracking-wide mb-4'>
+      <h2 className='text-2xl font-bold text-gray-900 tracking-tight mb-4 font-heading'>
         {activeTab} - RECENT RESULTS
       </h2>
 
