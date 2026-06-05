@@ -108,10 +108,10 @@ export function PlatformCharts() {
   };
 
   return (
-    <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+    <div className='grid grid-cols-1 gap-6 lg:grid-cols-5'>
       {/* Platform Growth Line Chart */}
       <Card
-        className='flex flex-col p-6 lg:col-span-2'
+        className='flex flex-col p-6 lg:col-span-3'
         data-purpose='platform-growth-chart'>
         <h2 className='font-oswald mb-4 text-[18px] text-foreground  font-normal tracking-wide uppercase'>
           Platform Growth
@@ -122,7 +122,9 @@ export function PlatformCharts() {
       </Card>
 
       {/* Weight Class Breakdown Bar Chart */}
-      <Card className='flex flex-col p-6' data-purpose='weight-class-chart'>
+      <Card
+        className='flex flex-col p-6 lg:col-span-2'
+        data-purpose='weight-class-chart'>
         <h2 className='font-oswald mb-4 text-[18px] text-foreground  font-normal tracking-wide uppercase'>
           Weight Class Breakdown
         </h2>
