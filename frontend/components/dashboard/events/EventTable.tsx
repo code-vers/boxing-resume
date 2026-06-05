@@ -54,7 +54,7 @@ export function EventTable({ events }: EventTableProps) {
 
   return (
     <section>
-      <h2 className='text-2xl font-bold text-gray-900 tracking-tight mb-4 font-heading'>
+      <h2 className='text-2xl font-medium text-[#0A0A0A] tracking-tight mb-4 font-heading'>
         Recent Results
       </h2>
       <div className='bg-white rounded-md shadow-sm overflow-hidden border border-gray-100'>
@@ -91,33 +91,43 @@ export function EventTable({ events }: EventTableProps) {
             <TableBody className='bg-white divide-y divide-gray-100'>
               {events.length > 0 ? (
                 events.map((event) => (
-                  <TableRow key={event.id} className='hover:bg-gray-50 border-none'>
-                    <TableCell className='px-6 py-4 whitespace-nowrap font-medium text-gray-900'>
+                  <TableRow
+                    key={event.id}
+                    className='hover:bg-gray-50  border-b border-[#f1ede1]'>
+                    <TableCell className='px-6 py-4 whitespace-nowrap font-medium text-[#0A0A0A0]'>
                       {event.eventName}
                     </TableCell>
-                    <TableCell className='px-6 py-4 whitespace-nowrap text-gray-600'>
+                    <TableCell className='px-6  text-[12px]  py-4 whitespace-nowrap text-[#3D3B38]'>
                       {event.mainBout}
                     </TableCell>
-                    <TableCell className='px-6 py-4 whitespace-nowrap text-gray-600'>
+                    <TableCell className='px-6 py-4 text-[12px] font-medium whitespace-nowrap text-[#3D3B38]'>
                       {event.venue}
                     </TableCell>
-                    <TableCell className='px-6 py-4 whitespace-nowrap text-center font-medium'>
+                    <TableCell className='px-6 py-4 text-[16px]  whitespace-nowrap text-center font-normal'>
                       {event.bouts}
                     </TableCell>
-                    <TableCell className='px-6 py-4 whitespace-nowrap text-gray-500'>
+                    <TableCell className='px-6 py-4 text-[14px] font-normal whitespace-nowrap text-gray-500'>
                       {event.broadcast}
                     </TableCell>
-                    <TableCell className='px-6 py-4 whitespace-nowrap text-gray-400 text-xs'>
+                    <TableCell className='px-6 py-4 whitespace-nowrap text-[#857F78] text-[11px]'>
                       {format(new Date(event.date), "MMM d, yyyy")}
                     </TableCell>
                     <TableCell className='px-6 py-4 whitespace-nowrap'>
                       {getStatusBadge(event.status)}
                     </TableCell>
                     <TableCell className='px-6 py-4 whitespace-nowrap text-xs space-x-3 font-medium'>
-                      <button className='text-primary hover:underline'>Edit</button>
-                      <button className='text-gray-600 hover:underline'>Build Card</button>
-                      <button className='text-blue-600 hover:underline'>Photos</button>
-                      <button className='text-primary hover:underline'>Cancel</button>
+                      <button className='text-primary hover:underline'>
+                        Edit
+                      </button>
+                      <button className='text-gray-600 hover:underline'>
+                        Build Card
+                      </button>
+                      <button className='text-blue-600 hover:underline'>
+                        Photos
+                      </button>
+                      <button className='text-primary hover:underline'>
+                        Cancel
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))

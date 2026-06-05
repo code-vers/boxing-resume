@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
 
 export interface EventFilterValues {
   search: string;
@@ -42,7 +41,7 @@ export function EventFilters({ values, onChange }: EventFiltersProps) {
           type='text'
           value={values.search}
           onChange={(e) => updateFilters({ search: e.target.value })}
-          className='block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 sm:text-sm'
+          className='block w-full pl-10 pr-3 text-[12px] py-2 border border-[#D4CEC4] rounded-md leading-5 bg-white focus:outline-none placeholder:text-[#0A0A0A80] focus:ring-1 focus:ring-gray-300 focus:border-gray-300 sm:text-sm'
           placeholder='Search event name, venue, or fighter...'
         />
       </div>
@@ -55,10 +54,10 @@ export function EventFilters({ values, onChange }: EventFiltersProps) {
             type='button'
             onClick={() => updateFilters({ status: filter.value })}
             className={cn(
-              "px-4 py-2 border border-gray-200 rounded-md text-sm font-medium transition-colors",
+              "px-4 py-2 border border-[#D4CEC4] rounded-md text-[11px] font-medium transition-colors",
               values.status === filter.value
                 ? "bg-primary text-white border-primary"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+                : "bg-white text-[#3D3B38] hover:bg-gray-50",
             )}>
             {filter.label}
           </button>
