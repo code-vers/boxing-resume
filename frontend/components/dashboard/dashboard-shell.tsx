@@ -1,6 +1,7 @@
 "use client";
 
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { Topbar } from "@/components/dashboard/topbar";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
@@ -41,9 +42,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         onCloseMobile={closeMobileSidebar}
       />
 
-      <main className='flex-1 h-full p-4 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar'>
-        {children}
-      </main>
+      {/* Main Content Wrapper */}
+      <div className='flex-1 flex flex-col min-w-0 h-full'>
+        <Topbar />
+        <main className='flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar bg-background'>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
