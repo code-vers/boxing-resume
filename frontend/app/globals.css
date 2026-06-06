@@ -227,4 +227,42 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Custom Sidebar Scrollbar (Dark Theme) */
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 10px;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+  }
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
+  }
+
+  /* Custom Light Scrollbar (Drawers/Forms) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #d4cec4;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a39d93;
+  }
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d4cec4 transparent;
+  }
 }
