@@ -66,6 +66,7 @@ const FightersPage = () => {
                 selectedCountry={country}
                 selectedStatus={status}
                 selectedRating={rating}
+                key={`${query}-${division}-${country}-${status}-${rating}`}
             />
         </div>
     );

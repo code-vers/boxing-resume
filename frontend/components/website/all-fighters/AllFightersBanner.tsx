@@ -2,17 +2,14 @@ import React from 'react';
 
 const AllFightersBanner = () => {
     return (
-        <section className="w-full bg-card-dark py-12 md:py-16">
-            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 sm:px-6 md:px-8 xl:px-12">
-                <div className="flex flex-col gap-3">
-                    <p className="text-sm uppercase tracking-[0.32em] text-text-accent">
-                        All Fighters
-                    </p>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter text-surface-white sm:text-4xl md:text-[40px] md:leading-none">
-                        Browse the complete database of professional boxers.
+        <section className="w-full bg-[#0a0a0a] py-16 md:py-20">
+            <div className="mx-auto flex w-full  flex-col gap-6 px-4 sm:px-6 md:px-8 xl:px-12">
+                <div className="flex flex-col gap-4">
+                    <h1 className="text-4xl md:text-5xl font-['Bebas_Neue'] uppercase tracking-tight text-white mb-0">
+                        ALL FIGHTERS
                     </h1>
-                    <p className="max-w-2xl text-sm font-medium tracking-wide text-text-placeholder sm:text-base">
-                        Search fighters by name and explore profiles, records, and titles across every division.
+                    <p className="max-w-[541px] text-[15px] font-['Inter'] leading-relaxed text-[#857f78]">
+                        Search fighters, explore full bout histories, compare records, and follow the rankings of active and legendary boxers from around the world.
                     </p>
                 </div>
             </div>
