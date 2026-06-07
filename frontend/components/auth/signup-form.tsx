@@ -281,8 +281,14 @@ export default function SignupForm() {
               htmlFor='terms'
               className='text-[12px] text-[#737373] cursor-pointer select-none leading-tight'
             >
-              I agree to the <span className='text-[#E32626] font-bold'>Terms of Service</span> and{' '}
-              <span className='text-[#E32626] font-bold'>Privacy Policy</span>
+              I agree to the{' '}
+              <Link href='/terms' className='text-[#E32626] font-bold hover:underline'>
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href='/privacy' className='text-[#E32626] font-bold hover:underline'>
+                Privacy Policy
+              </Link>
             </label>
           </div>
 
