@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import type { FilterState } from './TitleFilters';
 
-type BeltRow = {
+export type BeltRow = {
   id: number;
   beltName: string;
   org: string;
@@ -19,6 +19,7 @@ type BeltRow = {
 
 interface TitleTableProps {
   filters?: FilterState;
+  onHistoryClick?: (row: BeltRow) => void;
 }
 
 const ORGS = [
@@ -98,7 +99,7 @@ function applyFilters(data: BeltRow[], filters: FilterState | undefined): BeltRo
   });
 }
 
-export default function TitleTable({ filters }: TitleTableProps) {
+export default function TitleTable({ filters, onHistoryClick }: TitleTableProps) {
   const [page, setPage] = useState(1);
   const pageSize = 7; // match visual density
 
@@ -175,7 +176,14 @@ export default function TitleTable({ filters }: TitleTableProps) {
                       {row.status}
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-center text-[#d72322]">History →</td>
+                  <td className="px-4 py-4 text-center">
+                    <button 
+                      onClick={() => onHistoryClick?.(row)}
+                      className="text-[#d72322] hover:underline transition-all"
+                    >
+                      History →
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -219,7 +227,12 @@ export default function TitleTable({ filters }: TitleTableProps) {
                         ? 'bg-[#fee2e2] text-[#991b1b]'
                         : 'bg-[#fef9c3] text-[#854d0e]'
                     }`}>{row.status}</div>
-                    <div className="text-[#d72322]">History →</div>
+                    <button 
+                      onClick={() => onHistoryClick?.(row)}
+                      className="text-[#d72322] hover:underline"
+                    >
+                      History →
+                    </button>
                   </div>
                 </div>
               </div>
