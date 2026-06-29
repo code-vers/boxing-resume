@@ -4,121 +4,154 @@ import { useState } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
 import { DEMO_USERS } from "@/constants/demo-users";
-import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { RoleTabs } from "./role-tabs";
+import { AuthInput } from "./auth-input";
+import { User, Lock } from "lucide-react";
+
+const loginSchema = z.object({
+  emailOrUsername: z.string().min(1, "Email or Username is required"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional(),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<"USER" | "ADMIN">("USER");
+  const [globalError, setGlobalError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const user = DEMO_USERS.find((u) => u.email === email);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      emailOrUsername: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setGlobalError("");
+    console.log("Login Payload:", { role, ...data });
+
+    // Mock Authentication Logic
+    const user = DEMO_USERS.find(
+      (u) => u.email === data.emailOrUsername || u.name === data.emailOrUsername
+    );
+    
     if (user) {
-      login(email);
+      if (role === "ADMIN" && user.role !== "admin") {
+        setGlobalError("You do not have Admin privileges.");
+        return;
+      }
+      login(user.email);
       router.push("/dashboard");
     } else {
-      setError("Invalid demo credentials. Use one of the accounts below.");
+      setGlobalError("Invalid credentials. Use a demo account.");
     }
   };
 
   return (
-    <section className='flex min-h-screen w-full bg-[#fdf5f7] items-center justify-center p-4 sm:p-8'>
-      <div className='w-full 2xl:px-40 xl:px-32 lg:px-24 md:px-12 sm:px-8 px-0 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-25 items-stretch'>
-        {/* Left Side: Rounded image card — matches screenshot */}
-        <div className='relative hidden md:block w-full h-full min-h-125 rounded-2xl overflow-hidden shadow-sm'>
-          <Image
-            src='/images/auth.png'
-            alt='Style City Login Background'
-            fill
-            className='object-cover object-center scale-[1.02]'
-            priority
-          />
-        </div>
+    <div className='w-full flex items-center justify-center bg-[#0f0f0f] text-white p-4 font-inter py-12 min-h-screen'>
+      <div className='bg-[#111] border border-[#1e1e1e] rounded-[10px] w-full max-w-[600px] p-8 md:p-12 relative overflow-hidden'>
+        
+        {/* Title */}
+        <h1 className='text-center font-bebas text-[32px] tracking-[1.6px] uppercase mb-10'>
+          Log In
+        </h1>
 
-        {/* Right Side: Form — content unchanged */}
-        <div className='w-full mx-auto md:mx-0 flex flex-col justify-center py-6'>
-          <div className='text-center'>
-            <Link
-              href='/'
-              className='text-4xl font-bold text-center block mb-8'>
-              Logo
-            </Link>
-            <h1 className='text-3xl font-bold'>Sign In</h1>
-          </div>
+        {/* Role Selection Tabs */}
+        <RoleTabs role={role} setRole={setRole} />
 
-          <form onSubmit={handleSubmit} className='space-y-4 mt-8'>
-            {error && (
-              <div className='text-red-500 text-sm bg-red-50 p-3 rounded'>
-                {error}
+        {/* Form Container */}
+        <div className='mt-10'>
+          <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5'>
+            {globalError && (
+              <div className='text-red-500 text-sm bg-red-500/10 p-3 rounded'>
+                {globalError}
               </div>
             )}
-            <input
-              type='email'
-              placeholder='Email'
-              className='w-full p-4 border rounded-xl'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+
+            <AuthInput
+              label='EMAIL OR USERNAME'
+              placeholder='Enter your email or username'
+              icon={<User size={16} />}
+              error={errors.emailOrUsername?.message}
+              {...register("emailOrUsername")}
             />
-            <div className='relative'>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder='Password'
-                className='w-full p-4 pr-12 border rounded-xl'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+
+            <div>
+              <div className='flex justify-between items-center mb-[5px]'>
+                <label className='font-inter font-medium text-[#555] text-[10px] tracking-[0.8px] uppercase'>
+                  PASSWORD
+                </label>
+                <Link href='#' className='font-inter font-medium text-[#d72322] text-[10px] tracking-[0.8px] uppercase hover:underline'>
+                  FORGOT PASSWORD?
+                </Link>
+              </div>
+              <AuthInput
+                type='password'
+                placeholder='Enter your password'
+                icon={<Lock size={16} />}
+                error={errors.password?.message}
+                {...register("password")}
               />
-              <button
-                type='button'
-                onClick={() => setShowPassword(!showPassword)}
-                className='absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700'>
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
             </div>
+
+            <div className='flex items-center gap-2 mt-[-5px]'>
+              <input
+                type='checkbox'
+                id='rememberMe'
+                className='accent-[#d72322] w-4 h-4 bg-[#1a1a1a] border-[#1e1e1e] rounded'
+                {...register("rememberMe")}
+              />
+              <label htmlFor='rememberMe' className='text-[#555] text-sm cursor-pointer'>
+                Remember me for 30 days
+              </label>
+            </div>
+
             <button
               type='submit'
-              className='w-full p-4 bg-[#4D7C0F] text-white rounded-xl hover:bg-[#3a5f0c] transition-all font-semibold'>
-              Sign In
+              disabled={isSubmitting}
+              className='w-full bg-[#d72322] hover:bg-[#b01c1c] text-white font-inter font-bold text-sm uppercase py-4 rounded-[8px] transition-colors mt-2'>
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
 
-          <div className='mt-4'>
-            Didn&apos;t have an account?{" "}
-            <Link
-              href='/signup'
-              className='text-[#4D7C0F] font-semibold hover:underline'>
+          <div className='flex items-center gap-4 my-8'>
+            <div className='h-[1px] flex-1 bg-[#1e1e1e]' />
+            <span className='text-[#555] text-[10px] uppercase tracking-[0.8px]'>OR</span>
+            <div className='h-[1px] flex-1 bg-[#1e1e1e]' />
+          </div>
+
+          <div className='flex flex-col gap-4'>
+            <button className='w-full flex items-center justify-center gap-3 bg-[#1a1a1a] hover:bg-[#222] border border-[#1e1e1e] text-[#ccc] py-3 rounded-[8px] transition-colors text-sm font-medium'>
+              <i className="fa-brands fa-google text-blue-400 text-lg"></i>
+              Continue with Google
+            </button>
+            <button className='w-full flex items-center justify-center gap-3 bg-[#1a1a1a] hover:bg-[#222] border border-[#1e1e1e] text-[#ccc] py-3 rounded-[8px] transition-colors text-sm font-medium'>
+              <i className="fa-brands fa-facebook text-blue-600 text-lg"></i>
+              Continue with Facebook
+            </button>
+          </div>
+
+          <div className='text-center mt-8 text-[#555] text-sm font-medium'>
+            Don&apos;t have an account?{" "}
+            <Link href='/signup' className='text-[#d72322] hover:underline'>
               Sign up
             </Link>
           </div>
-
-          <div className='border-t pt-8 mt-8'>
-            <p className='text-sm text-slate-500 mb-4'>
-              Demo Accounts (Click to autofill):
-            </p>
-            <div className='grid gap-2'>
-              {DEMO_USERS.map((user) => (
-                <button
-                  key={user.email}
-                  onClick={() => {
-                    setEmail(user.email);
-                    setPassword("password123");
-                  }}
-                  className='w-full p-3 border rounded-lg text-left text-sm hover:bg-slate-50'>
-                  <span className='font-medium'>{user.email}</span> -{" "}
-                  <span className='text-slate-400'>{user.role}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
