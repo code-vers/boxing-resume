@@ -1,11 +1,55 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 /**
- * @interface Champion
- * @description Data structure representing an individual champion card.
+ * @interface API Types
+ */
+interface ApiOrg {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface ApiChampion {
+  fighter_id: string;
+  fighter_name: string;
+  title_type: string;
+  is_vacant: boolean;
+}
+
+interface ApiRankingItem {
+  id: string;
+  organization: ApiOrg;
+  division: {
+    id: string;
+    name: string;
+    weight_lb: number | null;
+    weight_kg: number | null;
+  };
+  gender: string;
+  champions: ApiChampion[];
+}
+
+interface ApiRankingsResponse {
+  pagination: {
+    page: number;
+    items: number;
+    total_pages: number;
+    total_items: number;
+  };
+  data: ApiRankingItem[];
+}
+
+interface ApiOrganizationsResponse {
+  data: ApiOrg[];
+}
+
+/**
+ * @interface Mapped Types
  */
 interface Champion {
   id: string;
@@ -17,10 +61,6 @@ interface Champion {
   since: string;
 }
 
-/**
- * @interface WeightClass
- * @description Data structure grouping champions by their weight division.
- */
 interface WeightClass {
   id: string;
   name: string;
@@ -29,135 +69,34 @@ interface WeightClass {
 }
 
 /**
- * @constant TABS
- * @description Available filter options for sanctioning bodies.
+ * @helper Helper to get initials from a name
  */
-const TABS = ['All', 'WBC', 'WBA', 'IBF', 'IBO', 'Ring Magazine', 'WBO'];
-
-/**
- * @constant mockData
- * @description Seed data mimicking the exact visual layout of the Figma champions grid.
- */
-const mockData: WeightClass[] = [
-  {
-    id: 'heavyweight',
-    name: 'HEAVYWEIGHT',
-    weightLimit: '200+ lbs',
-    champions: [
-      {
-        id: 'tf_wbc',
-        org: 'WBC',
-        status: 'Regular',
-        initials: 'TF',
-        name: 'TYSON FURY',
-        record: '34-1-1',
-        since: 'Since 2020',
-      },
-      {
-        id: 'ou_wba',
-        org: 'WBA',
-        status: 'Super',
-        initials: 'OU',
-        name: 'OLEKSANDR USYK',
-        record: '22-0-0',
-        since: 'Since 2021',
-      },
-      {
-        id: 'ou_ibf',
-        org: 'IBF',
-        status: 'Regular',
-        initials: 'OU',
-        name: 'OLEKSANDR USYK',
-        record: '22-0-0',
-        since: 'Since 2021',
-      },
-      {
-        id: 'ou_wbo',
-        org: 'WBO',
-        status: 'Regular',
-        initials: 'OU',
-        name: 'OLEKSANDR USYK',
-        record: '22-0-0',
-        since: 'Since 2021',
-      },
-    ],
-  },
-  {
-    id: 'super_middleweight',
-    name: 'SUPER MIDDLEWEIGHT',
-    weightLimit: '168 lbs',
-    champions: [
-      {
-        id: 'ca_wbc',
-        org: 'WBC',
-        status: 'Regular',
-        initials: 'CA',
-        name: 'CANELO ALVAREZ',
-        record: '61-2-2',
-        since: 'Since 2020',
-      },
-      {
-        id: 'ca_wba',
-        org: 'WBA',
-        status: 'Super',
-        initials: 'CA',
-        name: 'CANELO ALVAREZ',
-        record: '61-2-2',
-        since: 'Since 2020',
-      },
-      {
-        id: 'ca_ibf',
-        org: 'IBF',
-        status: 'Regular',
-        initials: 'CA',
-        name: 'CANELO ALVAREZ',
-        record: '61-2-2',
-        since: 'Since 2021',
-      },
-      {
-        id: 'ca_wbo',
-        org: 'WBO',
-        status: 'Regular',
-        initials: 'CA',
-        name: 'CANELO ALVAREZ',
-        record: '61-2-2',
-        since: 'Since 2020',
-      },
-    ],
-  },
-];
+const getInitials = (name: string) => {
+  if (!name || name === "VACANT") return "V";
+  const parts = name.trim().split(" ");
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return (name[0] || "U").toUpperCase();
+};
 
 /**
  * @component ChampionCard
- * @description Renders an individual champion's profile card with absolute positioned badges and a centralized avatar.
- * @param {Champion} props - The champion data object
- * @returns {JSX.Element}
  */
 const ChampionCard = ({ org, status, initials, name, record, since }: Champion) => (
   <div className='relative flex flex-col items-center rounded-[8px] border border-card-border bg-surface-white p-6 shadow-sm transition-shadow hover:shadow-md'>
-    {/* Top Left: Organization Badge */}
     <span className='absolute left-4 top-4 text-[10px] font-black uppercase text-text-accent'>
       {org}
     </span>
-
-    {/* Top Right: Status Badge */}
     <span className='absolute right-4 top-4 text-[10px] font-medium text-text-placeholder'>
       {status}
     </span>
-
-    {/* Center Avatar */}
     <div className='mt-2 flex h-[60px] w-[60px] items-center justify-center rounded-full border-2 border-text-accent bg-card-dark text-[18px] font-bold text-surface-white'>
       {initials}
     </div>
-
-    {/* Details */}
-    <h3 className='mt-4 text-[14px] font-black uppercase tracking-tight text-text-primary'>
+    <h3 className='mt-4 text-[14px] font-black uppercase tracking-tight text-text-primary text-center'>
       {name}
     </h3>
     <span className='mt-1 text-[11px] font-medium text-text-placeholder'>{record}</span>
     <span className='mt-0.5 text-[11px] font-medium text-text-placeholder'>{since}</span>
-
-    {/* Action Link */}
     <button className='mt-5 flex items-center gap-1 text-[11px] font-bold text-text-accent transition-colors hover:text-red-700'>
       View profile <ArrowRight size={12} strokeWidth={2.5} />
     </button>
@@ -166,56 +105,157 @@ const ChampionCard = ({ org, status, initials, name, record, since }: Champion) 
 
 /**
  * @component ChampionsGrid
- * @description Main container for the World Champions directory. Handles client-side filtering via tabs and renders weight class grids.
- * @returns {JSX.Element}
  */
 export default function ChampionsGrid() {
-  const [activeTab, setActiveTab] = useState('All');
+  const [activeTab, setActiveTab] = useState<string>('All');
+  const [page, setPage] = useState<number>(1);
 
-  /**
-   * @constant filteredData
-   * @description Memoized dataset filtering champions by the active sanctioning body tab.
-   */
-  const filteredData = useMemo(() => {
-    if (activeTab === 'All') return mockData;
+  // Fetch Organizations
+  const { data: orgsData, isLoading: orgsLoading } = useQuery<ApiOrganizationsResponse>({
+    queryKey: ['rapid-organizations'],
+    queryFn: async () => {
+      const res = await axios.get('https://boxing-data-api.p.rapidapi.com/v2/organizations', {
+        headers: {
+          'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
+          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '',
+        }
+      });
+      return res.data;
+    }
+  });
 
-    return mockData
-      .map((weightClass) => ({
-        ...weightClass,
-        champions: weightClass.champions.filter((champ) => champ.org === activeTab),
-      }))
-      .filter((weightClass) => weightClass.champions.length > 0);
-  }, [activeTab]);
+  // Fetch Divisions for pagination
+  const { data: divisionsData, isLoading: divisionsLoading } = useQuery<{ data: { id: string; name: string }[] }>({
+    queryKey: ['rapid-divisions'],
+    queryFn: async () => {
+      const res = await axios.get('https://boxing-data-api.p.rapidapi.com/v2/divisions', {
+        headers: {
+          'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
+          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '',
+        }
+      });
+      // Filter out Unclassified
+      return { data: res.data.data.filter((d: any) => d.name !== 'Unclassified') };
+    }
+  });
+
+  // Determine current division ID based on page
+  const currentDivisionId = divisionsData?.data?.[page - 1]?.id;
+
+  // Fetch Rankings (Champions)
+  const { data: rankingsData, isLoading: rankingsLoading, isFetching } = useQuery<ApiRankingsResponse>({
+    queryKey: ['rapid-rankings', currentDivisionId],
+    queryFn: async () => {
+      const res = await axios.get(`https://boxing-data-api.p.rapidapi.com/v2/rankings?division_id=${currentDivisionId}`, {
+        headers: {
+          'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
+          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '',
+        }
+      });
+      return res.data;
+    },
+    enabled: !!currentDivisionId
+  });
+
+  // Prepare Tabs
+  const tabs = useMemo(() => {
+    const base = [{ id: 'All', name: 'All' }];
+    if (orgsData?.data) {
+      return [...base, ...orgsData.data];
+    }
+    return base;
+  }, [orgsData]);
+
+  // Map Data to Divisions and Champions
+  const mappedData = useMemo(() => {
+    if (!rankingsData?.data) return [];
+
+    // Filter by active tab (locally, in case the API doesn't support org filtering)
+    let filteredItems = rankingsData.data;
+    if (activeTab !== 'All') {
+      filteredItems = filteredItems.filter(item => item.organization.id === activeTab);
+    }
+
+    const divisionsMap = new Map<string, WeightClass>();
+
+    filteredItems.forEach(item => {
+      const divName = item.division.name;
+      const weightLimit = item.division.weight_lb ? `${item.division.weight_lb} lbs` : '';
+      
+      if (!divisionsMap.has(divName)) {
+        divisionsMap.set(divName, {
+          id: item.division.id || divName,
+          name: divName,
+          weightLimit,
+          champions: []
+        });
+      }
+
+      const div = divisionsMap.get(divName)!;
+      
+      item.champions.forEach((champ, idx) => {
+        // Skip purely vacant placeholders unless they are the only ones, but usually vacant means no champion.
+        if (champ.fighter_name !== "VACANT" && !champ.is_vacant) {
+          div.champions.push({
+            id: `${item.id}-${champ.fighter_id}-${idx}`,
+            org: item.organization.name.replace(/\\s\\(.+\\)/, ''), // e.g., "World Boxing Association (WBA)" -> "World Boxing Association"
+            status: champ.title_type || 'Champion',
+            initials: getInitials(champ.fighter_name),
+            name: champ.fighter_name,
+            record: 'N/A', // Data not provided by endpoint
+            since: 'Current' // Data not provided by endpoint
+          });
+        }
+      });
+    });
+
+    return Array.from(divisionsMap.values()).filter(div => div.champions.length > 0);
+  }, [rankingsData, activeTab]);
 
   return (
-    <div className='flex w-full flex-col font-sans bg-page-bg'>
+    <div className='flex w-full flex-col font-sans bg-page-bg min-h-[600px] relative'>
       {/* --- 1. TABS NAVIGATION --- */}
       <div className='w-full border-b border-divider bg-surface-white'>
         <div className='hide-scrollbar mx-auto flex items-center gap-2 overflow-x-auto px-4 sm:px-6 lg:px-8'>
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${
-                  isActive ? 'text-text-primary' : 'text-text-placeholder hover:text-text-primary'
-                }`}
-              >
-                {tab}
-                {isActive && (
-                  <div className='absolute bottom-0 left-0 h-[2px] w-full bg-text-accent' />
-                )}
-              </button>
-            );
-          })}
+          {orgsLoading ? (
+            <div className="py-4 text-sm text-text-placeholder animate-pulse">Loading organizations...</div>
+          ) : (
+            tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              // Clean up long names like "World Boxing Association (WBA)" for the tab -> "WBA"
+              let tabLabel = tab.name;
+              const match = tabLabel.match(/\\(([^)]+)\\)/);
+              if (match) tabLabel = match[1];
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${
+                    isActive ? 'text-text-primary' : 'text-text-placeholder hover:text-text-primary'
+                  }`}
+                >
+                  {tabLabel}
+                  {isActive && (
+                    <div className='absolute bottom-0 left-0 h-[2px] w-full bg-text-accent' />
+                  )}
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
       {/* --- 2. CHAMPIONS DIRECTORY --- */}
-      <section className='w-full py-10 md:py-14'>
+      <section className='w-full py-10 md:py-14 relative'>
+        {isFetching && (
+          <div className="absolute inset-0 bg-page-bg/50 z-10 flex items-start justify-center pt-20">
+            <Loader2 className="animate-spin text-text-accent" size={32} />
+          </div>
+        )}
+        
         <div className='mx-auto flex flex-col gap-12 px-4 sm:px-6 lg:px-8'>
-          {filteredData.map((division) => (
+          {mappedData.map((division) => (
             <div key={division.id} className='flex flex-col w-full'>
               {/* Section Header */}
               <div className='mb-6 flex items-baseline justify-between border-b border-divider pb-2'>
@@ -236,9 +276,38 @@ export default function ChampionsGrid() {
             </div>
           ))}
 
-          {filteredData.length === 0 && (
+          {!rankingsLoading && mappedData.length === 0 && (
             <div className='flex h-32 w-full items-center justify-center text-[13px] text-text-placeholder'>
-              No champions found for the selected organization.
+              No champions found for the selected view. Try switching tabs or pages.
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {divisionsData?.data && divisionsData.data.length > 0 && (
+            <div className='flex items-center justify-center gap-4 mt-8'>
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1 || isFetching}
+                className='flex h-10 w-10 items-center justify-center rounded-md border border-card-border bg-surface-white text-text-primary shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className='flex flex-col items-center'>
+                <div className='text-[13px] font-medium text-text-placeholder'>
+                  Division <span className='text-text-primary font-bold'>{page}</span> of{' '}
+                  <span className='text-text-primary font-bold'>{divisionsData.data.length}</span>
+                </div>
+                <div className='text-[11px] font-bold text-text-accent mt-1 uppercase'>
+                  {divisionsData.data[page - 1]?.name}
+                </div>
+              </div>
+              <button
+                onClick={() => setPage(p => Math.min(divisionsData.data.length, p + 1))}
+                disabled={page === divisionsData.data.length || isFetching}
+                className='flex h-10 w-10 items-center justify-center rounded-md border border-card-border bg-surface-white text-text-primary shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
           )}
         </div>
