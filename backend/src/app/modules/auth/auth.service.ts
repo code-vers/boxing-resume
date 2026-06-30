@@ -13,8 +13,7 @@ import type {
   IResetPasswordPayload,
   IUserLoginPayload,
   IUserRegisterPayload,
-  IUserResponse,
-  IVerifyResetCodePayload
+  IUserResponse
 } from './auth.interface';
 
 type UserRecord = {
@@ -131,91 +130,52 @@ const forgotPassword = async (payload: IForgotPasswordPayload): Promise<void> =>
     return;
   }
 
-  // Generate a random 6-digit code
-  const resetCode = crypto.randomInt(100000, 999999).toString();
+  // Generate a secure random reset token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  
+  // Hash the token using SHA-256 to store in the DB
+  const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
   
   // Set expiration to 15 minutes from now
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  // Hash the code before saving it to the database for security
-  const hashedResetCode = await bcrypt.hash(resetCode, config.bcryptSaltRounds);
-
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      passwordResetCode: hashedResetCode,
+      passwordResetCode: hashedResetToken,
       passwordResetExpires: expiresAt
     }
   });
 
-  // Send the email with the unhashed 6-digit code
+  // Construct the secure reset link
+  const resetLink = `${config.frontendUrl}/reset-password?token=${resetToken}`;
+
   const emailHtml = `
     <h1>Password Reset Request</h1>
-    <p>Your password reset code is: <strong>${resetCode}</strong></p>
-    <p>This code will expire in 15 minutes.</p>
+    <p>You requested a password reset. Click the link below to reset your password:</p>
+    <a href="${resetLink}" target="_blank">Reset Password</a>
+    <p>This link will expire in 15 minutes.</p>
     <p>If you did not request this, please ignore this email.</p>
   `;
 
-  await sendEmail(user.email, 'Password Reset Code', emailHtml);
-};
-
-const verifyResetCode = async (
-  payload: IVerifyResetCodePayload
-): Promise<{ resetToken: string }> => {
-  const user = await prisma.user.findUnique({
-    where: { email: payload.email }
-  });
-
-  if (
-    !user ||
-    !user.passwordResetCode ||
-    !user.passwordResetExpires ||
-    user.passwordResetExpires < new Date()
-  ) {
-    throw new AppError(400, 'Invalid or expired reset code.');
-  }
-
-  const isCodeValid = await bcrypt.compare(payload.code, user.passwordResetCode);
-
-  if (!isCodeValid) {
-    throw new AppError(400, 'Invalid or expired reset code.');
-  }
-
-  // Code is valid. Issue a short-lived token to be used on the reset password screen.
-  // We use the current password hash as part of the secret so the token becomes invalid
-  // immediately after the password is changed.
-  const secret = config.jwt.resetSecret + user.password;
-  
-  const resetToken = jwt.sign(
-    { userId: user.id, email: user.email },
-    secret,
-    { expiresIn: config.jwt.resetExpiresIn }
-  );
-
-  return { resetToken };
+  await sendEmail(user.email, 'Password Reset Link', emailHtml);
 };
 
 const resetPassword = async (payload: IResetPasswordPayload): Promise<void> => {
-  // Decode without verifying first to get the email/userId
-  const decoded = jwt.decode(payload.token) as { userId?: string; email?: string } | null;
+  // Hash the incoming raw token to find it in the DB
+  const hashedResetToken = crypto.createHash('sha256').update(payload.token).digest('hex');
 
-  if (!decoded || !decoded.userId) {
-    throw new AppError(400, 'Invalid reset token.');
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId }
+  // Find the user with this valid, unexpired token
+  const user = await prisma.user.findFirst({
+    where: {
+      passwordResetCode: hashedResetToken,
+      passwordResetExpires: {
+        gt: new Date()
+      }
+    }
   });
 
   if (!user) {
-    throw new AppError(400, 'Invalid reset token.');
-  }
-
-  const secret = config.jwt.resetSecret + user.password;
-
-  try {
-    jwt.verify(payload.token, secret);
-  } catch (error) {
     throw new AppError(400, 'Invalid or expired reset token.');
   }
 
@@ -237,6 +197,5 @@ export const AuthService = {
   login,
   changePassword,
   forgotPassword,
-  verifyResetCode,
   resetPassword
 };

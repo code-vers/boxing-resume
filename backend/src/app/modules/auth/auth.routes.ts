@@ -10,7 +10,7 @@ const router = Router();
 
 const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 5, // Limit each IP to 5 requests per windowMs
+  limit: 100, // Limit each IP to 100 requests per windowMs for smoother development
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: {
@@ -36,12 +36,7 @@ router.post(
   AuthController.forgotPassword
 );
 
-router.post(
-  '/verify-reset-code',
-  authRateLimiter,
-  validateRequest(AuthValidation.verifyResetCode),
-  AuthController.verifyResetCode
-);
+
 
 router.post(
   '/reset-password',

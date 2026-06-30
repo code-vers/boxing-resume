@@ -11,6 +11,8 @@ model User {
   name                 String
   email                String    @unique
   password             String
+  phone                String?
+  image                String?
   role                 Role      @default(USER)
   passwordResetCode    String?
   passwordResetExpires DateTime?
@@ -24,4 +26,165 @@ enum Role {
   USER
   MANAGER
   ADMIN
+}
+
+model Fighter {
+  id          String        @id @default(uuid())
+  firstName   String
+  lastName    String
+  nickname    String?
+  image       String?
+  nationality String?
+  birthDate   DateTime?
+  division    String
+  stance      Stance?
+  height      String?
+  reach       String?
+  wins        Int           @default(0)
+  losses      Int           @default(0)
+  draws       Int           @default(0)
+  koRate      Float         @default(0) @map("ko_rate")
+  status      FighterStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  matchesWon   Match[]        @relation("Winner")
+  matchesLost  Match[]        @relation("Loser")
+  titleHistory TitleHistory[]
+  rankings     Ranking[]
+
+  @@map("fighters")
+}
+
+enum FighterStatus {
+  ACTIVE
+  INACTIVE
+  RETIRED
+}
+
+enum Stance {
+  ORTHODOX
+  SOUTHPAW
+  SWITCH
+}
+
+model Event {
+  id        String      @id @default(uuid())
+  eventName String
+  mainBout  String
+  venue     String
+  location  String?
+  image     String?
+  bouts     Int
+  broadcast String
+  date      DateTime
+  status    EventStatus @default(UPCOMING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  matches Match[]
+
+  @@map("events")
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+}
+
+model Match {
+  id        String    @id @default(uuid())
+  winnerId  String
+  loserId   String
+  eventId   String
+  method    WinMethod
+  round     Int
+  weight    String
+  title     String?
+  poster    String?
+  date      DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  winner Fighter @relation("Winner", fields: [winnerId], references: [id])
+  loser  Fighter @relation("Loser", fields: [loserId], references: [id])
+  event  Event   @relation(fields: [eventId], references: [id])
+
+  @@map("matches")
+}
+
+enum WinMethod {
+  KO
+  TKO
+  UD
+  MD
+  SD
+  DQ
+  NC
+  DRAW
+}
+
+model Title {
+  id        String    @id @default(uuid())
+  beltName  String
+  org       BoxingOrg
+  tier      TitleTier
+  division  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  history TitleHistory[]
+
+  @@map("titles")
+}
+
+enum TitleTier {
+  WORLD
+  INTERCONTINENTAL
+  REGIONAL
+  NATIONAL
+  OTHER
+}
+
+enum BoxingOrg {
+  WBC
+  WBA
+  IBF
+  WBO
+  RING
+  IBO
+  OTHER
+}
+
+model TitleHistory {
+  id        String    @id @default(uuid())
+  fighterId String
+  titleId   String
+  wonDate   DateTime
+  lostDate  DateTime?
+  isCurrent Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  fighter Fighter @relation(fields: [fighterId], references: [id])
+  title   Title   @relation(fields: [titleId], references: [id])
+
+  @@map("title_histories")
+}
+
+model Ranking {
+  id        String   @id @default(uuid())
+  fighterId String
+  division  String
+  rank      Int
+  koRate    Float    @default(0) @map("ko_rate")
+  rating    Float    @default(0)
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fighter Fighter @relation(fields: [fighterId], references: [id])
+
+  @@map("rankings")
 }

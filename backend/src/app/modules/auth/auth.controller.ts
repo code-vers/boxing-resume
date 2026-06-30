@@ -55,16 +55,6 @@ const forgotPassword: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
-const verifyResetCode: RequestHandler = catchAsync(async (req, res) => {
-  const result = await AuthService.verifyResetCode(req.body);
-
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Code verified successfully. You can now reset your password.',
-    data: result // Contains the temporary reset token
-  });
-});
 
 const resetPassword: RequestHandler = catchAsync(async (req, res) => {
   await AuthService.resetPassword(req.body);
@@ -82,6 +72,5 @@ export const AuthController = {
   login,
   changePassword,
   forgotPassword,
-  verifyResetCode,
   resetPassword
 };

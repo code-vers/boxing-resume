@@ -36,9 +36,10 @@ export default function Navbar() {
    * @description Tracks the visibility state of the mobile navigation dropdown.
    */
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
 
   /**
    * @function closeMobileMenu
@@ -132,7 +133,7 @@ export default function Navbar() {
                       <ShoppingCart size={20} />
                     </Link>
                   )}
-                  {showLoggedInActions && (
+                  {showLoggedInActions && (user?.role === ROLES.ADMIN || user?.role === ROLES.MANAGER) && (
                     <Link
                       href='/dashboard'
                       aria-label='Go to dashboard'
@@ -142,23 +143,40 @@ export default function Navbar() {
                       Dashboard
                     </Link>
                   )}
-                  <Link
-                    href={profileHref}
-                    aria-label='Go to profile'
-                    className={`inline-flex h-10 w-10 overflow-hidden rounded-full border-2 transition-all ${
-                      isProfileIconActive
-                        ? 'border-text-accent'
-                        : 'border-stroke-medium hover:border-surface-white'
-                    }`}
-                  >
-                    <Image
-                      src='/home/latest/latest1.jpg'
-                      alt='Profile'
-                      width={40}
-                      height={40}
-                      className='h-full w-full object-cover'
-                    />
-                  </Link>
+                  <div className='flex items-center gap-3'>
+                    <Link
+                      href={profileHref}
+                      aria-label='Go to profile'
+                      className={`inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 bg-surface-white/10 transition-all ${
+                        isProfileIconActive
+                          ? 'border-text-accent'
+                          : 'border-stroke-medium hover:border-surface-white'
+                      }`}
+                    >
+                      {user?.avatar && !imageError ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.name || 'Profile'}
+                          className='h-full w-full object-cover'
+                          onError={() => setImageError(true)}
+                        />
+                      ) : (
+                        <span className="text-sm font-bold text-surface-white uppercase">
+                          {user?.name?.charAt(0) || 'U'}
+                        </span>
+                      )}
+                    </Link>
+                    <div className="flex flex-col hidden xl:flex">
+                      <span className="text-sm font-semibold text-surface-white">{user?.name}</span>
+                      <span className="text-xs text-text-disabled capitalize">{user?.role?.toLowerCase()}</span>
+                    </div>
+                    <button
+                      onClick={() => logout()}
+                      className="ml-2 text-xs font-medium text-text-disabled hover:text-red-500 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>
@@ -185,15 +203,20 @@ export default function Navbar() {
               {showLoggedInActions && (
                 <Link
                   href={profileHref}
-                  className='inline-flex h-9 w-9 overflow-hidden rounded-full border border-stroke-medium'
+                  className='inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-stroke-medium bg-surface-white/10'
                 >
-                  <Image
-                    src='/home/latest/latest1.jpg'
-                    alt='Profile'
-                    width={36}
-                    height={36}
-                    className='h-full w-full object-cover'
-                  />
+                  {user?.avatar && !imageError ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name || 'Profile'}
+                      className='h-full w-full object-cover'
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <span className="text-xs font-bold text-surface-white uppercase">
+                      {user?.name?.charAt(0) || 'U'}
+                    </span>
+                  )}
                 </Link>
               )}
               {!isDashboardRoute && (

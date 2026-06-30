@@ -44,8 +44,47 @@ const changeRole: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const updateProfile: RequestHandler = catchAsync(async (req, res) => {
+  if (!req.user) {
+    throw new AppError(401, 'You are not authorized.');
+  }
+  const userId = req.user.userId;
+  const result = await UserService.updateProfile(userId, req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Profile updated successfully.',
+    data: result
+  });
+});
+
+const updateProfileImage: RequestHandler = catchAsync(async (req, res) => {
+  if (!req.user) {
+    throw new AppError(401, 'You are not authorized.');
+  }
+  if (!req.file) {
+    throw new AppError(400, 'No image file uploaded.');
+  }
+
+  const userId = req.user.userId;
+  // Construct the relative path to be saved in DB
+  const imagePath = `/uploads/profiles/${req.file.filename}`;
+  
+  const result = await UserService.updateProfileImage(userId, imagePath);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Profile image updated successfully.',
+    data: result
+  });
+});
+
 export const UserController = {
   getMe,
   getAllUsers,
-  changeRole
+  changeRole,
+  updateProfile,
+  updateProfileImage
 };
