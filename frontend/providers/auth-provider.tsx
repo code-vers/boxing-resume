@@ -1,10 +1,17 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { ROLES, type Role } from "../constants/roles";
-import { DEMO_USERS } from "../constants/demo-users";
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  avatar?: string;
+}
 
 interface AuthContextType {
-  user: (typeof DEMO_USERS)[0] | null;
-  login: (email: string) => void;
+  user: AuthUser | null;
+  login: (user: AuthUser) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -13,49 +20,50 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   login: () => {},
   logout: () => {},
-  isLoading: false,
+  isLoading: true,
 });
 
 const normalizeRole = (role: unknown): Role => {
-  if (role === ROLES.USER || role === "user" || role === "User")
+  if (role === ROLES.USER || role === "user" || role === "User" || role === "USER")
     return ROLES.USER;
-  if (role === ROLES.MANAGER || role === "manager" || role === "Manager")
+  if (role === ROLES.MANAGER || role === "manager" || role === "Manager" || role === "MANAGER")
     return ROLES.MANAGER;
-  if (role === ROLES.ADMIN || role === "admin" || role === "Admin")
+  if (role === ROLES.ADMIN || role === "admin" || role === "Admin" || role === "ADMIN")
     return ROLES.ADMIN;
   return ROLES.USER;
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<(typeof DEMO_USERS)[0] | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("auth-user");
-      if (!saved) return null;
-
-      const parsed = JSON.parse(saved) as (typeof DEMO_USERS)[0];
-      return {
-        ...parsed,
-        role: normalizeRole(parsed.role),
-      };
+      if (saved) {
+        const parsed = JSON.parse(saved) as AuthUser;
+        setUser({
+          ...parsed,
+          role: normalizeRole(parsed.role),
+        });
+      }
     } catch {
-      return null;
+      // ignore
+    } finally {
+      setIsLoading(false);
     }
-  });
-  const isLoading = false;
+  }, []);
 
-  const login = (email: string) => {
-    const found = DEMO_USERS.find((u) => u.email === email);
-    if (found) {
-      setUser(found);
-      localStorage.setItem("auth-user", JSON.stringify(found));
-    }
+  const login = (userData: AuthUser) => {
+    const formattedUser = { ...userData, role: normalizeRole(userData.role) };
+    setUser(formattedUser);
+    localStorage.setItem("auth-user", JSON.stringify(formattedUser));
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("auth-user");
+    localStorage.removeItem("accessToken");
     window.location.href = "/login";
   };
 

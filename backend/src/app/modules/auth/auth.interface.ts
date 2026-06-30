@@ -33,10 +33,6 @@ export interface IForgotPasswordPayload {
   email: string;
 }
 
-export interface IVerifyResetCodePayload {
-  email: string;
-  code: string;
-}
 
 export interface IResetPasswordPayload {
   token: string;
