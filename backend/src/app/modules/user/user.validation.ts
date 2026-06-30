@@ -10,6 +10,16 @@ const changeRole = z.object({
     .strict()
 });
 
+const updateProfile = z.object({
+  body: z
+    .object({
+      name: z.string().min(2, 'Name must be at least 2 characters long.').optional(),
+      phone: z.string().optional()
+    })
+    .strict()
+});
+
 export const UserValidation = {
-  changeRole
+  changeRole,
+  updateProfile
 };

@@ -36,12 +36,7 @@ router.post(
   AuthController.forgotPassword
 );
 
-router.post(
-  '/verify-reset-code',
-  authRateLimiter,
-  validateRequest(AuthValidation.verifyResetCode),
-  AuthController.verifyResetCode
-);
+
 
 router.post(
   '/reset-password',

@@ -24,6 +24,7 @@ interface UseCustomFormReturn<T> {
   handleSubmit: (e?: React.FormEvent) => void;
   setFieldError: (name: keyof T, error: string) => void;
   setErrors: (errors: Partial<Record<keyof T, string>>) => void;
+  setValues: React.Dispatch<React.SetStateAction<T>>;
   resetForm: () => void;
 }
 
@@ -168,6 +169,7 @@ export function useCustomForm<T extends Record<string, any>>({
     handleSubmit,
     setFieldError,
     setErrors,
+    setValues,
     resetForm,
   };
 }

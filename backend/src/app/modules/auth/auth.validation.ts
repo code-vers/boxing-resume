@@ -53,18 +53,6 @@ const forgotPassword = z.object({
     .strict()
 });
 
-const verifyResetCode = z.object({
-  body: z
-    .object({
-      email: z
-        .string({ message: 'Email is required.' })
-        .trim()
-        .email('Email must be a valid email address.')
-        .transform((value) => value.toLowerCase()),
-      code: z.string({ message: 'Reset code is required.' }).length(6, 'Code must be 6 digits.')
-    })
-    .strict()
-});
 
 const resetPassword = z.object({
   body: z
@@ -82,6 +70,5 @@ export const AuthValidation = {
   login,
   changePassword,
   forgotPassword,
-  verifyResetCode,
   resetPassword
 };

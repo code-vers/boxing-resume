@@ -17,8 +17,9 @@ export const useLogin = () => {
   return useMutation<ApiResponse, ApiError, LoginPayload>({
     mutationFn: loginUserApi,
     onSuccess: (data) => {
-      // Future JWT implementation:
-      // localStorage.setItem("accessToken", data.data.accessToken);
+      if (data.data?.accessToken) {
+        localStorage.setItem("accessToken", data.data.accessToken);
+      }
       
       toast.success("Login successful!");
       

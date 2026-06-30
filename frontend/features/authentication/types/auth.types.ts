@@ -42,3 +42,12 @@ export interface ApiError {
   statusCode: number;
   fieldErrors?: Record<string, string>;
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}

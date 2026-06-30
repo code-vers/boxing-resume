@@ -70,7 +70,7 @@ export function LoginComponent() {
                 <label className='font-inter font-medium text-[#555] text-[10px] tracking-[0.8px] uppercase'>
                   PASSWORD
                 </label>
-                <Link href='#' className='font-inter font-medium text-[#d72322] text-[10px] tracking-[0.8px] uppercase hover:underline'>
+                <Link href='/forgot-password' className='font-inter font-medium text-[#d72322] text-[10px] tracking-[0.8px] uppercase hover:underline'>
                   FORGOT PASSWORD?
                 </Link>
               </div>
