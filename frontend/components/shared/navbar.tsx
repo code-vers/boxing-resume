@@ -36,6 +36,7 @@ export default function Navbar() {
    * @description Tracks the visibility state of the mobile navigation dropdown.
    */
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const pathname = usePathname();
   const { user, isLoading, logout } = useAuth();
@@ -152,11 +153,12 @@ export default function Navbar() {
                           : 'border-stroke-medium hover:border-surface-white'
                       }`}
                     >
-                      {user?.avatar ? (
+                      {user?.avatar && !imageError ? (
                         <img
                           src={user.avatar}
                           alt={user.name || 'Profile'}
                           className='h-full w-full object-cover'
+                          onError={() => setImageError(true)}
                         />
                       ) : (
                         <span className="text-sm font-bold text-surface-white uppercase">
@@ -203,11 +205,12 @@ export default function Navbar() {
                   href={profileHref}
                   className='inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-stroke-medium bg-surface-white/10'
                 >
-                  {user?.avatar ? (
+                  {user?.avatar && !imageError ? (
                     <img
                       src={user.avatar}
                       alt={user.name || 'Profile'}
                       className='h-full w-full object-cover'
+                      onError={() => setImageError(true)}
                     />
                   ) : (
                     <span className="text-xs font-bold text-surface-white uppercase">
