@@ -38,7 +38,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
 
   /**
    * @function closeMobileMenu
@@ -153,11 +153,9 @@ export default function Navbar() {
                       }`}
                     >
                       {user?.avatar ? (
-                        <Image
+                        <img
                           src={user.avatar}
                           alt={user.name || 'Profile'}
-                          width={40}
-                          height={40}
                           className='h-full w-full object-cover'
                         />
                       ) : (
@@ -206,11 +204,9 @@ export default function Navbar() {
                   className='inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-stroke-medium bg-surface-white/10'
                 >
                   {user?.avatar ? (
-                    <Image
+                    <img
                       src={user.avatar}
                       alt={user.name || 'Profile'}
-                      width={36}
-                      height={36}
                       className='h-full w-full object-cover'
                     />
                   ) : (

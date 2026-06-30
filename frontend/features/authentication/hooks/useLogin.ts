@@ -23,9 +23,13 @@ export const useLogin = () => {
       
       toast.success("Login successful!");
       
-      // Update the global auth state with the full user object
       if (data.data?.user) {
-        login(data.data.user);
+        const user = data.data.user;
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+        login({
+          ...user,
+          avatar: user.image ? `${serverUrl}${user.image}` : undefined
+        });
       }
       
       // Redirect based on role
