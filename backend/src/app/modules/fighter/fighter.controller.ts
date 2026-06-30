@@ -24,7 +24,7 @@ const getAllFighters = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getSingleFighter = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const result = await FighterService.getSingleFighter(id);
   sendResponse(res, {
     statusCode: 200,
@@ -35,7 +35,7 @@ const getSingleFighter = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateFighter = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const result = await FighterService.updateFighter(id, req.body);
   sendResponse(res, {
     statusCode: 200,
@@ -46,7 +46,7 @@ const updateFighter = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteFighter = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const result = await FighterService.deleteFighter(id);
   sendResponse(res, {
     statusCode: 200,
