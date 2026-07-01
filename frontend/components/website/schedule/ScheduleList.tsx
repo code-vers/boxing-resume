@@ -2,13 +2,16 @@
 
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getEvents } from '@/features/rankings/api/rankings.api';
+import { ApiEvent } from '@/features/rankings/types';
 
 /**
  * @type FilterTab
  * @description Available filter options for the schedule.
  */
-type FilterTab = 'All' | 'PPV' | 'Free TV' | 'DAZN';
+type FilterTab = 'All' | 'PPV' | 'Free TV' | 'DAZN' | 'Netflix';
 
 /**
  * @interface ScheduleEvent
@@ -29,72 +32,91 @@ interface ScheduleEvent {
 }
 
 /**
- * @constant mockEvents
- * @description Seed data mimicking the exact visual layout of the Figma schedule cards.
- */
-const mockEvents: ScheduleEvent[] = [
-  {
-    id: 'evt_1',
-    day: '14',
-    month: 'JUN',
-    year: '2026',
-    title: 'Riyadh Season Boxing',
-    broadcastType: 'PPV',
-    fighterA: { initials: 'B', name: 'BETERBIEV', record: '32-0-0' },
-    fighterB: { initials: 'BL', name: 'BIVOL II', record: '23-0-0' },
-    location: 'Kingdom Arena, Riyadh, Saudi Arabia',
-    division: 'Light Heavyweight',
-    status: 'Undisputed Championship',
-  },
-  {
-    id: 'evt_2',
-    day: '14',
-    month: 'JUN',
-    year: '2026',
-    title: 'Riyadh Season Boxing',
-    broadcastType: 'PPV',
-    fighterA: { initials: 'B', name: 'BETERBIEV', record: '32-0-0' },
-    fighterB: { initials: 'BL', name: 'BIVOL II', record: '23-0-0' },
-    location: 'Kingdom Arena, Riyadh, Saudi Arabia',
-    division: 'Light Heavyweight',
-    status: 'Undisputed Championship',
-  },
-  {
-    id: 'evt_3',
-    day: '14',
-    month: 'JUN',
-    year: '2026',
-    title: 'Riyadh Season Boxing',
-    broadcastType: 'PPV',
-    fighterA: { initials: 'B', name: 'BETERBIEV', record: '32-0-0' },
-    fighterB: { initials: 'BL', name: 'BIVOL II', record: '23-0-0' },
-    location: 'Kingdom Arena, Riyadh, Saudi Arabia',
-    division: 'Light Heavyweight',
-    status: 'WBA, WBC, WBO, IBF',
-  },
-  {
-    id: 'evt_4',
-    day: '14',
-    month: 'JUN',
-    year: '2026',
-    title: 'Riyadh Season Boxing',
-    broadcastType: 'PPV',
-    fighterA: { initials: 'B', name: 'BETERBIEV', record: '32-0-0' },
-    fighterB: { initials: 'BL', name: 'BIVOL II', record: '23-0-0' },
-    location: 'Kingdom Arena, Riyadh, Saudi Arabia',
-    division: 'Light Heavyweight',
-    status: 'WBA Title',
-  },
-];
-
-/**
  * @constant TABS
  * @description The available filter categories for the top navigation bar.
  */
-const TABS: FilterTab[] = ['All', 'PPV', 'Free TV', 'DAZN'];
+const TABS: FilterTab[] = ['All', 'PPV', 'Free TV', 'DAZN', 'Netflix'];
+
+const mapApiEventToScheduleEvent = (apiEvent: ApiEvent): ScheduleEvent => {
+  const dateObj = new Date(apiEvent.date);
+  const day = dateObj.getDate().toString().padStart(2, '0');
+  const month = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
+  const year = dateObj.getFullYear().toString();
+  
+  let fA = 'TBA';
+  let fB = 'TBA';
+  if (apiEvent.title.toLowerCase().includes(' vs. ')) {
+    const parts = apiEvent.title.split(/ vs\. /i);
+    fA = parts[0].trim();
+    fB = parts[1].split(':')[0].trim(); 
+  } else if (apiEvent.title.toLowerCase().includes(' vs ')) {
+    const parts = apiEvent.title.split(/ vs /i);
+    fA = parts[0].trim();
+    fB = parts[1].split(':')[0].trim();
+  } else {
+    fA = apiEvent.title;
+  }
+
+  let broadcastType = 'N/A';
+  if (apiEvent.broadcast && apiEvent.broadcast.length > 0) {
+     broadcastType = apiEvent.broadcast[0].broadcasters[0] || 'N/A';
+  }
+
+  return {
+    id: apiEvent.id,
+    day,
+    month,
+    year,
+    title: apiEvent.title,
+    broadcastType,
+    fighterA: { initials: fA.substring(0, 2).toUpperCase(), name: fA, record: '-' },
+    fighterB: { initials: fB.substring(0, 2).toUpperCase(), name: fB, record: '-' },
+    location: apiEvent.venue ? `${apiEvent.venue}, ${apiEvent.location}` : apiEvent.location || 'TBA',
+    division: 'Event',
+    status: 'Upcoming',
+  };
+};
 
 export default function ScheduleList() {
   const [activeTab, setActiveTab] = useState<FilterTab>('All');
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['boxingEvents'],
+    queryFn: getEvents,
+  });
+
+  const events: ScheduleEvent[] = useMemo(() => {
+    return data?.data?.map(mapApiEventToScheduleEvent) || [];
+  }, [data]);
+
+  const filteredEvents = useMemo(() => {
+    const currentMonthStr = currentDate.toLocaleString('default', { month: 'short' }).toUpperCase();
+    const currentYearStr = currentDate.getFullYear().toString();
+
+    return events.filter((event) => {
+      // Month and Year filter
+      const matchesDate = event.month === currentMonthStr && event.year === currentYearStr;
+
+      // Tab filter
+      let matchesTab = true;
+      if (activeTab !== 'All') {
+        matchesTab = event.broadcastType.toUpperCase().includes(activeTab.toUpperCase());
+      }
+
+      return matchesDate && matchesTab;
+    });
+  }, [events, currentDate, activeTab]);
+
+  const handlePrevMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const displayMonthYear = `${currentDate.toLocaleString('default', { month: 'short' }).toUpperCase()} ${currentDate.getFullYear()}`;
 
   return (
     <div className='flex w-full flex-col font-sans'>
@@ -103,13 +125,19 @@ export default function ScheduleList() {
         <div className='mx-auto flex items-center gap-6 overflow-x-auto px-4 py-3 sm:px-6 md:px-8 xl:px-12'>
           {/* Month/Year Selector */}
           <div className='flex shrink-0 items-center gap-3'>
-            <button className='flex h-7 w-7 items-center justify-center rounded-[4px] border border-divider text-text-placeholder transition-colors hover:text-text-primary'>
+            <button 
+              onClick={handlePrevMonth}
+              className='flex h-7 w-7 items-center justify-center rounded-[4px] border border-divider text-text-placeholder transition-colors hover:text-text-primary'
+            >
               <ChevronLeft size={16} strokeWidth={2.5} />
             </button>
             <span className='w-[80px] text-center text-[12px] font-black tracking-widest text-text-primary'>
-              MAY 2026
+              {displayMonthYear}
             </span>
-            <button className='flex h-7 w-7 items-center justify-center rounded-[4px] border border-divider text-text-placeholder transition-colors hover:text-text-primary'>
+            <button 
+              onClick={handleNextMonth}
+              className='flex h-7 w-7 items-center justify-center rounded-[4px] border border-divider text-text-placeholder transition-colors hover:text-text-primary'
+            >
               <ChevronRight size={16} strokeWidth={2.5} />
             </button>
           </div>
@@ -142,7 +170,16 @@ export default function ScheduleList() {
       {/* 2. SCHEDULE CARDS LIST */}
       <section className='w-full bg-page-bg py-8 md:py-12'>
         <div className='mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 md:px-8 xl:px-12'>
-          {mockEvents.map((event) => (
+          {isLoading && <div className="text-center py-10">Loading events...</div>}
+          {error && <div className="text-center py-10 text-red-500">Failed to load events.</div>}
+          
+          {!isLoading && !error && filteredEvents.length === 0 && (
+            <div className="text-center py-10 text-text-placeholder font-medium">
+              No events found for {displayMonthYear} with {activeTab} filter.
+            </div>
+          )}
+
+          {!isLoading && !error && filteredEvents.map((event) => (
             <div
               key={event.id}
               className='flex w-full flex-col rounded-[12px] border border-card-border bg-card-bg p-5 shadow-sm sm:p-6'
@@ -179,7 +216,7 @@ export default function ScheduleList() {
                     {event.fighterA.initials}
                   </div>
                   <div className='flex flex-col items-center'>
-                    <span className='text-[12px] font-black tracking-wide text-text-primary'>
+                    <span className='text-[12px] font-black tracking-wide text-text-primary text-center'>
                       {event.fighterA.name}
                     </span>
                     <span className='mt-0.5 text-[10px] font-medium tracking-widest text-text-placeholder'>
@@ -197,7 +234,7 @@ export default function ScheduleList() {
                     {event.fighterB.initials}
                   </div>
                   <div className='flex flex-col items-center'>
-                    <span className='text-[12px] font-black tracking-wide text-text-primary'>
+                    <span className='text-[12px] font-black tracking-wide text-text-primary text-center'>
                       {event.fighterB.name}
                     </span>
                     <span className='mt-0.5 text-[10px] font-medium tracking-widest text-text-placeholder'>

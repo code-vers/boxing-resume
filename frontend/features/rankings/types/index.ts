@@ -96,3 +96,24 @@ export interface ApiFighterResponse {
 export interface ApiOrganizationsResponse {
   data: ApiOrg[];
 }
+
+export interface ApiEvent {
+  id: string;
+  title: string;
+  date: string;
+  venue: string | null;
+  location: string | null;
+  broadcasters: Record<string, string>[] | null;
+  broadcast: { country: string; broadcasters: string[] }[] | null;
+  poster_image_url: string | null;
+}
+
+export interface ApiEventsResponse {
+  pagination: {
+    page: number;
+    items: number;
+    total_pages: number;
+    total_items: number;
+  };
+  data: ApiEvent[];
+}

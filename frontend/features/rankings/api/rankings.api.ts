@@ -1,5 +1,5 @@
 import { boxingApiInstance } from './axios.instance';
-import { ApiOrganizationsResponse, ApiTitlesResponse, ApiFighterResponse } from '../types';
+import { ApiOrganizationsResponse, ApiTitlesResponse, ApiFighterResponse, ApiEventsResponse } from '../types';
 
 export const getOrganizations = async (): Promise<ApiOrganizationsResponse> => {
   const { data } = await boxingApiInstance.get<ApiOrganizationsResponse>('/organizations');
@@ -23,5 +23,10 @@ export const getTitles = async (organizationId?: string): Promise<ApiTitlesRespo
 
 export const getFighter = async (fighterId: string): Promise<ApiFighterResponse> => {
   const { data } = await boxingApiInstance.get<ApiFighterResponse>(`/fighters/${fighterId}`);
+  return data;
+};
+
+export const getEvents = async (): Promise<ApiEventsResponse> => {
+  const { data } = await boxingApiInstance.get<ApiEventsResponse>('/events');
   return data;
 };
