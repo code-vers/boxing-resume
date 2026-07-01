@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { allFighters } from "@/constants/seed-data";
-import type { IFighter } from "@/types/Fighter.types";
+import { useRapidFighters } from "@/features/fighters/hooks/useFighters";
+import { useDivisions } from "@/features/rankings/hooks/useRankings";
+import type { ApiFighter } from "@/features/fighters/types";
 
 interface AllFightersGridProps {
     searchQuery?: string;
@@ -20,70 +21,97 @@ const AllFightersGrid = ({
     selectedStatus = "all",
 }: AllFightersGridProps) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 50;
 
-    // Filter fighters based on search and selected filters
-    const filteredFighters = useMemo(() => {
-        return allFighters.filter((fighter) => {
-            const matchesSearch =
-                !searchQuery ||
-                fighter.firstName
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                fighter.lastName
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                (fighter.nickname &&
-                    fighter.nickname
-                        .toLowerCase()
-                        .includes(searchQuery.toLowerCase()));
-
-            const matchesDivision =
-                selectedDivision === "All Division" ||
-                fighter.division === selectedDivision;
-
-            const matchesCountry =
-                selectedCountry === "All Countries" ||
-                fighter.nationality === selectedCountry;
-
-            const matchesStatus =
-                selectedStatus === "all" || fighter.status === selectedStatus;
-
-            return (
-                matchesSearch &&
-                matchesDivision &&
-                matchesCountry &&
-                matchesStatus
-            );
-        });
+    // Reset page to 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
     }, [searchQuery, selectedDivision, selectedCountry, selectedStatus]);
 
-    // Calculate pagination
-    const totalPages = Math.ceil(filteredFighters.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    // Fetch divisions list to map selected division name to its ID
+    const { data: divisionsResponse } = useDivisions();
+    const divisionsList = useMemo(() => divisionsResponse?.data || [], [divisionsResponse]);
+
+    const selectedDivisionId = useMemo(() => {
+        if (!selectedDivision || selectedDivision === 'All Division') return undefined;
+        const found = divisionsList.find((d: any) => d.name === selectedDivision);
+        return found ? found.id : undefined;
+    }, [selectedDivision, divisionsList]);
+
+    // Fetch paginated and filtered fighters directly from the RapidAPI
+    const { data: apiResponse, isLoading, error } = useRapidFighters({
+        page: currentPage,
+        name: searchQuery || undefined,
+        division_id: selectedDivisionId,
+        nationality: selectedCountry === 'All Countries' ? undefined : selectedCountry
+    });
+
+    const paginatedFighters = useMemo<ApiFighter[]>(() => apiResponse?.data || [], [apiResponse]);
+    const pagination = apiResponse?.pagination;
+    const totalPages = pagination?.total_pages || 1;
+    const totalItems = pagination?.total_items || 0;
+
+    const pageSize = pagination?.items || 50;
+    const startIndex = (currentPage - 1) * pageSize;
     const endIndex = Math.min(
-        startIndex + ITEMS_PER_PAGE,
-        filteredFighters.length,
+        startIndex + paginatedFighters.length,
+        totalItems,
     );
-    const paginatedFighters = filteredFighters.slice(startIndex, endIndex);
 
-    const getAvatarInitials = (fighter: IFighter) => {
+    const getAvatarInitials = (fighter: ApiFighter) => {
         return (
-            fighter.firstName.charAt(0) + fighter.lastName.charAt(0)
-        ).toUpperCase();
+            (fighter.firstName?.charAt(0) || "") + (fighter.lastName?.charAt(0) || "")
+        ).toUpperCase() || "B";
     };
 
-    // Generate mock "Last 6" results (green squares)
-    const getLastSixResults = () => {
-        return Array.from({ length: 6 }, () => true);
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+        const range = 1;
+
+        pages.push(1);
+
+        if (currentPage - range > 2) {
+            pages.push("...");
+        }
+
+        const start = Math.max(2, currentPage - range);
+        const end = Math.min(totalPages - 1, currentPage + range);
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        if (currentPage + range < totalPages - 1) {
+            pages.push("...");
+        }
+
+        if (totalPages > 1) {
+            pages.push(totalPages);
+        }
+
+        return pages;
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-6 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
+                Failed to load fighters. Please check backend connection.
+            </div>
+        );
+    }
 
     return (
         <div className="p-0 lg:py-14 lg:px-10">
             <section className="w-full bg-white rounded-2xl">
                 <div className="mx-auto px-4 sm:px-6 py-12">
                     {/* Section Header */}
-
                     <div className="mb-6">
                         <h2 className="text-xl sm:text-2xl font-bold font-['Bebas_Neue'] uppercase tracking-[0.72px] text-[#0a0a0a]">
                             RECENT RESULTS
@@ -93,11 +121,11 @@ const AllFightersGrid = ({
                     {/* Results Count */}
                     <div className="text-xs sm:text-sm font-medium text-[#857f78] mb-4">
                         Showing{" "}
-                        {filteredFighters.length === 0 ? 0 : startIndex + 1}–
-                        {endIndex} of {filteredFighters.length}
+                        {totalItems === 0 ? 0 : startIndex + 1}–
+                        {endIndex} of {totalItems}
                     </div>
 
-                    {filteredFighters.length > 0 ? (
+                    {paginatedFighters.length > 0 ? (
                         <div className="space-y-6">
                             {/* Desktop Table View */}
                             <div className="hidden sm:block overflow-x-auto">
@@ -152,282 +180,211 @@ const AllFightersGrid = ({
                                     </div>
 
                                     {/* Table Body */}
-                                    {paginatedFighters.map((fighter, index) => (
-                                        <div
-                                            key={fighter.id}
-                                            className="flex border-b border-[#f1ede1] hover:bg-gray-50 transition-colors"
-                                        >
-                                            {/* Rank */}
-                                            <div className="w-[170px] shrink-0 flex items-center pl-6 pr-4 py-4">
-                                                <p className="text-sm font-medium text-[#656464]">
-                                                    {startIndex + index + 1}
-                                                </p>
-                                            </div>
+                                    {paginatedFighters.map((fighter: ApiFighter, index: number) => {
+                                        const wins = fighter.record?.wins ?? fighter.wins ?? 0;
+                                        const losses = fighter.record?.losses ?? fighter.losses ?? 0;
+                                        const draws = fighter.record?.draws ?? fighter.draws ?? 0;
 
-                                            {/* Fighter */}
-                                            <div className="w-[244px] shrink-0 flex items-center gap-3 px-4 py-4">
-                                                <div className="h-9 w-9 rounded-full bg-[#0a0a0a] border border-[#d72322] flex items-center justify-center shrink-0">
-                                                    <p className="text-xs font-bold text-white font-['Bebas_Neue']">
-                                                        {getAvatarInitials(
-                                                            fighter,
-                                                        )}
+                                        return (
+                                            <div
+                                                key={index}
+                                                className="flex border-b border-[#f1ede1] hover:bg-gray-50 transition-colors"
+                                            >
+                                                {/* Rank */}
+                                                <div className="w-[170px] shrink-0 flex items-center pl-6 pr-4 py-4">
+                                                    <p className="text-sm font-medium text-[#656464]">
+                                                        {startIndex + index + 1}
                                                     </p>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs sm:text-sm font-medium text-[#0a0a0a] truncate">
-                                                        {fighter.firstName}{" "}
-                                                        {fighter.lastName}
-                                                    </p>
-                                                    {fighter.nickname && (
-                                                        <p className="text-xs text-[#857f78] italic truncate">
-                                                            &quot;
-                                                            {fighter.nickname}
-                                                            &quot;
+
+                                                {/* Fighter */}
+                                                <div className="w-[244px] shrink-0 flex items-center gap-3 px-4 py-4">
+                                                    <div className="h-9 w-9 rounded-full bg-[#0a0a0a] border border-[#d72322] flex items-center justify-center shrink-0">
+                                                        <p className="text-xs font-bold text-white font-['Bebas_Neue']">
+                                                            {getAvatarInitials(fighter)}
                                                         </p>
-                                                    )}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs sm:text-sm font-medium text-[#0a0a0a] truncate">
+                                                            {fighter.firstName} {fighter.lastName}
+                                                        </p>
+                                                        {fighter.nickname && (
+                                                            <p className="text-xs text-[#857f78] italic truncate">
+                                                                &quot;{fighter.nickname}&quot;
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {/* Nationality */}
-                                            <div className="w-[159px] shrink-0 flex items-center justify-center px-4 py-4">
-                                                <p className="text-xs text-[#857f78]">
-                                                    {fighter.nationality || "—"}
-                                                </p>
-                                            </div>
-
-                                            {/* Division */}
-                                            <div className="w-[150px] shrink-0 flex items-center justify-center px-4 py-4">
-                                                <p className="text-xs sm:text-sm text-[#3d3b38] text-center">
-                                                    {fighter.division}
-                                                </p>
-                                            </div>
-
-                                            {/* Record */}
-                                            <div className="w-[175px] shrink-0 flex items-center justify-center px-4 py-4">
-                                                <p className="text-xs sm:text-sm font-['Bebas_Neue']">
-                                                    <span
-                                                        style={{
-                                                            color: "#166534",
-                                                        }}
-                                                    >
-                                                        {fighter.record.wins}
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#857f78",
-                                                        }}
-                                                    >
-                                                        –
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#991b1b",
-                                                        }}
-                                                    >
-                                                        {fighter.record.losses}
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#857f78",
-                                                        }}
-                                                    >
-                                                        –
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#854d0e",
-                                                        }}
-                                                    >
-                                                        {fighter.record.draws}
-                                                    </span>
-                                                </p>
-                                            </div>
-
-                                            {/* KOs */}
-                                            <div className="w-[157px] shrink-0 flex items-center justify-center px-4 py-4">
-                                                <p className="text-sm font-medium text-[#656464]">
-                                                    {Math.round(
-                                                        fighter.ko_rate,
-                                                    )}
-                                                </p>
-                                            </div>
-
-                                            {/* Last 6 */}
-                                            <div className="w-[253px] shrink-0 flex items-center justify-center px-4 py-4">
-                                                <div className="flex gap-[2px]">
-                                                    {getLastSixResults().map(
-                                                        (_, i) => (
-                                                            <div
-                                                                key={i}
-                                                                className="h-3 w-3 rounded-sm"
-                                                                style={{
-                                                                    backgroundColor:
-                                                                        "#166534",
-                                                                }}
-                                                            />
-                                                        ),
-                                                    )}
+                                                {/* Nationality */}
+                                                <div className="w-[159px] shrink-0 flex items-center justify-center px-4 py-4">
+                                                    <p className="text-xs text-[#857f78]">
+                                                        {fighter.nationality || "—"}
+                                                    </p>
                                                 </div>
-                                            </div>
 
-                                            {/* Rating */}
-                                            <div className="w-[194px] shrink-0 flex items-center justify-center px-4 py-4">
-                                                <p className="text-sm font-bold font-['Bebas_Neue'] text-[#0a0a0a]">
-                                                    {/* Stable mock rating */}
-                                                    {1500 + (index % 500)}
-                                                </p>
-                                            </div>
+                                                {/* Division */}
+                                                <div className="w-[150px] shrink-0 flex items-center justify-center px-4 py-4">
+                                                    <p className="text-xs sm:text-sm text-[#3d3b38] text-center">
+                                                       {fighter?.division}
+                                                    </p>
+                                                </div>
 
-                                            {/* Status */}
-                                            <div className="w-[269px] shrink-0 flex items-center justify-center px-6 py-4">
-                                                <div className="bg-[#dcfce7] px-2 py-1 rounded-full">
-                                                    <p className="text-xs font-medium text-[#166534] capitalize">
-                                                        {fighter.status ===
-                                                        "active"
-                                                            ? "Active"
-                                                            : "Inactive"}
+                                                {/* Record */}
+                                                <div className="w-[175px] shrink-0 flex items-center justify-center px-4 py-4">
+                                                    <p className="text-xs sm:text-sm font-['Bebas_Neue']">
+                                                        <span style={{ color: "#166534" }}>
+                                                            {wins}
+                                                        </span>
+                                                        <span style={{ color: "#857f78" }}>
+                                                            –
+                                                        </span>
+                                                        <span style={{ color: "#991b1b" }}>
+                                                            {losses}
+                                                        </span>
+                                                        <span style={{ color: "#857f78" }}>
+                                                            –
+                                                        </span>
+                                                        <span style={{ color: "#854d0e" }}>
+                                                            {draws}
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                {/* KOs */}
+                                                <div className="w-[157px] shrink-0 flex items-center justify-center px-4 py-4">
+                                                    <p className="text-xs font-semibold text-slate-500">
+                                                        missing
+                                                    </p>
+                                                </div>
+
+                                                {/* Last 6 */}
+                                                <div className="w-[253px] shrink-0 flex items-center justify-center px-4 py-4">
+                                                    <p className="text-xs text-slate-500">
+                                                        missing
+                                                    </p>
+                                                </div>
+
+                                                {/* Rating */}
+                                                <div className="w-[194px] shrink-0 flex items-center justify-center px-4 py-4">
+                                                    <p className="text-xs text-slate-500">
+                                                        missing
+                                                    </p>
+                                                </div>
+
+                                                {/* Status */}
+                                                <div className="w-[269px] shrink-0 flex items-center justify-center px-6 py-4">
+                                                    <p className="text-xs text-slate-500">
+                                                        missing
                                                     </p>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
                             {/* Mobile Card View */}
                             <div className="sm:hidden space-y-3">
-                                {paginatedFighters.map((fighter, index) => (
-                                    <div
-                                        key={fighter.id}
-                                        className="border border-[#f1ede1] rounded-lg p-5 bg-white shadow-sm"
-                                    >
-                                        {/* Rank and Status */}
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className="font-bold text-lg text-[#0a0a0a]">
-                                                #{startIndex + index + 1}
-                                            </span>
-                                            <div className="bg-[#dcfce7] px-2 py-1 rounded-full">
-                                                <p className="text-xs font-medium text-[#166534] capitalize">
-                                                    {fighter.status === "active"
-                                                        ? "Active"
-                                                        : "Inactive"}
-                                                </p>
-                                            </div>
-                                        </div>
+                                {paginatedFighters.map((fighter: ApiFighter, index: number) => {
+                                    const wins = fighter.record?.wins ?? fighter.wins ?? 0;
+                                    const losses = fighter.record?.losses ?? fighter.losses ?? 0;
+                                    const draws = fighter.record?.draws ?? fighter.draws ?? 0;
 
-                                        {/* Fighter Info */}
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <div className="h-10 w-10 rounded-full bg-[#0a0a0a] border border-[#d72322] flex items-center justify-center shrink-0">
-                                                <p className="text-sm font-bold text-white font-['Bebas_Neue']">
-                                                    {getAvatarInitials(fighter)}
+                                    return (
+                                        <div
+                                            key={fighter.id}
+                                            className="border border-[#f1ede1] rounded-lg p-5 bg-white shadow-sm"
+                                        >
+                                            {/* Rank and Status */}
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="font-bold text-lg text-[#0a0a0a]">
+                                                    #{startIndex + index + 1}
+                                                </span>
+                                                <p className="text-xs text-slate-500">
+                                                    missing
                                                 </p>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-[#0a0a0a] truncate">
-                                                    {fighter.firstName}{" "}
-                                                    {fighter.lastName}
-                                                </p>
-                                                {fighter.nickname && (
-                                                    <p className="text-xs text-[#857f78] italic truncate">
-                                                        &quot;{fighter.nickname}
-                                                        &quot;
+
+                                            {/* Fighter Info */}
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="h-10 w-10 rounded-full bg-[#0a0a0a] border border-[#d72322] flex items-center justify-center shrink-0">
+                                                    <p className="text-sm font-bold text-white font-['Bebas_Neue']">
+                                                        {getAvatarInitials(fighter)}
                                                     </p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Details Grid */}
-                                        <div className="grid grid-cols-2 gap-3 text-xs">
-                                            <div>
-                                                <p className="text-[#857f78] font-medium mb-1">
-                                                    Nationality
-                                                </p>
-                                                <p className="text-[#0a0a0a]">
-                                                    {fighter.nationality || "—"}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[#857f78] font-medium mb-1">
-                                                    Division
-                                                </p>
-                                                <p className="text-[#0a0a0a]">
-                                                    {fighter.division}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[#857f78] font-medium mb-1">
-                                                    Record
-                                                </p>
-                                                <p className="text-[#0a0a0a] font-['Bebas_Neue']">
-                                                    <span
-                                                        style={{
-                                                            color: "#166534",
-                                                        }}
-                                                    >
-                                                        {fighter.record.wins}
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#857f78",
-                                                        }}
-                                                    >
-                                                        –
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#991b1b",
-                                                        }}
-                                                    >
-                                                        {fighter.record.losses}
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#857f78",
-                                                        }}
-                                                    >
-                                                        –
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            color: "#854d0e",
-                                                        }}
-                                                    >
-                                                        {fighter.record.draws}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[#857f78] font-medium mb-1">
-                                                    KOs
-                                                </p>
-                                                <p className="text-[#0a0a0a]">
-                                                    {Math.round(
-                                                        fighter.ko_rate,
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div className="col-span-2">
-                                                <p className="text-[#857f78] font-medium mb-1">
-                                                    Last 6
-                                                </p>
-                                                <div className="flex gap-[2px]">
-                                                    {getLastSixResults().map(
-                                                        (_, i) => (
-                                                            <div
-                                                                key={i}
-                                                                className="h-2 w-2 rounded-sm"
-                                                                style={{
-                                                                    backgroundColor:
-                                                                        "#166534",
-                                                                }}
-                                                            />
-                                                        ),
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-[#0a0a0a] truncate">
+                                                        {fighter.firstName} {fighter.lastName}
+                                                    </p>
+                                                    {fighter.nickname && (
+                                                        <p className="text-xs text-[#857f78] italic truncate">
+                                                            &quot;{fighter.nickname}&quot;
+                                                        </p>
                                                     )}
                                                 </div>
                                             </div>
+
+                                            {/* Details Grid */}
+                                            <div className="grid grid-cols-2 gap-3 text-xs">
+                                                <div>
+                                                    <p className="text-[#857f78] font-medium mb-1">
+                                                        Nationality
+                                                    </p>
+                                                    <p className="text-[#0a0a0a]">
+                                                        {fighter.nationality || "—"}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[#857f78] font-medium mb-1">
+                                                        Division
+                                                    </p>
+                                                    <p className="text-[#0a0a0a]">
+                                                        {fighter.division}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[#857f78] font-medium mb-1">
+                                                        Record
+                                                    </p>
+                                                    <p className="text-[#0a0a0a] font-['Bebas_Neue']">
+                                                        <span style={{ color: "#166534" }}>
+                                                            {wins}
+                                                        </span>
+                                                        <span style={{ color: "#857f78" }}>
+                                                            –
+                                                        </span>
+                                                        <span style={{ color: "#991b1b" }}>
+                                                            {losses}
+                                                        </span>
+                                                        <span style={{ color: "#857f78" }}>
+                                                            –
+                                                        </span>
+                                                        <span style={{ color: "#854d0e" }}>
+                                                            {draws}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[#857f78] font-medium mb-1">
+                                                        KOs
+                                                    </p>
+                                                    <p className="text-slate-500">
+                                                        missing
+                                                    </p>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-[#857f78] font-medium mb-1">
+                                                        Last 6
+                                                    </p>
+                                                    <p className="text-slate-500">
+                                                        missing
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     ) : (
@@ -439,81 +396,63 @@ const AllFightersGrid = ({
                     )}
                 </div>
             </section>
+
             {/* Pagination Controls */}
-                            <div className="flex items-center justify-center pt-8 border-t border-[#f1ede1] mt-8">
-                                <div className="flex items-center gap-2">
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center pt-8 border-t border-[#f1ede1] mt-8">
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() =>
+                                setCurrentPage((prev) => Math.max(1, prev - 1))
+                            }
+                            disabled={currentPage === 1}
+                            className="h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                        >
+                            Prev
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                            {getPageNumbers().map((page, idx) => {
+                                if (page === "...") {
+                                    return (
+                                        <span
+                                            key={`dots-${idx}`}
+                                            className="h-8 w-8 flex items-center justify-center text-[#857f78]"
+                                        >
+                                            ...
+                                        </span>
+                                    );
+                                }
+
+                                return (
                                     <button
-                                        onClick={() =>
-                                            setCurrentPage(
-                                                Math.max(1, currentPage - 1),
-                                            )
-                                        }
-                                        disabled={currentPage === 1}
-                                        className="h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                                    >
-                                        Prev
-                                    </button>
-
-                                    <div className="flex items-center gap-1">
-                                        {[
-                                            ...Array(Math.min(3, totalPages)),
-                                        ].map((_, i) => (
-                                            <button
-                                                key={i + 1}
-                                                onClick={() =>
-                                                    setCurrentPage(i + 1)
-                                                }
-                                                className={cn(
-                                                    "h-8 w-8 flex items-center justify-center rounded-md text-[13px] font-medium transition-colors",
-                                                    currentPage === i + 1
-                                                        ? "bg-[#d72322] text-white"
-                                                        : "border border-transparent text-[#0a0a0a] hover:bg-gray-50",
-                                                )}
-                                            >
-                                                {i + 1}
-                                            </button>
-                                        ))}
-
-                                        {totalPages > 4 &&
-                                            currentPage < totalPages - 2 && (
-                                                <span className="h-8 w-8 flex items-center justify-center text-[#857f78]">
-                                                    ...
-                                                </span>
-                                            )}
-
-                                        {totalPages > 3 && (
-                                            <button
-                                                onClick={() =>
-                                                    setCurrentPage(totalPages)
-                                                }
-                                                className={cn(
-                                                    "h-8 w-8 flex items-center justify-center rounded-md text-[13px] font-medium transition-colors",
-                                                    currentPage === totalPages
-                                                        ? "bg-[#d72322] text-white"
-                                                        : "border border-transparent text-[#0a0a0a] hover:bg-gray-50",
-                                                )}
-                                            >
-                                                {totalPages}
-                                            </button>
+                                        key={page}
+                                        onClick={() => setCurrentPage(Number(page))}
+                                        className={cn(
+                                            "h-8 w-8 flex items-center justify-center rounded-md text-[13px] font-medium transition-colors",
+                                            currentPage === page
+                                                ? "bg-[#d72322] text-white"
+                                                : "border border-transparent text-[#0a0a0a] hover:bg-gray-50",
                                         )}
-                                    </div>
-
-                                    <button
-                                        onClick={() =>
-                                            setCurrentPage(
-                                                Math.min(
-                                                    totalPages,
-                                                    currentPage + 1,
-                                                ),
-                                            )
-                                        }
-                                        disabled={currentPage === totalPages}
-                                        className="h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                                     >
-                                        Next
+                                        {page}
                                     </button>
-                                </div>
-                            </div>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() =>
+                                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                            }
+                            disabled={currentPage === totalPages}
+                            className="h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -4,7 +4,8 @@ import { useState, useMemo } from "react";
 import AllFightersBanner from "@/components/website/all-fighters/AllFightersBanner";
 import AllFightersSearch from "@/components/website/all-fighters/AllFightersSearch";
 import AllFightersGrid from "@/components/website/all-fighters/AllFightersGrid";
-import { allFighters } from "@/constants/seed-data";
+import { useRapidFighters } from "@/features/fighters/hooks/useFighters";
+import { useDivisions } from "@/features/rankings/hooks/useRankings";
 import React from "react";
 
 const FightersPage = () => {
@@ -14,34 +15,29 @@ const FightersPage = () => {
     const [rating, setRating] = useState("All Ratings");
     const [status, setStatus] = useState("all");
 
-    // Calculate filtered fighters count for display
-    const filteredCount = useMemo(() => {
-        return allFighters.filter((fighter) => {
-            const matchesSearch =
-                !query ||
-                fighter.firstName.toLowerCase().includes(query.toLowerCase()) ||
-                fighter.lastName.toLowerCase().includes(query.toLowerCase()) ||
-                (fighter.nickname &&
-                    fighter.nickname
-                        .toLowerCase()
-                        .includes(query.toLowerCase()));
+    // Fetch divisions list to map selected division name to its ID
+    const { data: divisionsResponse } = useDivisions();
+    const divisionsList = useMemo(() => divisionsResponse?.data || [], [divisionsResponse]);
 
-            const matchesDivision =
-                division === "All Division" || fighter.division === division;
+    const selectedDivisionId = useMemo(() => {
+        if (!division || division === 'All Division') return undefined;
+        const found = divisionsList.find((d: any) => d.name === division);
+        return found ? found.id : undefined;
+    }, [division, divisionsList]);
 
-            const matchesCountry =
-                country === "All Countries" || fighter.nationality === country;
+    // Query filtered counts dynamically from the RapidAPI
+    const { data: apiResponse, isLoading } = useRapidFighters({
+        page: 1,
+        name: query || undefined,
+        division_id: selectedDivisionId,
+        nationality: country === 'All Countries' ? undefined : country
+    });
 
-            const matchesStatus = status === "all" || fighter.status === status;
+    // Query grand total count from RapidAPI
+    const { data: totalResponse } = useRapidFighters({ page: 1 });
 
-            return (
-                matchesSearch &&
-                matchesDivision &&
-                matchesCountry &&
-                matchesStatus
-            );
-        }).length;
-    }, [query, division, country, status]);
+    const totalFighters = totalResponse?.pagination?.total_items || 32619;
+    const filteredCount = apiResponse?.pagination?.total_items || 0;
 
     return (
         <div>
@@ -57,17 +53,23 @@ const FightersPage = () => {
                 setRating={setRating}
                 status={status}
                 setStatus={setStatus}
-                totalFighters={allFighters.length}
+                totalFighters={totalFighters}
                 filteredCount={filteredCount}
             />
-            <AllFightersGrid
-                searchQuery={query}
-                selectedDivision={division}
-                selectedCountry={country}
-                selectedStatus={status}
-                selectedRating={rating}
-                key={`${query}-${division}-${country}-${status}-${rating}`}
-            />
+            {isLoading ? (
+                <div className="flex items-center justify-center min-h-[300px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+            ) : (
+                <AllFightersGrid
+                    searchQuery={query}
+                    selectedDivision={division}
+                    selectedCountry={country}
+                    selectedStatus={status}
+                    selectedRating={rating}
+                    key={`${query}-${division}-${country}-${status}-${rating}`}
+                />
+            )}
         </div>
     );
 };
