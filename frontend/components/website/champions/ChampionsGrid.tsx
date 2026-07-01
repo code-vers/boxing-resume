@@ -1,7 +1,7 @@
 'use client';
 
-import { ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, Loader2, ChevronDown } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
 import { useOrganizations, useTitles, useFighter } from '../../../features/rankings/hooks/useRankings';
 import { ApiOrg, ApiTitle } from '../../../features/rankings/types';
 
@@ -20,43 +20,68 @@ const getInitials = (name: string) => {
  */
 const ChampionCard = ({ title, org }: { title: ApiTitle; org: ApiOrg }) => {
   const championId = title.fighter_id || title.champion_id || title.fighter?.id;
-  const { data: fighterData } = useFighter(championId);
+  const { data: fighterData, isLoading: fighterLoading } = useFighter(championId);
   const fighter = fighterData?.data;
 
   const isVacant = !championId;
   const fighterName = fighter ? fighter.name : (title.fighter?.name || (isVacant ? "VACANT" : "Loading..."));
   const initials = isVacant ? 'V' : getInitials(fighterName);
-  const orgShortName = org.name.replace(/\s\(.+\)/, '');
+  const orgShortName = org?.name ? org.name.replace(/\s\(.+\)/, '') : 'ORG';
 
   return (
-    <div className='relative flex flex-col items-center rounded-[8px] border border-card-border bg-surface-white p-6 shadow-sm transition-shadow hover:shadow-md'>
-      <span className='absolute left-4 top-4 text-[10px] font-black uppercase text-text-accent'>
+    <div className='group relative flex flex-col items-center rounded-[12px] border border-card-border bg-surface-white p-6 shadow-sm transition-all hover:shadow-md hover:border-text-accent'>
+      <span className='absolute left-4 top-4 text-[11px] font-black uppercase text-text-accent tracking-wider'>
         {orgShortName}
       </span>
       {title.title_type && (
-        <span className='absolute right-4 top-4 text-[10px] font-medium text-text-placeholder'>
+        <span className='absolute right-4 top-4 text-[10px] font-bold text-text-placeholder px-2 py-0.5 bg-card-dark/5 rounded-full'>
           {title.title_type}
         </span>
       )}
-      <div className='mt-2 flex h-[60px] w-[60px] items-center justify-center rounded-full border-2 border-text-accent bg-card-dark text-[18px] font-bold text-surface-white overflow-hidden'>
-        {initials}
-      </div>
-      <h3 className='mt-4 text-[14px] font-black uppercase tracking-tight text-text-primary text-center'>
-        {fighterName}
-      </h3>
-      {fighter && (
-        <div className='mt-2 flex flex-col items-center text-[11px] text-text-placeholder'>
+      
+      {/* Champion Photo / Initials */}
+      {fighterLoading ? (
+        <div className='mt-4 h-[80px] w-[80px] rounded-full bg-card-dark/10 animate-pulse'></div>
+      ) : (
+        <div className='mt-4 flex h-[80px] w-[80px] items-center justify-center rounded-full border-[3px] border-text-accent bg-card-dark text-[24px] font-bold text-surface-white shadow-sm overflow-hidden transition-transform group-hover:scale-105'>
+          {initials}
+        </div>
+      )}
+
+      {fighterLoading ? (
+        <div className='mt-5 h-[20px] w-[140px] bg-card-dark/10 animate-pulse rounded-md'></div>
+      ) : (
+        <h3 className='mt-5 text-[16px] font-black uppercase tracking-tight text-text-primary text-center leading-tight'>
+          {fighterName}
+        </h3>
+      )}
+      
+      {fighterLoading ? (
+        <div className='mt-3 flex flex-col items-center gap-1 w-full'>
+          <div className='h-[18px] w-[100px] bg-card-dark/10 animate-pulse rounded-md'></div>
+          <div className='h-[14px] w-[80px] bg-card-dark/10 animate-pulse rounded-md'></div>
+        </div>
+      ) : fighter && (
+        <div className='mt-3 flex flex-col items-center gap-1'>
           {fighter.stats && (
-            <span>{fighter.stats.wins}W - {fighter.stats.losses}L - {fighter.stats.draws}D</span>
+            <span className='text-[12px] font-semibold text-text-primary bg-page-bg px-2 py-1 rounded-md'>
+              {fighter.stats.wins}W - {fighter.stats.losses}L - {fighter.stats.draws}D
+            </span>
           )}
           {fighter.nationality && (
-            <span>{fighter.nationality}</span>
+            <span className='text-[12px] font-medium text-text-placeholder'>
+              {fighter.nationality}
+            </span>
           )}
         </div>
       )}
+
       {!isVacant && (
-        <button className='mt-5 flex items-center gap-1 text-[11px] font-bold text-text-accent transition-colors hover:text-red-700'>
-          View profile <ArrowRight size={12} strokeWidth={2.5} />
+        <button 
+          disabled={fighterLoading}
+          className='mt-6 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-page-bg text-[12px] font-bold text-text-primary transition-colors hover:bg-text-accent hover:text-surface-white disabled:opacity-50 disabled:cursor-not-allowed group-hover:bg-text-accent group-hover:text-surface-white'
+        >
+          View profile <ArrowRight size={14} strokeWidth={2.5} />
         </button>
       )}
     </div>
@@ -67,13 +92,14 @@ const ChampionCard = ({ title, org }: { title: ApiTitle; org: ApiOrg }) => {
  * @component ChampionsGrid
  */
 export default function ChampionsGrid() {
-  const [activeTab, setActiveTab] = useState<string>('All');
+  const [activeOrgTab, setActiveOrgTab] = useState<string>('All');
+  const [activeDivision, setActiveDivision] = useState<string>('All');
 
   // Fetch Organizations
   const { data: orgsData, isLoading: orgsLoading } = useOrganizations();
 
-  // Fetch Titles
-  const { data: titlesData, isLoading: titlesLoading, isFetching } = useTitles(activeTab);
+  // Fetch Titles for selected organization
+  const { data: titlesData, isLoading: titlesLoading, isFetching } = useTitles(activeOrgTab);
 
   // Group titles by division
   const groupedTitles = useMemo(() => {
@@ -96,8 +122,42 @@ export default function ChampionsGrid() {
     });
   }, [groupedTitles]);
 
-  // Prepare Tabs
-  const tabs = useMemo(() => {
+  // Derive unique divisions from fetched titles
+  const availableDivisions = useMemo(() => {
+    if (!titlesData?.data) return [];
+    const divMap = new Map();
+    titlesData.data.forEach(title => {
+      if (title.division) {
+        divMap.set(title.division.id, title.division);
+      }
+    });
+    // Sort by weight_lb descending (Heavyweight first)
+    return Array.from(divMap.values()).sort((a, b) => (b.weight_lb || 0) - (a.weight_lb || 0));
+  }, [titlesData]);
+
+  // Set default division when divisions load or change
+  useMemo(() => {
+    if (availableDivisions.length > 0 && activeDivision !== 'All') {
+      const exists = availableDivisions.find(d => d.name === activeDivision);
+      if (!exists) {
+        setActiveDivision('All');
+      }
+    } else if (availableDivisions.length === 0) {
+      setActiveDivision('All');
+    }
+  }, [availableDivisions, activeDivision]);
+
+  // Determine which divisions to render based on the active selection
+  const divisionsToRender = useMemo(() => {
+    if (activeDivision === 'All') {
+      return sortedDivisions;
+    }
+    const filtered = sortedDivisions.find(d => d[0] === activeDivision);
+    return filtered ? [filtered] : [];
+  }, [activeDivision, sortedDivisions]);
+
+  // Prepare Organization Tabs
+  const orgTabs = useMemo(() => {
     const base = [{ id: 'All', name: 'All' }];
     if (orgsData?.data) {
       return [...base, ...orgsData.data];
@@ -105,21 +165,21 @@ export default function ChampionsGrid() {
     return base;
   }, [orgsData]);
 
-  // Handle Tab Click
-  const handleTabClick = (tabId: string) => {
-    setActiveTab(tabId);
+  // Handle Org Tab Click
+  const handleOrgTabClick = (tabId: string) => {
+    setActiveOrgTab(tabId);
   };
 
   return (
     <div className='flex w-full flex-col font-sans bg-page-bg min-h-[600px] relative'>
-      {/* --- 1. TABS NAVIGATION --- */}
+      {/* --- 1. ORGANIZATIONS NAVIGATION --- */}
       <div className='w-full border-b border-divider bg-surface-white'>
         <div className='hide-scrollbar mx-auto flex items-center gap-2 overflow-x-auto px-4 sm:px-6 lg:px-8'>
           {orgsLoading ? (
             <div className="py-4 text-sm text-text-placeholder animate-pulse">Loading organizations...</div>
           ) : (
-            tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
+            orgTabs.map((tab) => {
+              const isActive = activeOrgTab === tab.id;
               let tabLabel = tab.name;
               const match = tabLabel.match(/\(([^)]+)\)/);
               if (match) tabLabel = match[1];
@@ -127,7 +187,7 @@ export default function ChampionsGrid() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => handleTabClick(tab.id)}
+                  onClick={() => handleOrgTabClick(tab.id)}
                   className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${
                     isActive ? 'text-text-primary' : 'text-text-placeholder hover:text-text-primary'
                   }`}
@@ -143,32 +203,68 @@ export default function ChampionsGrid() {
         </div>
       </div>
 
-      {/* --- 2. CHAMPIONS DIRECTORY --- */}
-      <section className='w-full py-10 md:py-14 relative'>
+      {/* --- 2. WEIGHT CLASSES DROPDOWN --- */}
+      {!titlesLoading && availableDivisions.length > 0 && (
+        <div className='w-full bg-page-bg border-b border-divider/50'>
+          <div className='mx-auto px-4 py-4 sm:px-6 lg:px-8'>
+            <div className='flex items-center gap-3'>
+              <label htmlFor="division-select" className="text-[13px] font-bold text-text-primary">
+                Weight Class:
+              </label>
+              <div className="relative max-w-xs w-full md:w-64">
+                <select
+                  id="division-select"
+                  value={activeDivision}
+                  onChange={(e) => setActiveDivision(e.target.value)}
+                  className="appearance-none w-full bg-surface-white border border-card-border text-text-primary text-[13px] font-medium rounded-lg px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-text-accent focus:border-transparent cursor-pointer shadow-sm"
+                >
+                  <option value="All">All Weight Classes</option>
+                  {availableDivisions.map((division) => (
+                    <option key={division.id} value={division.name}>
+                      {division.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-placeholder">
+                  <ChevronDown size={16} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- 3. CHAMPIONS DIRECTORY --- */}
+      <section className='w-full py-8 md:py-12 relative flex-1'>
         {isFetching && (
-          <div className="absolute inset-0 bg-page-bg/50 z-10 flex items-start justify-center pt-20">
+          <div className="absolute inset-0 bg-page-bg/40 z-10 flex items-start justify-center pt-20 backdrop-blur-[1px]">
             <Loader2 className="animate-spin text-text-accent" size={32} />
           </div>
         )}
 
         <div className='mx-auto flex flex-col gap-12 px-4 sm:px-6 lg:px-8'>
-          {sortedDivisions.length === 0 && !titlesLoading && !isFetching && (
-            <div className="py-20 text-center text-text-placeholder">
-              No titles found for this organization.
+          {divisionsToRender.length === 0 && !titlesLoading && !isFetching && (
+            <div className="py-20 flex flex-col items-center justify-center text-center">
+              <div className="text-4xl mb-4">🏆</div>
+              <h3 className="text-lg font-bold text-text-primary">No Titles Found</h3>
+              <p className="text-sm text-text-placeholder mt-1">There are no titles for the selected organization and weight class.</p>
             </div>
           )}
 
-          {sortedDivisions.map(([divisionName, titles]) => (
+          {divisionsToRender.map(([divisionName, titles]) => (
             <div key={divisionName} className='flex flex-col w-full'>
               {/* Section Header */}
-              <div className='mb-6 flex items-baseline justify-between border-b border-divider pb-2'>
-                <h2 className='text-[18px] font-black uppercase tracking-tight text-text-primary md:text-[22px]'>
+              <div className='mb-6 flex flex-col gap-1 border-b border-divider pb-3'>
+                <h2 className='text-[20px] font-black uppercase tracking-tight text-text-primary md:text-[24px]'>
                   {divisionName}
                 </h2>
+                <span className="text-[13px] font-medium text-text-placeholder">
+                  Showing {titles.length} title{titles.length !== 1 ? 's' : ''}
+                </span>
               </div>
 
               {/* Responsive Cards Grid */}
-              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
                 {titles.map((title) => (
                   <ChampionCard
                     key={title.id}
