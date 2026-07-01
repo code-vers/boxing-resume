@@ -1,52 +1,31 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useRapidFighters } from "@/features/fighters/hooks/useFighters";
-import { useDivisions } from "@/features/rankings/hooks/useRankings";
 import type { ApiFighter } from "@/features/fighters/types";
 
 interface AllFightersGridProps {
-    searchQuery?: string;
-    selectedDivision?: string;
-    selectedCountry?: string;
-    selectedStatus?: string;
-    selectedRating?: string;
+    paginatedFighters: ApiFighter[];
+    pagination?: {
+        page: number;
+        items: number;
+        total_pages: number;
+        total_items: number;
+    };
+    isLoading: boolean;
+    error: any;
+    currentPage: number;
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const AllFightersGrid = ({
-    searchQuery = "",
-    selectedDivision = "All Division",
-    selectedCountry = "All Countries",
-    selectedStatus = "all",
+    paginatedFighters,
+    pagination,
+    isLoading,
+    error,
+    currentPage,
+    setCurrentPage,
 }: AllFightersGridProps) => {
-    const [currentPage, setCurrentPage] = useState(1);
-
-    // Reset page to 1 when filters change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchQuery, selectedDivision, selectedCountry, selectedStatus]);
-
-    // Fetch divisions list to map selected division name to its ID
-    const { data: divisionsResponse } = useDivisions();
-    const divisionsList = useMemo(() => divisionsResponse?.data || [], [divisionsResponse]);
-
-    const selectedDivisionId = useMemo(() => {
-        if (!selectedDivision || selectedDivision === 'All Division') return undefined;
-        const found = divisionsList.find((d: any) => d.name === selectedDivision);
-        return found ? found.id : undefined;
-    }, [selectedDivision, divisionsList]);
-
-    // Fetch paginated and filtered fighters directly from the RapidAPI
-    const { data: apiResponse, isLoading, error } = useRapidFighters({
-        page: currentPage,
-        name: searchQuery || undefined,
-        division_id: selectedDivisionId,
-        nationality: selectedCountry === 'All Countries' ? undefined : selectedCountry
-    });
-
-    const paginatedFighters = useMemo<ApiFighter[]>(() => apiResponse?.data || [], [apiResponse]);
-    const pagination = apiResponse?.pagination;
     const totalPages = pagination?.total_pages || 1;
     const totalItems = pagination?.total_items || 0;
 
@@ -187,7 +166,7 @@ const AllFightersGrid = ({
 
                                         return (
                                             <div
-                                                key={index}
+                                                key={fighter.id}
                                                 className="flex border-b border-[#f1ede1] hover:bg-gray-50 transition-colors"
                                             >
                                                 {/* Rank */}
@@ -226,7 +205,7 @@ const AllFightersGrid = ({
                                                 {/* Division */}
                                                 <div className="w-[150px] shrink-0 flex items-center justify-center px-4 py-4">
                                                     <p className="text-xs sm:text-sm text-[#3d3b38] text-center">
-                                                       {fighter?.division}
+                                                        {fighter.division}
                                                     </p>
                                                 </div>
 
