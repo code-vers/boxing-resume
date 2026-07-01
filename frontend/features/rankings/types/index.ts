@@ -5,10 +5,54 @@ export interface ApiOrg {
 }
 
 export interface ApiChampion {
-  fighter_id: string;
+  fighter_id: string | null;
   fighter_name: string;
-  title_type: string;
+  title_type: string | null;
   is_vacant: boolean;
+}
+
+export interface ApiRank {
+  rank: number;
+  fighter_id: string | null;
+  fighter_name: string;
+  is_vacant: boolean;
+}
+
+export interface ApiTitle {
+  id: string;
+  name: string;
+  title_type: string;
+  gender: string;
+  division: {
+    id: string;
+    name: string;
+    weight_lb: number | null;
+    weight_kg: number | null;
+  };
+  organization: ApiOrg;
+  fighter_id?: string;
+  champion_id?: string;
+  fighter?: any;
+}
+
+export interface ApiFighter {
+  id: string;
+  name: string;
+  alias: string | null;
+  gender: string;
+  age: number | null;
+  nationality: string | null;
+  nationality_code: string | null;
+  stats: {
+    wins: number;
+    losses: number;
+    draws: number;
+    total_rounds: number;
+  };
+  division: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface ApiRankingItem {
@@ -22,6 +66,7 @@ export interface ApiRankingItem {
   };
   gender: string;
   champions: ApiChampion[];
+  rankings: ApiRank[];
 }
 
 export interface ApiRankingsResponse {
@@ -32,6 +77,20 @@ export interface ApiRankingsResponse {
     total_items: number;
   };
   data: ApiRankingItem[];
+}
+
+export interface ApiTitlesResponse {
+  pagination: {
+    page: number;
+    items: number;
+    total_pages: number;
+    total_items: number;
+  };
+  data: ApiTitle[];
+}
+
+export interface ApiFighterResponse {
+  data: ApiFighter;
 }
 
 export interface ApiOrganizationsResponse {
