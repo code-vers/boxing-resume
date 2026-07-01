@@ -2,51 +2,7 @@
 
 import { ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-
-/**
- * @interface API Types
- */
-interface ApiOrg {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface ApiChampion {
-  fighter_id: string;
-  fighter_name: string;
-  title_type: string;
-  is_vacant: boolean;
-}
-
-interface ApiRankingItem {
-  id: string;
-  organization: ApiOrg;
-  division: {
-    id: string;
-    name: string;
-    weight_lb: number | null;
-    weight_kg: number | null;
-  };
-  gender: string;
-  champions: ApiChampion[];
-}
-
-interface ApiRankingsResponse {
-  pagination: {
-    page: number;
-    items: number;
-    total_pages: number;
-    total_items: number;
-  };
-  data: ApiRankingItem[];
-}
-
-interface ApiOrganizationsResponse {
-  data: ApiOrg[];
-}
+import { useOrganizations, useDivisions, useRankings } from '../../../features/rankings/hooks/useRankings';
 
 /**
  * @interface Mapped Types
@@ -111,51 +67,16 @@ export default function ChampionsGrid() {
   const [page, setPage] = useState<number>(1);
 
   // Fetch Organizations
-  const { data: orgsData, isLoading: orgsLoading } = useQuery<ApiOrganizationsResponse>({
-    queryKey: ['rapid-organizations'],
-    queryFn: async () => {
-      const res = await axios.get('https://boxing-data-api.p.rapidapi.com/v2/organizations', {
-        headers: {
-          'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
-          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '',
-        }
-      });
-      return res.data;
-    }
-  });
+  const { data: orgsData, isLoading: orgsLoading } = useOrganizations();
 
   // Fetch Divisions for pagination
-  const { data: divisionsData, isLoading: divisionsLoading } = useQuery<{ data: { id: string; name: string }[] }>({
-    queryKey: ['rapid-divisions'],
-    queryFn: async () => {
-      const res = await axios.get('https://boxing-data-api.p.rapidapi.com/v2/divisions', {
-        headers: {
-          'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
-          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '',
-        }
-      });
-      // Filter out Unclassified
-      return { data: res.data.data.filter((d: any) => d.name !== 'Unclassified') };
-    }
-  });
+  const { data: divisionsData, isLoading: divisionsLoading } = useDivisions();
 
   // Determine current division ID based on page
   const currentDivisionId = divisionsData?.data?.[page - 1]?.id;
 
   // Fetch Rankings (Champions)
-  const { data: rankingsData, isLoading: rankingsLoading, isFetching } = useQuery<ApiRankingsResponse>({
-    queryKey: ['rapid-rankings', currentDivisionId],
-    queryFn: async () => {
-      const res = await axios.get(`https://boxing-data-api.p.rapidapi.com/v2/rankings?division_id=${currentDivisionId}`, {
-        headers: {
-          'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
-          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '',
-        }
-      });
-      return res.data;
-    },
-    enabled: !!currentDivisionId
-  });
+  const { data: rankingsData, isLoading: rankingsLoading, isFetching } = useRankings(currentDivisionId);
 
   // Prepare Tabs
   const tabs = useMemo(() => {
