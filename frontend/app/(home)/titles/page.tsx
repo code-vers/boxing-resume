@@ -8,6 +8,7 @@ import TitleHistoryBanner from "@/components/website/title-with-belt/history/Tit
 import TitleCurrentHolder from "@/components/website/title-with-belt/history/TitleCurrentHolder";
 import TitleHistoryTable from "@/components/website/title-with-belt/history/TitleHistoryTable";
 import TitleBeltInfo from "@/components/website/title-with-belt/history/TitleBeltInfo";
+import { toast } from "sonner";
 
 export default function Page() {
     const [selectedBelt, setSelectedBelt] = useState<BeltRow | null>(null);
@@ -20,6 +21,11 @@ export default function Page() {
 
     const handleFilterChange = (newFilters: FilterState) => {
         setFilters(newFilters);
+    };
+
+    const handleHistoryClick = (row: BeltRow) => {
+        // setSelectedBelt(row); // Commenting out until history API is available
+        toast.info("Title history data coming soon!");
     };
 
     if (selectedBelt) {
@@ -46,9 +52,10 @@ export default function Page() {
             <TitleFilters filters={filters} onFilterChange={handleFilterChange} />
             <TitleTable 
                 filters={filters} 
-                onHistoryClick={setSelectedBelt}
+                onHistoryClick={handleHistoryClick}
                 key={`${filters.search}-${filters.tier}-${filters.division}-${filters.organization}`} 
             />
+
         </main>
     );
 }
