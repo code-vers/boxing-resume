@@ -2,33 +2,14 @@
 
 import { ArrowRight, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useOrganizations, useDivisions, useRankings } from '../../../features/rankings/hooks/useRankings';
-
-/**
- * @interface Mapped Types
- */
-interface Champion {
-  id: string;
-  org: string;
-  status: string;
-  initials: string;
-  name: string;
-  record: string;
-  since: string;
-}
-
-interface WeightClass {
-  id: string;
-  name: string;
-  weightLimit: string;
-  champions: Champion[];
-}
+import { useOrganizations, useTitles, useFighter } from '../../../features/rankings/hooks/useRankings';
+import { ApiOrg, ApiTitle } from '../../../features/rankings/types';
 
 /**
  * @helper Helper to get initials from a name
  */
 const getInitials = (name: string) => {
-  if (!name || name === "VACANT") return "V";
+  if (!name || name === "VACANT" || name === "NO CHAMPION") return "V";
   const parts = name.trim().split(" ");
   if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   return (name[0] || "U").toUpperCase();
@@ -37,46 +18,83 @@ const getInitials = (name: string) => {
 /**
  * @component ChampionCard
  */
-const ChampionCard = ({ org, status, initials, name, record, since }: Champion) => (
-  <div className='relative flex flex-col items-center rounded-[8px] border border-card-border bg-surface-white p-6 shadow-sm transition-shadow hover:shadow-md'>
-    <span className='absolute left-4 top-4 text-[10px] font-black uppercase text-text-accent'>
-      {org}
-    </span>
-    <span className='absolute right-4 top-4 text-[10px] font-medium text-text-placeholder'>
-      {status}
-    </span>
-    <div className='mt-2 flex h-[60px] w-[60px] items-center justify-center rounded-full border-2 border-text-accent bg-card-dark text-[18px] font-bold text-surface-white'>
-      {initials}
+const ChampionCard = ({ title, org }: { title: ApiTitle; org: ApiOrg }) => {
+  const championId = title.fighter_id || title.champion_id || title.fighter?.id;
+  const { data: fighterData } = useFighter(championId);
+  const fighter = fighterData?.data;
+
+  const isVacant = !championId;
+  const fighterName = fighter ? fighter.name : (title.fighter?.name || (isVacant ? "VACANT" : "Loading..."));
+  const initials = isVacant ? 'V' : getInitials(fighterName);
+  const orgShortName = org.name.replace(/\s\(.+\)/, '');
+
+  return (
+    <div className='relative flex flex-col items-center rounded-[8px] border border-card-border bg-surface-white p-6 shadow-sm transition-shadow hover:shadow-md'>
+      <span className='absolute left-4 top-4 text-[10px] font-black uppercase text-text-accent'>
+        {orgShortName}
+      </span>
+      {title.title_type && (
+        <span className='absolute right-4 top-4 text-[10px] font-medium text-text-placeholder'>
+          {title.title_type}
+        </span>
+      )}
+      <div className='mt-2 flex h-[60px] w-[60px] items-center justify-center rounded-full border-2 border-text-accent bg-card-dark text-[18px] font-bold text-surface-white overflow-hidden'>
+        {initials}
+      </div>
+      <h3 className='mt-4 text-[14px] font-black uppercase tracking-tight text-text-primary text-center'>
+        {fighterName}
+      </h3>
+      {fighter && (
+        <div className='mt-2 flex flex-col items-center text-[11px] text-text-placeholder'>
+          {fighter.stats && (
+            <span>{fighter.stats.wins}W - {fighter.stats.losses}L - {fighter.stats.draws}D</span>
+          )}
+          {fighter.nationality && (
+            <span>{fighter.nationality}</span>
+          )}
+        </div>
+      )}
+      {!isVacant && (
+        <button className='mt-5 flex items-center gap-1 text-[11px] font-bold text-text-accent transition-colors hover:text-red-700'>
+          View profile <ArrowRight size={12} strokeWidth={2.5} />
+        </button>
+      )}
     </div>
-    <h3 className='mt-4 text-[14px] font-black uppercase tracking-tight text-text-primary text-center'>
-      {name}
-    </h3>
-    <span className='mt-1 text-[11px] font-medium text-text-placeholder'>{record}</span>
-    <span className='mt-0.5 text-[11px] font-medium text-text-placeholder'>{since}</span>
-    <button className='mt-5 flex items-center gap-1 text-[11px] font-bold text-text-accent transition-colors hover:text-red-700'>
-      View profile <ArrowRight size={12} strokeWidth={2.5} />
-    </button>
-  </div>
-);
+  );
+};
 
 /**
  * @component ChampionsGrid
  */
 export default function ChampionsGrid() {
   const [activeTab, setActiveTab] = useState<string>('All');
-  const [page, setPage] = useState<number>(1);
 
   // Fetch Organizations
   const { data: orgsData, isLoading: orgsLoading } = useOrganizations();
 
-  // Fetch Divisions for pagination
-  const { data: divisionsData, isLoading: divisionsLoading } = useDivisions();
+  // Fetch Titles
+  const { data: titlesData, isLoading: titlesLoading, isFetching } = useTitles(activeTab);
 
-  // Determine current division ID based on page
-  const currentDivisionId = divisionsData?.data?.[page - 1]?.id;
+  // Group titles by division
+  const groupedTitles = useMemo(() => {
+    if (!titlesData?.data) return {};
+    const groups: Record<string, ApiTitle[]> = {};
+    titlesData.data.forEach(title => {
+      const divName = title.division?.name || 'Unknown Division';
+      if (!groups[divName]) groups[divName] = [];
+      groups[divName].push(title);
+    });
+    return groups;
+  }, [titlesData]);
 
-  // Fetch Rankings (Champions)
-  const { data: rankingsData, isLoading: rankingsLoading, isFetching } = useRankings(currentDivisionId);
+  // Sort divisions by weight (Heavyweight first)
+  const sortedDivisions = useMemo(() => {
+    return Object.entries(groupedTitles).sort((a, b) => {
+      const weightA = a[1][0]?.division?.weight_lb || 0;
+      const weightB = b[1][0]?.division?.weight_lb || 0;
+      return weightB - weightA;
+    });
+  }, [groupedTitles]);
 
   // Prepare Tabs
   const tabs = useMemo(() => {
@@ -87,51 +105,10 @@ export default function ChampionsGrid() {
     return base;
   }, [orgsData]);
 
-  // Map Data to Divisions and Champions
-  const mappedData = useMemo(() => {
-    if (!rankingsData?.data) return [];
-
-    // Filter by active tab (locally, in case the API doesn't support org filtering)
-    let filteredItems = rankingsData.data;
-    if (activeTab !== 'All') {
-      filteredItems = filteredItems.filter(item => item.organization.id === activeTab);
-    }
-
-    const divisionsMap = new Map<string, WeightClass>();
-
-    filteredItems.forEach(item => {
-      const divName = item.division.name;
-      const weightLimit = item.division.weight_lb ? `${item.division.weight_lb} lbs` : '';
-      
-      if (!divisionsMap.has(divName)) {
-        divisionsMap.set(divName, {
-          id: item.division.id || divName,
-          name: divName,
-          weightLimit,
-          champions: []
-        });
-      }
-
-      const div = divisionsMap.get(divName)!;
-      
-      item.champions.forEach((champ, idx) => {
-        // Skip purely vacant placeholders unless they are the only ones, but usually vacant means no champion.
-        if (champ.fighter_name !== "VACANT" && !champ.is_vacant) {
-          div.champions.push({
-            id: `${item.id}-${champ.fighter_id}-${idx}`,
-            org: item.organization.name.replace(/\\s\\(.+\\)/, ''), // e.g., "World Boxing Association (WBA)" -> "World Boxing Association"
-            status: champ.title_type || 'Champion',
-            initials: getInitials(champ.fighter_name),
-            name: champ.fighter_name,
-            record: 'N/A', // Data not provided by endpoint
-            since: 'Current' // Data not provided by endpoint
-          });
-        }
-      });
-    });
-
-    return Array.from(divisionsMap.values()).filter(div => div.champions.length > 0);
-  }, [rankingsData, activeTab]);
+  // Handle Tab Click
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+  };
 
   return (
     <div className='flex w-full flex-col font-sans bg-page-bg min-h-[600px] relative'>
@@ -143,15 +120,14 @@ export default function ChampionsGrid() {
           ) : (
             tabs.map((tab) => {
               const isActive = activeTab === tab.id;
-              // Clean up long names like "World Boxing Association (WBA)" for the tab -> "WBA"
               let tabLabel = tab.name;
-              const match = tabLabel.match(/\\(([^)]+)\\)/);
+              const match = tabLabel.match(/\(([^)]+)\)/);
               if (match) tabLabel = match[1];
 
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabClick(tab.id)}
                   className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${
                     isActive ? 'text-text-primary' : 'text-text-placeholder hover:text-text-primary'
                   }`}
@@ -174,63 +150,35 @@ export default function ChampionsGrid() {
             <Loader2 className="animate-spin text-text-accent" size={32} />
           </div>
         )}
-        
+
         <div className='mx-auto flex flex-col gap-12 px-4 sm:px-6 lg:px-8'>
-          {mappedData.map((division) => (
-            <div key={division.id} className='flex flex-col w-full'>
+          {sortedDivisions.length === 0 && !titlesLoading && !isFetching && (
+            <div className="py-20 text-center text-text-placeholder">
+              No titles found for this organization.
+            </div>
+          )}
+
+          {sortedDivisions.map(([divisionName, titles]) => (
+            <div key={divisionName} className='flex flex-col w-full'>
               {/* Section Header */}
               <div className='mb-6 flex items-baseline justify-between border-b border-divider pb-2'>
                 <h2 className='text-[18px] font-black uppercase tracking-tight text-text-primary md:text-[22px]'>
-                  {division.name}
+                  {divisionName}
                 </h2>
-                <span className='text-[12px] font-medium text-text-placeholder'>
-                  {division.weightLimit}
-                </span>
               </div>
 
               {/* Responsive Cards Grid */}
               <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-                {division.champions.map((champion) => (
-                  <ChampionCard key={champion.id} {...champion} />
+                {titles.map((title) => (
+                  <ChampionCard
+                    key={title.id}
+                    title={title}
+                    org={title.organization}
+                  />
                 ))}
               </div>
             </div>
           ))}
-
-          {!rankingsLoading && mappedData.length === 0 && (
-            <div className='flex h-32 w-full items-center justify-center text-[13px] text-text-placeholder'>
-              No champions found for the selected view. Try switching tabs or pages.
-            </div>
-          )}
-
-          {/* Pagination Controls */}
-          {divisionsData?.data && divisionsData.data.length > 0 && (
-            <div className='flex items-center justify-center gap-4 mt-8'>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1 || isFetching}
-                className='flex h-10 w-10 items-center justify-center rounded-md border border-card-border bg-surface-white text-text-primary shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <div className='flex flex-col items-center'>
-                <div className='text-[13px] font-medium text-text-placeholder'>
-                  Division <span className='text-text-primary font-bold'>{page}</span> of{' '}
-                  <span className='text-text-primary font-bold'>{divisionsData.data.length}</span>
-                </div>
-                <div className='text-[11px] font-bold text-text-accent mt-1 uppercase'>
-                  {divisionsData.data[page - 1]?.name}
-                </div>
-              </div>
-              <button
-                onClick={() => setPage(p => Math.min(divisionsData.data.length, p + 1))}
-                disabled={page === divisionsData.data.length || isFetching}
-                className='flex h-10 w-10 items-center justify-center rounded-md border border-card-border bg-surface-white text-text-primary shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          )}
         </div>
       </section>
     </div>

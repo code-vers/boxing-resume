@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getOrganizations, getDivisions, getRankings } from '../api/rankings.api';
+import { getOrganizations, getDivisions, getTitles, getFighter } from '../api/rankings.api';
 
 export const useOrganizations = () => {
   return useQuery({
@@ -15,10 +15,17 @@ export const useDivisions = () => {
   });
 };
 
-export const useRankings = (divisionId?: string) => {
+export const useTitles = (organizationId?: string) => {
   return useQuery({
-    queryKey: ['rapid-rankings', divisionId],
-    queryFn: () => getRankings(divisionId!),
-    enabled: !!divisionId,
+    queryKey: ['rapid-titles', organizationId],
+    queryFn: () => getTitles(organizationId),
+  });
+};
+
+export const useFighter = (fighterId?: string) => {
+  return useQuery({
+    queryKey: ['rapid-fighter', fighterId],
+    queryFn: () => getFighter(fighterId as string),
+    enabled: !!fighterId,
   });
 };
