@@ -13,14 +13,14 @@ interface FightCardProps {
     name: string;
     record: string;
     initials: string;
-    image: string;
+    image?: string;
     country: string;
   };
   fighter2: {
     name: string;
     record: string;
     initials: string;
-    image: string;
+    image?: string;
     country: string;
   };
   weightClass: string;
@@ -66,7 +66,7 @@ export default function FightCard({
           <div className='flex flex-col items-center text-center'>
             <div className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-text-accent bg-card-dark flex items-center justify-center p-0.5 mb-2 overflow-hidden'>
                <span className='text-surface-white font-bebas text-lg'>{fighter1.initials}</span>
-               <Image src={fighter1.image} alt={fighter1.name} fill className='object-cover' />
+               {fighter1.image && <Image src={fighter1.image} alt={fighter1.name} fill className='object-cover' />}
             </div>
             <span className='text-[10px] text-[#555555] uppercase mb-1'>{fighter1.country}</span>
             <h5 className='font-bebas text-lg text-text-primary'>{fighter1.name}</h5>
@@ -84,7 +84,7 @@ export default function FightCard({
           <div className='flex flex-col items-center text-center'>
             <div className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-text-accent bg-card-dark flex items-center justify-center p-0.5 mb-2 overflow-hidden'>
                <span className='text-surface-white font-bebas text-lg'>{fighter2.initials}</span>
-               <Image src={fighter2.image} alt={fighter2.name} fill className='object-cover' />
+               {fighter2.image && <Image src={fighter2.image} alt={fighter2.name} fill className='object-cover' />}
             </div>
             <span className='text-[10px] text-[#555555] uppercase mb-1'>{fighter2.country}</span>
             <h5 className='font-bebas text-lg text-text-primary'>{fighter2.name}</h5>
