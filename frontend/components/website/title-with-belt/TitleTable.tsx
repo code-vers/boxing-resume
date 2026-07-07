@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { FilterState } from './TitleFilters';
 
 export type BeltRow = {
-  id: number;
+  id: string;
   beltName: string;
   org: string;
   orgColor?: string;
@@ -37,33 +37,55 @@ const TIERS = [
   { label: 'National', color: 'bg-[#fff3db] text-[#854d0e]' },
 ];
 
-function makeDemoData(count = 42): BeltRow[] {
-  const rows: BeltRow[] = [];
-  for (let i = 0; i < count; i++) {
-    const org = ORGS[i % ORGS.length];
-    const tier = TIERS[i % TIERS.length];
-    const status = i % 3 === 0 ? 'Active' : i % 3 === 1 ? 'Vacant' : 'Interim';
-    const division = ['Middleweight', 'Welterweight', 'Heavyweight', 'Lightweight'][i % 4];
-    const holderName = ['Carlos Adames', 'John Doe', 'Jane Smith', 'Alex Brown'][i % 4];
+import { useQuery } from '@tanstack/react-query';
+import { getTitles } from '@/features/rankings/api/rankings.api';
+import { ApiTitle } from '@/features/rankings/types';
 
-    rows.push({
-      id: i + 1,
-      beltName: `WBC Silver Middleweight`,
-      org: org.code,
-      orgColor: org.color,
-      tier: tier.label,
-      tierColor: tier.color,
-      division,
-      holderInitials: holderName
-        .split(' ')
-        .map((n) => n[0])
-        .join(''),
-      holderName,
-      heldSince: 'Nov 2023',
-      status: status as BeltRow['status'],
-    });
+function mapApiTitleToBeltRow(apiTitle: ApiTitle): BeltRow {
+  const orgName = apiTitle.organization.name;
+  let orgCode = orgName.split(' ')[0];
+  if (orgName.includes('WBC')) orgCode = 'WBC';
+  else if (orgName.includes('IBF')) orgCode = 'IBF';
+  else if (orgName.includes('WBO')) orgCode = 'WBO';
+  else if (orgName.includes('WBA')) orgCode = 'WBA';
+  else if (orgName.includes('Ring')) orgCode = 'Ring';
+
+  const colorConfig = ORGS.find((o) => o.code === orgCode) || ORGS[0];
+
+  let tier = 'World';
+  let tierColor = 'bg-[#eeedfe] text-[#26215c]';
+  const nameLower = apiTitle.name.toLowerCase();
+
+  if (apiTitle.title_type === 'interim' || nameLower.includes('interim')) {
+    tier = 'Interim';
+    tierColor = 'bg-[#faece7] text-[#4a1b0c]';
+  } else if (nameLower.includes('super')) {
+    tier = 'Super';
+    tierColor = 'bg-[#fff3db] text-[#854d0e]';
+  } else if (orgCode === 'Ring' || nameLower.includes('ring')) {
+    tier = 'Ring';
+    tierColor = 'bg-[#e1f5ee] text-[#04342c]';
   }
-  return rows;
+
+  // Current API does not provide fighter details inside /titles
+  const holderName = apiTitle.fighter?.name || 'Vacant';
+  const holderInitials = holderName !== 'Vacant' 
+    ? holderName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() 
+    : 'V';
+
+  return {
+    id: apiTitle.id,
+    beltName: apiTitle.name,
+    org: orgCode,
+    orgColor: colorConfig.color,
+    tier,
+    tierColor,
+    division: apiTitle.division.name,
+    holderInitials,
+    holderName,
+    heldSince: 'N/A',
+    status: holderName === 'Vacant' ? 'Vacant' : 'Active',
+  };
 }
 
 function applyFilters(data: BeltRow[], filters: FilterState | undefined): BeltRow[] {
@@ -103,11 +125,24 @@ export default function TitleTable({ filters, onHistoryClick }: TitleTableProps)
   const [page, setPage] = useState(1);
   const pageSize = 7; // match visual density
 
-  const allData = useMemo(() => makeDemoData(35), []);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['boxingTitles'],
+    queryFn: () => getTitles(),
+  });
+
+  const allData = useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.map(mapApiTitleToBeltRow);
+  }, [data]);
+
   const filteredData = useMemo(() => applyFilters(allData, filters), [allData, filters]);
 
   const total = filteredData.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
 
   const paginated = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -118,6 +153,14 @@ export default function TitleTable({ filters, onHistoryClick }: TitleTableProps)
     if (p < 1 || p > totalPages) return;
     setPage(p);
   };
+
+  if (isLoading) {
+    return <div className="text-center py-20 text-[#0a0a0a]">Loading titles...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-20 text-red-500">Failed to load titles.</div>;
+  }
 
   return (
     <div className="mt-6 md:mx-10 my-14 p-4">
