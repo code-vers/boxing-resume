@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 /**
  * @constant FILTER_OPTIONS
@@ -12,8 +13,17 @@ const FILTER_OPTIONS = ['All', 'Upcoming', 'Past', 'PPV Only', 'Live'];
  * @component EventsFilter
  * @description Horizontal filter bar with pill-shaped buttons to categorize boxing events.
  */
-export default function EventsFilter() {
-  const [activeFilter, setActiveFilter] = useState('All');
+function EventsFilterContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  const activeFilter = searchParams.get('filter') || 'All';
+
+  const handleFilter = (option: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('filter', option);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <section className='bg-surface-white border-b border-[#e8e2d8] py-3 px-4 sm:px-6 md:px-8 xl:px-12'>
@@ -23,7 +33,7 @@ export default function EventsFilter() {
           return (
             <button
               key={option}
-              onClick={() => setActiveFilter(option)}
+              onClick={() => handleFilter(option)}
               className={`whitespace-nowrap px-6 py-1.5 text-[11px] font-medium rounded-full transition-all duration-200 border ${
                 isActive
                   ? 'bg-text-accent border-text-accent text-surface-white'
@@ -36,5 +46,13 @@ export default function EventsFilter() {
         })}
       </div>
     </section>
+  );
+}
+
+export default function EventsFilter() {
+  return (
+    <Suspense fallback={<div className="h-12 bg-surface-white border-b border-[#e8e2d8]" />}>
+      <EventsFilterContent />
+    </Suspense>
   );
 }
