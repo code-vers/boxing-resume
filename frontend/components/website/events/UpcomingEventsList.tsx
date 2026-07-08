@@ -30,9 +30,13 @@ const mapApiEventToFightCardProps = (apiEvent: ApiEvent) => {
   const f2Initials = f2Name.substring(0, 2).toUpperCase();
 
   let isPPV = false;
+  let broadcasterStr = '';
+
   if (apiEvent.broadcast && apiEvent.broadcast.length > 0) {
-     const types = apiEvent.broadcast[0].broadcasters.join(' ').toLowerCase();
-     if (types.includes('ppv')) isPPV = true;
+     const firstBroadcast = apiEvent.broadcast[0];
+     const types = firstBroadcast.broadcasters.join(' ');
+     if (types.toLowerCase().includes('ppv')) isPPV = true;
+     broadcasterStr = types; // E.g., 'Netflix', 'DAZN PPV'
   }
 
   return {
@@ -42,6 +46,8 @@ const mapApiEventToFightCardProps = (apiEvent: ApiEvent) => {
     venue: apiEvent.venue ? `${apiEvent.venue}, ${apiEvent.location || ''}`.replace(/,\s*$/, '') : apiEvent.location || 'TBA',
     isPPV,
     isTitle: false,
+    posterUrl: apiEvent.poster_image_url || undefined,
+    broadcaster: broadcasterStr || undefined,
     weightClass: 'Pro Boxing Event',
     fighter1: {
       name: f1Name,

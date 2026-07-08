@@ -171,13 +171,13 @@ export default function RatingsTable() {
     if (!rankingsRes?.data) return { data: [], totalPages: 0 }; // Fallback to empty array if error/no data
 
     // Flatten rankings from organizations and deduplicate
-    const allRankings = rankingsRes.data.flatMap((org) => org.rankings || []);
+    const allRankings = rankingsRes.data.flatMap((org: any) => org.rankings || []);
     const uniqueFighters = new Map();
 
     allRankings
-      .filter((r) => !r.is_vacant && r.fighter_id)
-      .sort((a, b) => a.rank - b.rank)
-      .forEach((r) => {
+      .filter((r: any) => !r.is_vacant && r.fighter_id)
+      .sort((a: any, b: any) => a.rank - b.rank)
+      .forEach((r: any) => {
         if (!uniqueFighters.has(r.fighter_id)) {
           uniqueFighters.set(r.fighter_id, r);
         }
