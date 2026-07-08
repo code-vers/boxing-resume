@@ -34,8 +34,8 @@ export default function Page() {
                     holderInitials={selectedBelt.holderInitials}
                     heldSince={selectedBelt.heldSince}
                 />
-                <TitleHistoryTable />
-                <TitleBeltInfo />
+                <TitleHistoryTable titleId={selectedBelt.id} selectedBelt={selectedBelt} />
+                <TitleBeltInfo selectedBelt={selectedBelt} />
             </main>
         );
     }

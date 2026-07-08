@@ -38,10 +38,10 @@ const TIERS = [
 ];
 
 import { useQuery } from '@tanstack/react-query';
-import { getTitles } from '@/features/rankings/api/rankings.api';
+import { getTitles, getAllRankings } from '@/features/rankings/api/rankings.api';
 import { ApiTitle } from '@/features/rankings/types';
 
-function mapApiTitleToBeltRow(apiTitle: ApiTitle): BeltRow {
+function mapApiTitleToBeltRow(apiTitle: ApiTitle, allRankings: any[] = []): BeltRow {
   const orgName = apiTitle.organization.name;
   let orgCode = orgName.split(' ')[0];
   if (orgName.includes('WBC')) orgCode = 'WBC';
@@ -67,8 +67,29 @@ function mapApiTitleToBeltRow(apiTitle: ApiTitle): BeltRow {
     tierColor = 'bg-[#e1f5ee] text-[#04342c]';
   }
 
-  // Current API does not provide fighter details inside /titles
-  const holderName = apiTitle.fighter?.name || 'Vacant';
+  let holderName = 'Vacant';
+  let isVacant = true;
+  let heldSince = 'N/A';
+
+  // Find the current holder from the rankings data
+  for (const rankingGroup of allRankings) {
+    const titleIds = rankingGroup.title_ids || {};
+    const matchesTitle = 
+      titleIds.full === apiTitle.id || 
+      titleIds.regular === apiTitle.id || 
+      titleIds.interim === apiTitle.id;
+
+    if (matchesTitle) {
+      const champion = rankingGroup.champions?.[0];
+      if (champion && !champion.is_vacant) {
+        holderName = champion.fighter_name;
+        isVacant = false;
+        heldSince = rankingGroup.updated_at ? new Date(rankingGroup.updated_at).toLocaleDateString() : 'Unknown';
+      }
+      break;
+    }
+  }
+
   const holderInitials = holderName !== 'Vacant' 
     ? holderName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() 
     : 'V';
@@ -83,8 +104,8 @@ function mapApiTitleToBeltRow(apiTitle: ApiTitle): BeltRow {
     division: apiTitle.division.name,
     holderInitials,
     holderName,
-    heldSince: 'N/A',
-    status: holderName === 'Vacant' ? 'Vacant' : 'Active',
+    heldSince,
+    status: isVacant ? 'Vacant' : 'Active',
   };
 }
 
@@ -125,15 +146,25 @@ export default function TitleTable({ filters, onHistoryClick }: TitleTableProps)
   const [page, setPage] = useState(1);
   const pageSize = 7; // match visual density
 
-  const { data, isLoading, error } = useQuery({
+  const { data: titlesData, isLoading: isLoadingTitles, error: titlesError } = useQuery({
     queryKey: ['boxingTitles'],
     queryFn: () => getTitles(),
   });
 
+  const { data: rankingsData, isLoading: isLoadingRankings, error: rankingsError } = useQuery({
+    queryKey: ['allBoxingRankings'],
+    queryFn: () => getAllRankings(),
+    staleTime: 24 * 60 * 60 * 1000, // cache for a day since rankings don't change very often and we fetch many pages
+  });
+
+  const isLoading = isLoadingTitles || isLoadingRankings;
+  const error = titlesError || rankingsError;
+
   const allData = useMemo(() => {
-    if (!data?.data) return [];
-    return data.data.map(mapApiTitleToBeltRow);
-  }, [data]);
+    if (!titlesData?.data) return [];
+    const rankings = rankingsData || [];
+    return titlesData.data.map(title => mapApiTitleToBeltRow(title, rankings));
+  }, [titlesData, rankingsData]);
 
   const filteredData = useMemo(() => applyFilters(allData, filters), [allData, filters]);
 
