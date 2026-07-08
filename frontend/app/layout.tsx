@@ -3,6 +3,7 @@ import { Inter, Oswald, Bebas_Neue } from "next/font/google";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { Providers } from "@/providers/app-providers";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,6 +40,7 @@ export default function RootLayout({
       className={`${inter.variable} ${oswald.variable} ${bebasNeue.variable} antialiased`}>
       <body className='min-h-full flex flex-col'>
         <Providers>{children}</Providers>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

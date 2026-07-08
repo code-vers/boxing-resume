@@ -31,6 +31,20 @@ export const getEvents = async (): Promise<ApiEventsResponse> => {
   return data;
 };
 
+export const getEventById = async (eventId: string): Promise<{ data: any }> => {
+  const { data } = await boxingApiInstance.get(`/events/${eventId}`);
+  return data;
+};
+
+export const getRankings = async (divisionId?: string) => {
+  let url = `/rankings`;
+  if (divisionId && divisionId !== 'All') {
+    url += `?division_id=${divisionId}`;
+  }
+  const { data } = await boxingApiInstance.get(url);
+  return data;
+};
+
 export const getAllRankings = async (): Promise<any[]> => {
   try {
     // 1. Fetch first page to get total_pages
