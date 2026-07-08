@@ -72,12 +72,17 @@ export default function FightCard({
       </div>
 
       {/* Card Body - Fighter Comparison or Poster */}
-      <div className='flex-1 flex flex-col items-center justify-center relative min-h-[220px] bg-card-dark overflow-hidden'>
+      <div className='flex-1 flex flex-col items-center justify-center relative min-h-[220px] bg-card-dark overflow-hidden group'>
         {posterUrl ? (
-          <div className='absolute inset-0 w-full h-full'>
-            <Image src={posterUrl} alt={eventName} fill className='object-cover opacity-90 hover:opacity-100 transition-opacity' />
-            {/* Gradient Overlay so any bottom content (if added) is readable */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-80" />
+          <div className='absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0a]'>
+            {/* Blurred Background */}
+            <Image src={posterUrl} alt={eventName} fill quality={50} unoptimized className='object-cover opacity-30 blur-xl scale-110' />
+            {/* Clear Centered Poster */}
+            <div className='relative w-full h-full py-4'>
+              <Image src={posterUrl} alt={eventName} fill quality={100} unoptimized className='object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500' />
+            </div>
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-60 pointer-events-none" />
           </div>
         ) : (
           <div className='p-6 flex items-end justify-center gap-8 sm:gap-16 w-full z-10'>
@@ -85,7 +90,7 @@ export default function FightCard({
             <div className='flex flex-col items-center text-center'>
               <div className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-text-accent bg-card-dark flex items-center justify-center p-0.5 mb-2 overflow-hidden shadow-lg'>
                  <span className='text-surface-white font-bebas text-lg'>{fighter1.initials}</span>
-                 {fighter1.image && <Image src={fighter1.image} alt={fighter1.name} fill className='object-cover' />}
+                 {fighter1.image && <Image src={fighter1.image} alt={fighter1.name} fill quality={100} unoptimized className='object-cover' />}
               </div>
               <span className='text-[10px] text-[#555555] uppercase mb-1'>{fighter1.country}</span>
               <h5 className='font-bebas text-lg text-text-primary'>{fighter1.name}</h5>
@@ -103,7 +108,7 @@ export default function FightCard({
             <div className='flex flex-col items-center text-center'>
               <div className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-text-accent bg-card-dark flex items-center justify-center p-0.5 mb-2 overflow-hidden shadow-lg'>
                  <span className='text-surface-white font-bebas text-lg'>{fighter2.initials}</span>
-                 {fighter2.image && <Image src={fighter2.image} alt={fighter2.name} fill className='object-cover' />}
+                 {fighter2.image && <Image src={fighter2.image} alt={fighter2.name} fill quality={100} unoptimized className='object-cover' />}
               </div>
               <span className='text-[10px] text-[#555555] uppercase mb-1'>{fighter2.country}</span>
               <h5 className='font-bebas text-lg text-text-primary'>{fighter2.name}</h5>

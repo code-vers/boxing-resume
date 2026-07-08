@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getEvents } from '@/features/rankings/api/rankings.api';
 import { useMemo, Suspense } from 'react';
+import Image from 'next/image';
 
 function LiveNowContent() {
   const { data, isLoading } = useQuery({
@@ -80,15 +81,19 @@ function LiveNowContent() {
         </button>
       </div>
 
-      <div className='relative bg-card-dark border border-text-accent rounded-lg p-6 overflow-hidden min-h-[300px] flex flex-col justify-between'>
+      <div className='relative bg-card-dark border border-text-accent rounded-lg p-6 overflow-hidden min-h-[300px] flex flex-col justify-between group'>
         {posterUrl && (
-          <>
-            <div className='absolute inset-0 w-full h-full'>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={posterUrl} alt={liveEvent.title} className='w-full h-full object-cover opacity-40' />
+          <div className='absolute inset-0 w-full h-full bg-[#0a0a0a]'>
+            {/* Blurred background */}
+            <Image src={posterUrl} alt={liveEvent.title} fill quality={50} unoptimized className='object-cover opacity-30 blur-2xl scale-110' />
+            {/* Clear centered poster */}
+            <div className='absolute right-0 top-0 bottom-0 w-full md:w-1/2 p-6'>
+               <Image src={posterUrl} alt={liveEvent.title} fill quality={100} unoptimized className='object-contain md:object-right opacity-90 drop-shadow-2xl group-hover:scale-105 transition-transform duration-700' />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/80 to-transparent" />
-          </>
+            {/* Gradient Overlay to fade the left side text into the image on large screens */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent pointer-events-none md:hidden" />
+          </div>
         )}
 
         <div className='relative z-10 flex flex-wrap items-center justify-between gap-4 mb-6'>
