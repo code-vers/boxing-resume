@@ -47,7 +47,6 @@ export default function Page() {
             <TitleTable 
                 filters={filters} 
                 onHistoryClick={setSelectedBelt}
-                key={`${filters.search}-${filters.tier}-${filters.division}-${filters.organization}`} 
             />
         </main>
     );

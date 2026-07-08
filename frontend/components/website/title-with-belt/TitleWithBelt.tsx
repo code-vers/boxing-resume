@@ -4,15 +4,45 @@ import React from 'react';
 import TitleFilters from './TitleFilters';
 import TitleTable from './TitleTable';
 
-const STATS = [
-  { value: '4,200+', label: 'Total Minor Belts' },
-  { value: '3,800', label: 'Active Title Holders' },
-  { value: '24', label: 'Organizations' },
-  { value: '17', label: 'Weight Classes' },
-  { value: '400+', label: 'Vacant Titles' },
+import { useQuery } from '@tanstack/react-query';
+import { getTitles } from '@/features/rankings/api/rankings.api';
+
+const DEFAULT_STATS = [
+  { value: '...', label: 'Total Belts' },
+  { value: '...', label: 'Active Title Holders' },
+  { value: '...', label: 'Organizations' },
+  { value: '...', label: 'Weight Classes' },
+  { value: '...', label: 'Vacant Titles' },
 ];
 
 export default function TitleWithBelt() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['boxingTitles'],
+    queryFn: () => getTitles(),
+  });
+
+  const statsToDisplay = React.useMemo(() => {
+    if (!data?.data || isLoading) return DEFAULT_STATS;
+    const titles = data.data;
+
+    const totalBelts = titles.length;
+    // Because titles endpoint doesn't return fighters natively yet, we can't reliably count active vs vacant
+    // Assuming Vacant if no fighter info is provided.
+    const vacantCount = titles.filter(t => !t.fighter?.name).length;
+    const activeCount = totalBelts - vacantCount;
+
+    const uniqueOrgs = new Set(titles.map(t => t.organization.id)).size;
+    const uniqueDivisions = new Set(titles.map(t => t.division.id)).size;
+
+    return [
+      { value: totalBelts.toString(), label: 'Total Belts' },
+      { value: activeCount === 0 ? 'N/A' : activeCount.toString(), label: 'Active Title Holders' },
+      { value: uniqueOrgs.toString(), label: 'Organizations' },
+      { value: uniqueDivisions.toString(), label: 'Weight Classes' },
+      { value: vacantCount === totalBelts ? 'N/A' : vacantCount.toString(), label: 'Vacant Titles' },
+    ];
+  }, [data, isLoading]);
+
   return (
     <section className="flex w-full flex-col bg-card-dark pt-8 pb-12">
       <div className="mx-auto w-full px-4 sm:px-6 md:px-8 xl:px-12">
@@ -29,13 +59,12 @@ export default function TitleWithBelt() {
           </h2>
 
           <p className="text-text-placeholder max-w-3xl text-base font-medium leading-relaxed sm:text-lg">
-            All recognized titles below world championship level — regional, continental, national,
-            intercontinental, and international belts across every weight class.
+            All recognized titles across major world championships, including regular, super, and interim belts across every weight class.
           </p>
         </div>
 
         <div className="mt-8 grid w-full grid-cols-2 gap-4 md:grid-cols-5 md:gap-6">
-          {STATS.map((s) => (
+          {statsToDisplay.map((s) => (
             <div key={s.label} className="flex flex-col items-start gap-1">
               <span className="text-2xl font-bold tracking-tight text-surface-white sm:text-3xl">
                 {s.value}

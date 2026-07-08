@@ -1,57 +1,40 @@
 'use client';
 
-/**
- * @constant DUMMY_RESULTS
- * @description Mock data for recent boxing results.
- */
-const DUMMY_RESULTS = [
-  {
-    eventName: 'Fury vs Usyk II',
-    promoter: 'Top Rank',
-    mainEvent: 'Fury def. Usyk',
-    method: 'UD',
-    date: 'Nov 2023',
-    venue: 'Kingdom Arena',
-    location: 'Riyadh, SA',
-    broadcast: 'PPV',
-  },
-  {
-    eventName: 'Canelo vs Bivol II',
-    promoter: 'Matchroom',
-    mainEvent: 'Canelo def. Bivol',
-    method: 'SD',
-    date: 'Nov 2023',
-    venue: 'Kingdom Arena',
-    location: 'Riyadh, SA',
-    broadcast: 'DAZN',
-  },
-  {
-    eventName: 'Haney vs Lomachenko',
-    promoter: 'Top Rank',
-    mainEvent: 'Haney def. Loma',
-    method: 'KO R7',
-    date: 'Nov 2023',
-    venue: 'Kingdom Arena',
-    location: 'Riyadh, SA',
-    broadcast: 'ESPN',
-  },
-  {
-    eventName: 'Tank vs Garcia',
-    promoter: 'PBC',
-    mainEvent: 'Tank def. Garcia',
-    method: 'UD',
-    date: 'Nov 2023',
-    venue: 'Kingdom Arena',
-    location: 'Riyadh, SA',
-    broadcast: 'PPV',
-  },
-];
+import { useQuery } from '@tanstack/react-query';
+import { getEvents } from '@/features/rankings/api/rankings.api';
+import { useMemo, Suspense } from 'react';
 
-/**
- * @component RecentResults
- * @description A table-style display of recently concluded boxing events and their outcomes.
- */
-export default function RecentResults() {
+function RecentResultsContent() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['boxingEvents'],
+    queryFn: getEvents,
+  });
+
+  const recentEvents = useMemo(() => {
+    if (!data?.data) return [];
+    const now = new Date();
+    // Filter for events that have already passed
+    return data.data.filter((e) => new Date(e.date) < now);
+  }, [data]);
+
+  if (isLoading) {
+    return <div className="text-center py-10 text-text-primary">Loading recent results...</div>;
+  }
+
+  if (recentEvents.length === 0) {
+    return (
+      <div className='w-full'>
+        <div className='flex items-center justify-between mb-6'>
+          <h3 className='font-bebas text-xl text-text-primary tracking-wider uppercase'>
+            RECENT RESULTS
+          </h3>
+        </div>
+        <div className='bg-surface-white rounded-lg border border-[#e8e2d8] p-10 text-center text-text-placeholder'>
+          No recent results available.
+        </div>
+      </div>
+    );
+  }
   return (
     <div className='w-full'>
       <div className='flex items-center justify-between mb-6'>
@@ -83,35 +66,42 @@ export default function RecentResults() {
               </tr>
             </thead>
             <tbody className='divide-y divide-[#f1ede1]'>
-              {DUMMY_RESULTS.map((result, index) => (
+              {recentEvents.map((event, index) => {
+                let mainEvent = 'TBA';
+                if (event.title.toLowerCase().includes(' vs. ') || event.title.toLowerCase().includes(' vs ')) {
+                  mainEvent = event.title; // Using title as main event for API data
+                } else {
+                  mainEvent = event.title;
+                }
+                
+                let isPPV = false;
+                let broadcastName = 'N/A';
+                if (event.broadcast && event.broadcast.length > 0) {
+                   broadcastName = event.broadcast[0].broadcasters[0] || 'N/A';
+                   if (broadcastName.toLowerCase().includes('ppv')) isPPV = true;
+                }
+
+                return (
                 <tr key={index} className='hover:bg-page-bg transition-colors'>
                   <td className='px-6 py-4'>
                     <div className='flex flex-col'>
                       <span className='text-[13px] font-medium text-text-primary'>
-                        {result.eventName}
+                        {event.title}
                       </span>
                       <span className='text-[10px] text-text-disabled uppercase'>
-                        {result.promoter}
+                        PRO BOXING
                       </span>
                     </div>
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <span className='text-sm text-[#656464] font-normal'>
-                      {result.mainEvent}
+                      {mainEvent}
                     </span>
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <div className='flex justify-center'>
-                      <span
-                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                          result.method.includes('KO')
-                            ? 'bg-destructive/10 text-destructive'
-                            : result.method === 'UD'
-                            ? 'bg-success-bg text-success-text'
-                            : 'bg-warning-bg text-warning-text'
-                        }`}
-                      >
-                        {result.method}
+                      <span className='text-[10px] font-medium px-2 py-0.5 rounded-full bg-success-bg text-success-text'>
+                        Completed
                       </span>
                     </div>
                   </td>
@@ -119,29 +109,37 @@ export default function RecentResults() {
                     <div className='flex justify-center'>
                       <span
                         className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                          result.broadcast === 'PPV'
+                          isPPV
                             ? 'bg-text-accent text-surface-white'
-                            : result.broadcast === 'DAZN'
+                            : broadcastName !== 'N/A'
                             ? 'bg-muted text-text-secondary'
-                            : 'bg-destructive/10 text-destructive'
+                            : 'bg-transparent text-text-placeholder'
                         }`}
                       >
-                        {result.broadcast}
+                        {broadcastName}
                       </span>
                     </div>
                   </td>
                   <td className='px-6 py-4'>
                     <div className='flex flex-col items-center'>
-                      <span className='text-xs text-[#3d3b38]'>{result.venue}</span>
-                      <span className='text-[10px] text-text-placeholder'>{result.location}</span>
+                      <span className='text-xs text-[#3d3b38]'>{event.venue || 'TBA'}</span>
+                      <span className='text-[10px] text-text-placeholder'>{event.location || ''}</span>
                     </div>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RecentResults() {
+  return (
+    <Suspense fallback={<div className="h-48" />}>
+      <RecentResultsContent />
+    </Suspense>
   );
 }
