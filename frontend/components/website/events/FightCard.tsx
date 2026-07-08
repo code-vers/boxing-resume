@@ -2,8 +2,10 @@
 
 import { Share2, Plus } from 'lucide-react';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 interface FightCardProps {
+  id: string;
   eventName: string;
   date: string;
   venue: string;
@@ -34,6 +36,7 @@ interface FightCardProps {
  * including fighter stats, event location, and action buttons.
  */
 export default function FightCard({
+  id,
   eventName,
   date,
   venue,
@@ -130,15 +133,25 @@ export default function FightCard({
 
       {/* Card Footer - Actions */}
       <div className='border-t border-[#f0ebe1] px-4 py-3 flex items-center justify-between bg-surface-white'>
-        <button className='text-text-accent text-xs font-medium hover:underline transition-all'>
+        <button 
+          onClick={() => window.location.href = `/events/${id}`}
+          className='text-text-accent text-xs font-medium hover:underline transition-all'
+        >
           View Event
         </button>
         <div className='flex items-center gap-2'>
-          <button className='p-1.5 border border-[#e8e2d8] rounded hover:bg-page-bg transition-colors'>
-            <Share2 className='w-3.5 h-3.5 text-text-placeholder' />
+          <button 
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/events/${id}`);
+              toast.success('Event link copied to clipboard!');
+            }}
+            className='p-1.5 border border-[#e8e2d8] rounded hover:bg-page-bg transition-colors'
+            title="Share Event"
+          >
+            <Share2 className='w-3.5 h-3.5 text-text-placeholder hover:text-text-accent transition-colors' />
           </button>
           <button className='p-1.5 border border-[#e8e2d8] rounded hover:bg-page-bg transition-colors'>
-            <Plus className='w-3.5 h-3.5 text-text-placeholder' />
+            <Plus className='w-3.5 h-3.5 text-text-placeholder hover:text-text-accent transition-colors' />
           </button>
         </div>
       </div>

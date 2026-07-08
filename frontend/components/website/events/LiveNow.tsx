@@ -144,8 +144,11 @@ function LiveNowContent() {
           <p className='text-[#d4cec4] text-sm font-light tracking-wide'>
             {venueStr} {isPPV && '• PPV'}
           </p>
-          <button className='bg-text-accent text-surface-white text-xs font-medium px-8 py-2.5 rounded hover:bg-btn-primary-hover transition-colors shadow-lg'>
-            Watch Live →
+          <button 
+            onClick={() => window.location.href = `/events/${liveEvent.id}`}
+            className='bg-text-accent text-surface-white text-xs font-medium px-8 py-2.5 rounded hover:bg-btn-primary-hover transition-colors shadow-lg'
+          >
+            View Event →
           </button>
         </div>
       </div>
