@@ -1,7 +1,6 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -10,10 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowDown, ArrowUp } from 'lucide-react';
-import { useState, useMemo } from 'react';
 import { useDivisions, useRankings } from '@/features/rankings/hooks/useRankings';
-import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ArrowDown, ArrowUp, Loader2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 /**
  * @type MatchOutcome
@@ -96,7 +95,7 @@ const LastSixDisplay = ({ outcomes }: { outcomes: MatchOutcome[] }) => {
   if (!outcomes || outcomes.length === 0) {
     return <span className='text-[13px] font-bold text-primary'>Missing</span>;
   }
-  
+
   return (
     <div className='flex items-center gap-1'>
       {outcomes.map((outcome, idx) => {
@@ -161,7 +160,7 @@ export default function RatingsTable() {
   const currentDivisionId = divisions.find(
     (d: { id: string; name: string }) =>
       d.name.toLowerCase() === activeTab.toLowerCase() ||
-      (activeTab === 'P4P' && d.name.toLowerCase() === 'heavyweight')
+      (activeTab === 'P4P' && d.name.toLowerCase() === 'heavyweight'),
   )?.id;
 
   // Fetch rankings for the division
@@ -172,13 +171,13 @@ export default function RatingsTable() {
     if (!rankingsRes?.data) return { data: [], totalPages: 0 }; // Fallback to empty array if error/no data
 
     // Flatten rankings from organizations and deduplicate
-    const allRankings = rankingsRes.data.flatMap(org => org.rankings || []);
+    const allRankings = rankingsRes.data.flatMap((org) => org.rankings || []);
     const uniqueFighters = new Map();
-    
+
     allRankings
-      .filter(r => !r.is_vacant && r.fighter_id)
+      .filter((r) => !r.is_vacant && r.fighter_id)
       .sort((a, b) => a.rank - b.rank)
-      .forEach(r => {
+      .forEach((r) => {
         if (!uniqueFighters.has(r.fighter_id)) {
           uniqueFighters.set(r.fighter_id, r);
         }
@@ -187,20 +186,23 @@ export default function RatingsTable() {
     const finalRankings = Array.from(uniqueFighters.values());
     const totalPages = Math.ceil(finalRankings.length / 15);
     const pagedRankings = finalRankings.slice((currentPage - 1) * 15, currentPage * 15);
-    
+
     if (pagedRankings.length === 0) return { data: [], totalPages: 0 };
 
     const mapped = pagedRankings.map((r, index) => {
       const names = r.fighter_name.split(' ');
       const firstName = names[0] || 'Unknown';
       const lastName = names.slice(1).join(' ') || '';
-      
+
       const stats = r.fighter_details?.stats;
       const wins = stats?.wins || 0;
       const losses = stats?.losses || 0;
       const draws = stats?.draws || 0;
-      
-      const nickname = r.fighter_details?.nickname || r.fighter_details?.alias || `"${firstName.charAt(0)}${lastName.charAt(0)}"`;
+
+      const nickname =
+        r.fighter_details?.nickname ||
+        r.fighter_details?.alias ||
+        `"${firstName.charAt(0)}${lastName.charAt(0)}"`;
 
       return {
         id: r.fighter_id!,
@@ -292,8 +294,8 @@ export default function RatingsTable() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-32 text-center">
-                      <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
+                    <TableCell colSpan={8} className='h-32 text-center'>
+                      <Loader2 className='mx-auto h-6 w-6 animate-spin text-primary' />
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -309,11 +311,14 @@ export default function RatingsTable() {
                         <div className='flex items-center gap-3'>
                           <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D72322] bg-black text-white'>
                             <span className='text-[10px] font-bold tracking-widest'>
-                              {row.firstName.charAt(0)}{row.lastName.charAt(0)}
+                              {row.firstName.charAt(0)}
+                              {row.lastName.charAt(0)}
                             </span>
                           </div>
                           <div className='flex flex-col'>
-                            <span className='text-[13px] font-bold'>{row.firstName} {row.lastName}</span>
+                            <span className='text-[13px] font-bold'>
+                              {row.firstName} {row.lastName}
+                            </span>
                             <span className='text-[11px] font-medium italic text-[#857F78]'>
                               {row.nickname}
                             </span>
@@ -321,7 +326,11 @@ export default function RatingsTable() {
                         </div>
                       </TableCell>
                       <TableCell className='px-6 py-4'>
-                        <RecordDisplay wins={row.record.wins} losses={row.record.losses} draws={row.record.draws} />
+                        <RecordDisplay
+                          wins={row.record.wins}
+                          losses={row.record.losses}
+                          draws={row.record.draws}
+                        />
                       </TableCell>
                       <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
                         {row.kos}
@@ -349,26 +358,26 @@ export default function RatingsTable() {
 
           {/* Pagination Controls */}
           {mappedData.totalPages > 1 && (
-            <div className="flex items-center justify-center pt-8 mt-8">
-              <div className="flex items-center gap-2">
+            <div className='flex items-center justify-center pt-8 mt-8'>
+              <div className='flex items-center gap-2'>
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors bg-white shadow-sm"
+                  className='h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors bg-white shadow-sm'
                 >
                   Prev
                 </button>
 
-                <div className="flex items-center gap-1">
+                <div className='flex items-center gap-1'>
                   {[...Array(mappedData.totalPages)].map((_, i) => (
                     <button
                       key={i + 1}
                       onClick={() => setCurrentPage(i + 1)}
                       className={cn(
-                        "h-8 w-8 flex items-center justify-center rounded-md text-[13px] font-medium transition-colors shadow-sm",
+                        'h-8 w-8 flex items-center justify-center rounded-md text-[13px] font-medium transition-colors shadow-sm',
                         currentPage === i + 1
-                          ? "bg-[#d72322] text-white"
-                          : "border border-transparent text-[#0a0a0a] hover:bg-white bg-white"
+                          ? 'bg-[#d72322] text-white'
+                          : 'border border-transparent text-[#0a0a0a] hover:bg-white bg-white',
                       )}
                     >
                       {i + 1}
@@ -379,7 +388,7 @@ export default function RatingsTable() {
                 <button
                   onClick={() => setCurrentPage(Math.min(mappedData.totalPages, currentPage + 1))}
                   disabled={currentPage === mappedData.totalPages}
-                  className="h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors bg-white shadow-sm"
+                  className='h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors bg-white shadow-sm'
                 >
                   Next
                 </button>
