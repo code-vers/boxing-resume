@@ -48,11 +48,18 @@ export interface ApiFighter {
   age: number | null;
   nationality: string | null;
   nationality_code: string | null;
+  height?: string;
+  reach?: string;
+  stance?: string;
+  date_of_birth?: string;
+  status?: string;
   stats: {
     wins: number;
     losses: number;
     draws: number;
     total_rounds: number;
+    ko_wins?: number;
+    ko_losses?: number;
   };
   division: {
     id: string;

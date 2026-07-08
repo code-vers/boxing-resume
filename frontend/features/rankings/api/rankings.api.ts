@@ -1,5 +1,5 @@
 import { boxingApiInstance } from './axios.instance';
-import { ApiOrganizationsResponse, ApiTitlesResponse, ApiFighterResponse, ApiEventsResponse, ApiRankingsResponse } from '../types';
+import { ApiOrganizationsResponse, ApiTitlesResponse, ApiFighterResponse, ApiEventsResponse } from '../types';
 
 export const getOrganizations = async (): Promise<ApiOrganizationsResponse> => {
   const { data } = await boxingApiInstance.get<ApiOrganizationsResponse>('/organizations');
@@ -31,49 +31,43 @@ export const getEvents = async (): Promise<ApiEventsResponse> => {
   return data;
 };
 
-export const getRankings = async (divisionId?: string): Promise<ApiRankingsResponse> => {
-  const { data } = await boxingApiInstance.get<ApiRankingsResponse>(`/rankings?division_id=${divisionId}`);
-  
-  // Extract all unique fighter IDs from the rankings
-  const fighterIds = new Set<string>();
-  data.data.forEach(org => {
-    org.rankings?.forEach(r => {
-      if (r.fighter_id && !r.is_vacant) {
-        fighterIds.add(r.fighter_id);
+export const getAllRankings = async (): Promise<any[]> => {
+  try {
+    // 1. Fetch first page to get total_pages
+    const firstPageRes = await boxingApiInstance.get('/rankings?page_size=50');
+    const firstPageData = firstPageRes.data;
+    
+    let allRankings = [...(firstPageData.data || [])];
+    const totalPages = firstPageData.pagination?.total_pages || 1;
+
+    // 2. If there are more pages, fetch them concurrently
+    if (totalPages > 1) {
+      const pagePromises = [];
+      for (let i = 2; i <= totalPages; i++) {
+        pagePromises.push(boxingApiInstance.get(`/rankings?page_size=50&page_num=${i}`));
       }
-    });
-  });
-
-  if (fighterIds.size > 0) {
-    try {
-      const idsParam = Array.from(fighterIds).join(',');
-      const fightersRes = await boxingApiInstance.get(`/fighters?ids=${idsParam}`);
-      const fightersMap = new Map();
       
-      fightersRes.data.data.forEach((f: { id: string; [key: string]: unknown }) => {
-        fightersMap.set(f.id, f);
+      const responses = await Promise.all(pagePromises);
+      responses.forEach(res => {
+        if (res.data && res.data.data) {
+          allRankings = allRankings.concat(res.data.data);
+        }
       });
-
-      // Hydrate rankings with fighter details
-      data.data.forEach(org => {
-        org.rankings = org.rankings?.map(r => {
-          if (r.fighter_id && fightersMap.has(r.fighter_id)) {
-            const fDetails = fightersMap.get(r.fighter_id);
-            return {
-              ...r,
-              fighter_details: {
-                stats: fDetails.stats,
-                nickname: fDetails.nickname,
-                alias: fDetails.alias
-              }
-            };
-          }
-          return r;
-        });
-      });
-    } catch (e) {
-      console.error("Failed to fetch bulk fighter details", e);
     }
+
+    return allRankings;
+  } catch (error) {
+    console.error("Error fetching all rankings:", error);
+    return [];
   }
-  return data;
+};
+
+export const getTitleFights = async (titleId: string): Promise<any[]> => {
+  try {
+    const res = await boxingApiInstance.get(`/fights?title_id=${titleId}&date_sort=DESC`);
+    return res.data?.data || [];
+  } catch (error) {
+    console.error("Error fetching title fights:", error);
+    return [];
+  }
 };
