@@ -9,8 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowDown, ArrowUp } from 'lucide-react';
-import { useState } from 'react';
+import { useDivisions, useRankings } from '@/features/rankings/hooks/useRankings';
+import { cn } from '@/lib/utils';
+import { ArrowDown, ArrowUp, Loader2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 /**
  * @type MatchOutcome
@@ -35,112 +37,14 @@ interface FighterRating {
   lastName: string;
   nickname: string;
   record: { wins: number; losses: number; draws: number };
-  kos: number;
+  kos: number | string;
   lastSix: MatchOutcome[];
-  rating: number;
+  rating: number | string;
   change: { direction: ChangeDirection; amount?: number };
   status: string;
 }
 
-/**
- * @constant mockData
- * @description Seed data mimicking the exact visual layout of the Figma ratings table.
- */
-const mockData: FighterRating[] = [
-  {
-    id: '1',
-    rank: 1,
-    firstName: 'Oleksandr',
-    lastName: 'Usyk',
-    nickname: '"The Cat"',
-    record: { wins: 22, losses: 0, draws: 0 },
-    kos: 14,
-    lastSix: ['W', 'W', 'W', 'W', 'W', 'W'],
-    rating: 1876,
-    change: { direction: 'up', amount: 12 },
-    status: 'Active',
-  },
-  {
-    id: '2',
-    rank: 2,
-    firstName: 'Oleksandr',
-    lastName: 'Usyk',
-    nickname: '"The Cat"',
-    record: { wins: 22, losses: 0, draws: 0 },
-    kos: 36,
-    lastSix: ['W', 'W', 'W', 'W', 'L', 'D'],
-    rating: 1876,
-    change: { direction: 'down', amount: 5 },
-    status: 'Active',
-  },
-  {
-    id: '3',
-    rank: 3,
-    firstName: 'Oleksandr',
-    lastName: 'Usyk',
-    nickname: '"The Cat"',
-    record: { wins: 22, losses: 0, draws: 0 },
-    kos: 62,
-    lastSix: ['W', 'W', 'W', 'W', 'W', 'W'],
-    rating: 1876,
-    change: { direction: 'up', amount: 12 },
-    status: 'Active',
-  },
-  {
-    id: '4',
-    rank: 4,
-    firstName: 'Oleksandr',
-    lastName: 'Usyk',
-    nickname: '"The Cat"',
-    record: { wins: 22, losses: 0, draws: 0 },
-    kos: 52,
-    lastSix: ['W', 'W', 'W', 'W', 'W', 'W'],
-    rating: 1876,
-    change: { direction: 'up', amount: 12 },
-    status: 'Active',
-  },
-  {
-    id: '5',
-    rank: 5,
-    firstName: 'Oleksandr',
-    lastName: 'Usyk',
-    nickname: '"The Cat"',
-    record: { wins: 22, losses: 0, draws: 0 },
-    kos: 12,
-    lastSix: ['W', 'W', 'W', 'W', 'W', 'W'],
-    rating: 1876,
-    change: { direction: 'new' },
-    status: 'Active',
-  },
-  {
-    id: '6',
-    rank: 6,
-    firstName: 'Oleksandr',
-    lastName: 'Usyk',
-    nickname: '"The Cat"',
-    record: { wins: 22, losses: 0, draws: 0 },
-    kos: 26,
-    lastSix: ['W', 'W', 'W', 'W', 'W', 'W'],
-    rating: 1876,
-    change: { direction: 'up', amount: 12 },
-    status: 'Active',
-  },
-  ...Array(15)
-    .fill({
-      id: 'x',
-      rank: 7,
-      firstName: 'Oleksandr',
-      lastName: 'Usyk',
-      nickname: '"The Cat"',
-      record: { wins: 22, losses: 0, draws: 0 },
-      kos: 12,
-      lastSix: ['W', 'W', 'W', 'W', 'W', 'W'],
-      rating: 1876,
-      change: { direction: 'up', amount: 12 },
-      status: 'Active',
-    })
-    .map((item, idx) => ({ ...item, id: `7_${idx}` })),
-];
+// Removed mockData to ensure only real data is used.
 
 /**
  * @constant TABS
@@ -187,17 +91,23 @@ const RecordDisplay = ({
  * @param {MatchOutcome[]} outcomes - Array of W, L, or D strings
  * @returns {JSX.Element}
  */
-const LastSixDisplay = ({ outcomes }: { outcomes: MatchOutcome[] }) => (
-  <div className='flex items-center gap-1'>
-    {outcomes.map((outcome, idx) => {
-      let bgColor = 'bg-[#166534]';
-      if (outcome === 'L') bgColor = 'bg-red-600';
-      if (outcome === 'D') bgColor = 'bg-amber-400';
+const LastSixDisplay = ({ outcomes }: { outcomes: MatchOutcome[] }) => {
+  if (!outcomes || outcomes.length === 0) {
+    return <span className='text-[13px] font-bold text-primary'>Missing</span>;
+  }
 
-      return <div key={idx} className={`h-2.5 w-3.5 rounded-[2px] ${bgColor}`} title={outcome} />;
-    })}
-  </div>
-);
+  return (
+    <div className='flex items-center gap-1'>
+      {outcomes.map((outcome, idx) => {
+        let bgColor = 'bg-[#166534]';
+        if (outcome === 'L') bgColor = 'bg-red-600';
+        if (outcome === 'D') bgColor = 'bg-amber-400';
+
+        return <div key={idx} className={`h-2.5 w-3.5 rounded-[2px] ${bgColor}`} title={outcome} />;
+      })}
+    </div>
+  );
+};
 
 /**
  * @component ChangeDisplay
@@ -230,7 +140,7 @@ const ChangeDisplay = ({ change }: { change: FighterRating['change'] }) => {
       </span>
     );
   }
-  return <span className='text-[12px] font-medium text-muted-foreground'>-</span>;
+  return <span className='text-[13px] font-bold text-primary'>Missing</span>;
 };
 
 /**
@@ -240,6 +150,77 @@ const ChangeDisplay = ({ change }: { change: FighterRating['change'] }) => {
  */
 export default function RatingsTable() {
   const [activeTab, setActiveTab] = useState(TABS[0]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Fetch divisions
+  const { data: divisionsRes } = useDivisions();
+  const divisions = divisionsRes?.data || [];
+
+  // Find division ID based on activeTab
+  const currentDivisionId = divisions.find(
+    (d: { id: string; name: string }) =>
+      d.name.toLowerCase() === activeTab.toLowerCase() ||
+      (activeTab === 'P4P' && d.name.toLowerCase() === 'heavyweight'),
+  )?.id;
+
+  // Fetch rankings for the division
+  const { data: rankingsRes, isLoading } = useRankings(currentDivisionId);
+
+  const mappedData = useMemo(() => {
+    if (isLoading) return { data: [], totalPages: 0 };
+    if (!rankingsRes?.data) return { data: [], totalPages: 0 }; // Fallback to empty array if error/no data
+
+    // Flatten rankings from organizations and deduplicate
+    const allRankings = rankingsRes.data.flatMap((org) => org.rankings || []);
+    const uniqueFighters = new Map();
+
+    allRankings
+      .filter((r) => !r.is_vacant && r.fighter_id)
+      .sort((a, b) => a.rank - b.rank)
+      .forEach((r) => {
+        if (!uniqueFighters.has(r.fighter_id)) {
+          uniqueFighters.set(r.fighter_id, r);
+        }
+      });
+
+    const finalRankings = Array.from(uniqueFighters.values());
+    const totalPages = Math.ceil(finalRankings.length / 15);
+    const pagedRankings = finalRankings.slice((currentPage - 1) * 15, currentPage * 15);
+
+    if (pagedRankings.length === 0) return { data: [], totalPages: 0 };
+
+    const mapped = pagedRankings.map((r, index) => {
+      const names = r.fighter_name.split(' ');
+      const firstName = names[0] || 'Unknown';
+      const lastName = names.slice(1).join(' ') || '';
+
+      const stats = r.fighter_details?.stats;
+      const wins = stats?.wins || 0;
+      const losses = stats?.losses || 0;
+      const draws = stats?.draws || 0;
+
+      const nickname =
+        r.fighter_details?.nickname ||
+        r.fighter_details?.alias ||
+        `"${firstName.charAt(0)}${lastName.charAt(0)}"`;
+
+      return {
+        id: r.fighter_id!,
+        rank: (currentPage - 1) * 15 + index + 1, // Re-rank based on unified list
+        firstName,
+        lastName,
+        nickname: nickname.startsWith('"') ? nickname : `"${nickname}"`,
+        record: { wins, losses, draws },
+        kos: 'Missing', // API does not provide KOs
+        lastSix: [], // API does not provide recent bout history directly
+        rating: 'Missing', // Points/rating not provided by API
+        change: { direction: 'none' as ChangeDirection }, // Change history not tracked by this API
+        status: 'Active', // Ranked fighters are typically active
+      };
+    });
+
+    return { data: mapped, totalPages };
+  }, [rankingsRes, isLoading, currentPage]);
 
   return (
     <div className='flex w-full flex-col font-sans'>
@@ -251,7 +232,10 @@ export default function RatingsTable() {
             return (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setCurrentPage(1);
+                }}
                 className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${
                   isActive ? 'text-primary' : 'text-[#857F78] hover:text-primary'
                 }`}
@@ -308,52 +292,109 @@ export default function RatingsTable() {
               </TableHeader>
 
               <TableBody>
-                {mockData.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className='border-b-[#E8E2D8] transition-colors hover:bg-gray-50'
-                  >
-                    <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
-                      {row.rank}
-                    </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <div className='flex items-center gap-3'>
-                        <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D72322] bg-black text-white'>
-                          <span className='text-[10px] font-bold tracking-widest'>OU</span>
-                        </div>
-                        <div className='flex flex-col'>
-                          <span className='text-[13px] font-bold'>Oleksandr Usyk</span>
-                          <span className='text-[11px] font-medium italic text-[#857F78]'>
-                            `The Cat`
-                          </span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <RecordDisplay wins={22} losses={0} draws={0} />
-                    </TableCell>
-                    <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
-                      14
-                    </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <LastSixDisplay outcomes={row.lastSix} />
-                    </TableCell>
-                    <TableCell className='px-6 py-4 text-[13px] font-bold text-primary'>
-                      1876
-                    </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <ChangeDisplay change={row.change} />
-                    </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <Badge className='rounded-[4px] border-none bg-[#E6F4EA] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#166534] hover:bg-[#E6F4EA]'>
-                        Active
-                      </Badge>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className='h-32 text-center'>
+                      <Loader2 className='mx-auto h-6 w-6 animate-spin text-primary' />
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  mappedData.data.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      className='border-b-[#E8E2D8] transition-colors hover:bg-gray-50'
+                    >
+                      <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
+                        {row.rank}
+                      </TableCell>
+                      <TableCell className='px-6 py-4'>
+                        <div className='flex items-center gap-3'>
+                          <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D72322] bg-black text-white'>
+                            <span className='text-[10px] font-bold tracking-widest'>
+                              {row.firstName.charAt(0)}
+                              {row.lastName.charAt(0)}
+                            </span>
+                          </div>
+                          <div className='flex flex-col'>
+                            <span className='text-[13px] font-bold'>
+                              {row.firstName} {row.lastName}
+                            </span>
+                            <span className='text-[11px] font-medium italic text-[#857F78]'>
+                              {row.nickname}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className='px-6 py-4'>
+                        <RecordDisplay
+                          wins={row.record.wins}
+                          losses={row.record.losses}
+                          draws={row.record.draws}
+                        />
+                      </TableCell>
+                      <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
+                        {row.kos}
+                      </TableCell>
+                      <TableCell className='px-6 py-4'>
+                        <LastSixDisplay outcomes={row.lastSix} />
+                      </TableCell>
+                      <TableCell className='px-6 py-4 text-[13px] font-bold text-primary'>
+                        {row.rating}
+                      </TableCell>
+                      <TableCell className='px-6 py-4'>
+                        <ChangeDisplay change={row.change} />
+                      </TableCell>
+                      <TableCell className='px-6 py-4'>
+                        <Badge className='rounded-[4px] border-none bg-[#E6F4EA] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#166534] hover:bg-[#E6F4EA]'>
+                          {row.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {mappedData.totalPages > 1 && (
+            <div className='flex items-center justify-center pt-8 mt-8'>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className='h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors bg-white shadow-sm'
+                >
+                  Prev
+                </button>
+
+                <div className='flex items-center gap-1'>
+                  {[...Array(mappedData.totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={cn(
+                        'h-8 w-8 flex items-center justify-center rounded-md text-[13px] font-medium transition-colors shadow-sm',
+                        currentPage === i + 1
+                          ? 'bg-[#d72322] text-white'
+                          : 'border border-transparent text-[#0a0a0a] hover:bg-white bg-white',
+                      )}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(mappedData.totalPages, currentPage + 1))}
+                  disabled={currentPage === mappedData.totalPages}
+                  className='h-8 px-4 flex items-center justify-center border border-[#d4cec4] rounded-md text-[13px] font-medium text-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors bg-white shadow-sm'
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

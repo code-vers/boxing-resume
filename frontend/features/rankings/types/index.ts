@@ -16,6 +16,11 @@ export interface ApiRank {
   fighter_id: string | null;
   fighter_name: string;
   is_vacant: boolean;
+  fighter_details?: {
+    stats?: { wins: number; losses: number; draws: number };
+    nickname?: string;
+    alias?: string;
+  } | null;
 }
 
 export interface ApiTitle {
@@ -73,7 +78,7 @@ export interface ApiRankingItem {
   };
   gender: string;
   champions: ApiChampion[];
-  rankings: ApiRank[];
+  rankings?: ApiRank[];
 }
 
 export interface ApiRankingsResponse {

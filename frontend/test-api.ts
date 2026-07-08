@@ -10,7 +10,7 @@ async function testApi() {
     headers: {
       'x-rapidapi-host': 'boxing-data-api.p.rapidapi.com',
       'x-rapidapi-key': API_KEY,
-    }
+    },
   });
 
   try {
