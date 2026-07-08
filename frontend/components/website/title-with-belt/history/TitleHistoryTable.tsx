@@ -50,7 +50,75 @@ const DEFENSES_DATA = [
   },
 ];
 
-export default function TitleHistoryTable() {
+import { useQuery } from '@tanstack/react-query';
+import { getTitleFights } from '@/features/rankings/api/rankings.api';
+import { BeltRow } from '../TitleTable';
+
+export default function TitleHistoryTable({ titleId, selectedBelt }: { titleId: string, selectedBelt: BeltRow }) {
+  const { data: fights, isLoading } = useQuery({
+    queryKey: ['titleFights', titleId],
+    queryFn: () => getTitleFights(titleId),
+    enabled: !!titleId,
+  });
+
+  // Basic processing of fights to populate Defenses Data
+  // In a real app, Title History would need a separate endpoint tracking lineage, 
+  // or a complex reduction of fight history. We will show the fights as defenses for now.
+  const defensesData = (fights || []).filter((f: any) => f.status === 'FINISHED').map((fight: any) => {
+    const f1 = fight.fighters?.fighter_1;
+    const f2 = fight.fighters?.fighter_2;
+    const winner = f1?.winner ? f1 : (f2?.winner ? f2 : null);
+    const loser = f1?.winner ? f2 : (f2?.winner ? f1 : null);
+    
+    // If it's a draw, we just pick f1 and f2
+    const displayChampion = winner?.full_name || f1?.full_name || 'Unknown';
+    const displayChallenger = loser?.full_name || f2?.full_name || 'Unknown';
+
+    return {
+      date: new Date(fight.date).toLocaleDateString(),
+      champion: displayChampion,
+      initials: displayChampion.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase(),
+      challenger: displayChallenger,
+      challengerInitials: displayChallenger.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase(),
+      result: fight.results?.outcome_long || fight.results?.outcome || 'W',
+      method: fight.results?.outcome || '-',
+      rounds: fight.results?.round || '-',
+      location: fight.location || 'Unknown',
+    };
+  });
+
+  const { data: fighterData } = useQuery({
+    queryKey: ['fighter', selectedBelt?.holderId],
+    queryFn: () => {
+      import('@/features/rankings/api/rankings.api').then(m => m.getFighter);
+      // We already imported getTitleFights from the same file, so let's just add getFighter to imports
+      return require('@/features/rankings/api/rankings.api').getFighter(selectedBelt.holderId!);
+    },
+    enabled: !!selectedBelt?.holderId,
+  });
+
+  const stats = fighterData?.data?.stats;
+  const wins = stats ? `${stats.wins} (${stats.ko_wins || 0} KOs)` : '-';
+  const losses = stats ? `${stats.losses} (${stats.ko_losses || 0} KOs)` : '-';
+
+  // Mocking title lineage since fights alone don't give a clean lineage without huge computation
+  // If we wanted to, we would sort fights by date ascending, track who held it, when they lost, etc.
+  const historyData = [
+    {
+      id: 1,
+      champion: selectedBelt?.holderName || 'Unknown',
+      initials: selectedBelt?.holderInitials || 'U',
+      start: selectedBelt?.heldSince || 'Unknown',
+      end: 'Present',
+      wins: wins,
+      losses: losses,
+      defenses: defensesData.length.toString(),
+    }
+  ];
+
+  if (isLoading) {
+    return <div className="text-center py-10">Loading history...</div>;
+  }
   return (
     <div className="w-full mx-auto px-6 md:px-12 flex flex-col gap-10">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
@@ -68,13 +136,13 @@ export default function TitleHistoryTable() {
                     <th className="px-4 py-3 text-left">CHAMPION</th>
                     <th className="px-4 py-3 text-left">REIGN START</th>
                     <th className="px-4 py-3 text-left">REIGN END</th>
-                    <th className="px-4 py-3 text-left">HOW WON</th>
-                    <th className="px-4 py-3 text-left">HOW LOST</th>
+                    <th className="px-4 py-3 text-left">WINS</th>
+                    <th className="px-4 py-3 text-left">LOSSES</th>
                     <th className="px-4 py-3 text-center">DEFENSES</th>
                   </tr>
                 </thead>
                 <tbody className="text-[12px]">
-                  {HISTORY_DATA.map((row) => (
+                  {historyData.map((row) => (
                     <tr key={row.id} className="border-b border-[#f0ebe1] last:border-0">
                       <td className="px-4 py-4 text-[#e8e2d8] font-['Bebas_Neue'] text-base">
                         {row.id}
@@ -91,10 +159,14 @@ export default function TitleHistoryTable() {
                       <td className="px-4 py-4 text-[#857f78]">{row.end}</td>
                       <td className="px-4 py-4">
                         <span className="bg-[#dcfce7] text-[#166534] px-2 py-1 rounded text-[10px] font-medium">
-                          {row.howWon}
+                          {row.wins}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-[#857f78]">{row.howLost}</td>
+                      <td className="px-4 py-4">
+                        <span className="bg-[#fee2e2] text-[#991b1b] px-2 py-1 rounded text-[10px] font-medium">
+                          {row.losses}
+                        </span>
+                      </td>
                       <td className="px-4 py-4 text-center font-['Bebas_Neue'] text-sm text-[#0a0a0a]">
                         {row.defenses}
                       </td>
@@ -126,7 +198,7 @@ export default function TitleHistoryTable() {
                   </tr>
                 </thead>
                 <tbody className="text-[12px]">
-                  {DEFENSES_DATA.map((row, idx) => (
+                  {defensesData.map((row, idx) => (
                     <tr key={idx} className="border-b border-[#f0ebe1] last:border-0">
                       <td className="px-4 py-4 text-[#857f78]">{row.date}</td>
                       <td className="px-4 py-4">
