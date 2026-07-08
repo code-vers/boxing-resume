@@ -87,6 +87,20 @@ export default function TitleHistoryTable({ titleId, selectedBelt }: { titleId: 
     };
   });
 
+  const { data: fighterData } = useQuery({
+    queryKey: ['fighter', selectedBelt?.holderId],
+    queryFn: () => {
+      import('@/features/rankings/api/rankings.api').then(m => m.getFighter);
+      // We already imported getTitleFights from the same file, so let's just add getFighter to imports
+      return require('@/features/rankings/api/rankings.api').getFighter(selectedBelt.holderId!);
+    },
+    enabled: !!selectedBelt?.holderId,
+  });
+
+  const stats = fighterData?.data?.stats;
+  const wins = stats ? `${stats.wins} (${stats.ko_wins || 0} KOs)` : '-';
+  const losses = stats ? `${stats.losses} (${stats.ko_losses || 0} KOs)` : '-';
+
   // Mocking title lineage since fights alone don't give a clean lineage without huge computation
   // If we wanted to, we would sort fights by date ascending, track who held it, when they lost, etc.
   const historyData = [
@@ -96,8 +110,8 @@ export default function TitleHistoryTable({ titleId, selectedBelt }: { titleId: 
       initials: selectedBelt?.holderInitials || 'U',
       start: selectedBelt?.heldSince || 'Unknown',
       end: 'Present',
-      howWon: '-',
-      howLost: '—',
+      wins: wins,
+      losses: losses,
       defenses: defensesData.length.toString(),
     }
   ];
@@ -122,8 +136,8 @@ export default function TitleHistoryTable({ titleId, selectedBelt }: { titleId: 
                     <th className="px-4 py-3 text-left">CHAMPION</th>
                     <th className="px-4 py-3 text-left">REIGN START</th>
                     <th className="px-4 py-3 text-left">REIGN END</th>
-                    <th className="px-4 py-3 text-left">HOW WON</th>
-                    <th className="px-4 py-3 text-left">HOW LOST</th>
+                    <th className="px-4 py-3 text-left">WINS</th>
+                    <th className="px-4 py-3 text-left">LOSSES</th>
                     <th className="px-4 py-3 text-center">DEFENSES</th>
                   </tr>
                 </thead>
@@ -145,10 +159,14 @@ export default function TitleHistoryTable({ titleId, selectedBelt }: { titleId: 
                       <td className="px-4 py-4 text-[#857f78]">{row.end}</td>
                       <td className="px-4 py-4">
                         <span className="bg-[#dcfce7] text-[#166534] px-2 py-1 rounded text-[10px] font-medium">
-                          {row.howWon}
+                          {row.wins}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-[#857f78]">{row.howLost}</td>
+                      <td className="px-4 py-4">
+                        <span className="bg-[#fee2e2] text-[#991b1b] px-2 py-1 rounded text-[10px] font-medium">
+                          {row.losses}
+                        </span>
+                      </td>
                       <td className="px-4 py-4 text-center font-['Bebas_Neue'] text-sm text-[#0a0a0a]">
                         {row.defenses}
                       </td>

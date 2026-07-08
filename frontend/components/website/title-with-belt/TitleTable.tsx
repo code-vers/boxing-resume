@@ -15,6 +15,7 @@ export type BeltRow = {
   holderName: string;
   heldSince: string;
   status: 'Active' | 'Vacant' | 'Interim';
+  holderId: string | null;
 };
 
 interface TitleTableProps {
@@ -70,6 +71,7 @@ function mapApiTitleToBeltRow(apiTitle: ApiTitle, allRankings: any[] = []): Belt
   let holderName = 'Vacant';
   let isVacant = true;
   let heldSince = 'N/A';
+  let holderId: string | null = null;
 
   // Find the current holder from the rankings data
   for (const rankingGroup of allRankings) {
@@ -85,6 +87,7 @@ function mapApiTitleToBeltRow(apiTitle: ApiTitle, allRankings: any[] = []): Belt
         holderName = champion.fighter_name;
         isVacant = false;
         heldSince = rankingGroup.updated_at ? new Date(rankingGroup.updated_at).toLocaleDateString() : 'Unknown';
+        holderId = champion.fighter_id || null;
       }
       break;
     }
@@ -106,6 +109,7 @@ function mapApiTitleToBeltRow(apiTitle: ApiTitle, allRankings: any[] = []): Belt
     holderName,
     heldSince,
     status: isVacant ? 'Vacant' : 'Active',
+    holderId,
   };
 }
 
