@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useQueries } from '@tanstack/react-query';
 import { getFighter } from '@/features/rankings/api/rankings.api';
 
-export default function ComparePage() {
+function CompareContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const f1 = searchParams.get('f1');
@@ -147,5 +147,19 @@ export default function ComparePage() {
 
       </div>
     </main>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <React.Suspense fallback={
+      <main className="bg-[#f1ede1] min-h-screen py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[#0a0a0a] font-['Bebas_Neue'] text-2xl uppercase tracking-wide">Loading Comparison...</p>
+        </div>
+      </main>
+    }>
+      <CompareContent />
+    </React.Suspense>
   );
 }
