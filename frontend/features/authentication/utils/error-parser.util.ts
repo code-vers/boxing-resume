@@ -27,10 +27,17 @@ export const parseApiError = (error: unknown): ApiError => {
     };
 
     // If there are specific field validation errors from backend
-    if (responseData?.errorMessages && Array.isArray(responseData.errorMessages)) {
+    if (responseData?.errorSources && Array.isArray(responseData.errorSources)) {
       parsedError.fieldErrors = {};
-      responseData.errorMessages.forEach((err) => {
+      responseData.errorSources.forEach((err: any) => {
         // Use the last segment of the path as the field name if it's an array path
+        const fieldName = err.path ? err.path.toString().split('.').pop() || "general" : "general";
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        parsedError.fieldErrors![fieldName] = err.message;
+      });
+    } else if (responseData?.errorMessages && Array.isArray(responseData.errorMessages)) {
+      parsedError.fieldErrors = {};
+      responseData.errorMessages.forEach((err: any) => {
         const fieldName = err.path || "general";
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         parsedError.fieldErrors![fieldName] = err.message;

@@ -15,7 +15,13 @@ export const useLogin = () => {
   const { login } = useAuth(); // Global state setter from existing architecture
 
   return useMutation<ApiResponse, ApiError, LoginPayload>({
-    mutationFn: loginUserApi,
+    mutationFn: async (payload) => {
+      try {
+        return await loginUserApi(payload);
+      } catch (error) {
+        throw parseApiError(error);
+      }
+    },
     onSuccess: (data) => {
       if (data.data?.accessToken) {
         localStorage.setItem("accessToken", data.data.accessToken);
@@ -39,9 +45,6 @@ export const useLogin = () => {
       } else {
         router.push("/");
       }
-    },
-    onError: (error: unknown) => {
-      throw parseApiError(error);
     },
     retry: 0,
   });

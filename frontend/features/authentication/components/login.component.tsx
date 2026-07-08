@@ -7,6 +7,7 @@ import { useCustomForm } from "../hooks/useCustomForm";
 import { loginSchema, LoginFormData } from "../validation/login.validation";
 import { useLogin } from "../hooks/useLogin";
 import { ApiError } from "../types/auth.types";
+import { toast } from "sonner";
 
 /**
  * Enterprise Login Component.
@@ -25,19 +26,21 @@ export function LoginComponent() {
     setErrors,
   } = useCustomForm<LoginFormData>({
     initialValues: {
-      emailOrUsername: "",
+      email: "",
       password: "",
       rememberMe: false,
     },
     validationSchema: loginSchema,
     onSubmit: async (formValues) => {
       loginUser(
-        { email: formValues.emailOrUsername, password: formValues.password },
+        { email: formValues.email, password: formValues.password },
         {
           onError: (error) => {
             const apiErr = error as ApiError;
-            if (apiErr.fieldErrors) {
+            if (apiErr.fieldErrors && Object.keys(apiErr.fieldErrors).length > 0) {
               setErrors(apiErr.fieldErrors as Partial<Record<keyof LoginFormData, string>>);
+            } else {
+              toast.error(apiErr.message || "Invalid credentials or validation failed.");
             }
           },
         }
@@ -55,14 +58,14 @@ export function LoginComponent() {
         <div className='mt-2'>
           <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
             <AuthInput
-              name="emailOrUsername"
-              label='EMAIL OR USERNAME'
-              placeholder='Enter your email or username'
+              name="email"
+              label='EMAIL'
+              placeholder='Enter your email address'
               icon={<User size={16} />}
-              value={values.emailOrUsername}
-              onChange={(e) => handleChange("emailOrUsername", e.target.value)}
-              onBlur={() => handleBlur("emailOrUsername")}
-              error={touched.emailOrUsername ? errors.emailOrUsername : undefined}
+              value={values.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              onBlur={() => handleBlur("email")}
+              error={touched.email ? errors.email : undefined}
             />
 
             <div>

@@ -5,7 +5,7 @@ import { z } from "zod";
  */
 export const loginSchema = z.object({
   role: z.enum(["USER", "ADMIN"]).optional(),
-  emailOrUsername: z.string().min(1, "Email or Username is required"),
+  email: z.string().min(1, "Email is required").email("Must be a valid email address"),
   password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().optional(),
 });
