@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { getEvents } from '@/features/rankings/api/rankings.api';
 import { useMemo, Suspense } from 'react';
+import { toast } from 'sonner';
 
 /**
  * @component EventsBanner
@@ -138,10 +139,19 @@ function EventsBannerContent() {
               )}
 
               <div className='flex flex-col sm:flex-row gap-4'>
-                <button className='bg-btn-primary hover:bg-btn-primary-hover text-surface-white font-bebas px-10 py-3 rounded-md text-sm tracking-wider transition-colors'>
+                <button 
+                  onClick={() => window.location.href = `/events/${nextEvent.id}`}
+                  className='bg-btn-primary hover:bg-btn-primary-hover text-surface-white font-bebas px-10 py-3 rounded-md text-sm tracking-wider transition-colors'
+                >
                   View Event
                 </button>
-                <button className='border border-[#2a2a2a] text-[#857f78] hover:text-surface-white font-bebas px-10 py-3 rounded-md text-sm tracking-wider transition-colors flex items-center justify-center gap-2'>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/events/${nextEvent.id}`);
+                    toast.success('Event link copied to clipboard!');
+                  }}
+                  className='border border-[#2a2a2a] text-[#857f78] hover:text-surface-white font-bebas px-10 py-3 rounded-md text-sm tracking-wider transition-colors flex items-center justify-center gap-2'
+                >
                   <Share2 className='w-4 h-4' />
                   Share Event
                 </button>

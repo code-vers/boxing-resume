@@ -32,6 +32,10 @@ export interface ApiResponse<T = any> {
     path: string;
     message: string;
   }>;
+  errorSources?: Array<{
+    path: string;
+    message: string;
+  }>;
 }
 
 /**
