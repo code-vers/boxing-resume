@@ -4,6 +4,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Loader2, ChevronDown } from 'luc
 import { useMemo, useState, useEffect } from 'react';
 import { useOrganizations, useTitles, useFighter, useAllRankings } from '../../../features/rankings/hooks/useRankings';
 import { ApiOrg, ApiTitle } from '../../../features/rankings/types';
+import { FighterProfileModal } from '../all-fighters/FighterProfileModal';
 
 /**
  * @helper Helper to get initials from a name
@@ -18,7 +19,7 @@ const getInitials = (name: string) => {
 /**
  * @component ChampionCard
  */
-const ChampionCard = ({ title, org, realChampionId }: { title: ApiTitle; org: ApiOrg; realChampionId?: string }) => {
+const ChampionCard = ({ title, org, realChampionId, onViewProfile }: { title: ApiTitle; org: ApiOrg; realChampionId?: string; onViewProfile?: (id: string) => void }) => {
   const championId = realChampionId || title.fighter_id || title.champion_id || title.fighter?.id;
   const { data: fighterData, isLoading: fighterLoading } = useFighter(championId);
   const fighter = fighterData?.data;
@@ -79,6 +80,7 @@ const ChampionCard = ({ title, org, realChampionId }: { title: ApiTitle; org: Ap
       {!isVacant && (
         <button 
           disabled={fighterLoading}
+          onClick={() => onViewProfile && championId && onViewProfile(championId)}
           className='mt-6 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-page-bg text-[12px] font-bold text-text-primary transition-colors hover:bg-text-accent hover:text-surface-white disabled:opacity-50 disabled:cursor-not-allowed group-hover:bg-text-accent group-hover:text-surface-white'
         >
           View profile <ArrowRight size={14} strokeWidth={2.5} />
@@ -94,6 +96,7 @@ const ChampionCard = ({ title, org, realChampionId }: { title: ApiTitle; org: Ap
 export default function ChampionsGrid() {
   const [activeOrgTab, setActiveOrgTab] = useState<string>('All');
   const [activeDivision, setActiveDivision] = useState<string>('All');
+  const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
 
   // Fetch Organizations
   const { data: orgsData, isLoading: orgsLoading } = useOrganizations();
@@ -292,6 +295,7 @@ export default function ChampionsGrid() {
                     title={title}
                     org={title.organization}
                     realChampionId={titleToChampionMap.get(title.id)}
+                    onViewProfile={setSelectedFighterId}
                   />
                 ))}
               </div>
@@ -299,6 +303,12 @@ export default function ChampionsGrid() {
           ))}
         </div>
       </section>
+
+      {/* Fighter Profile Modal */}
+      <FighterProfileModal
+        fighterId={selectedFighterId}
+        onClose={() => setSelectedFighterId(null)}
+      />
     </div>
   );
 }
