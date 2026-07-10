@@ -1,9 +1,10 @@
 'use client';
 
-import { featuredFighters as mockFighters } from '@/constants/seed-data';
-import { IFighter } from '@/types/Fighter.types';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useFeaturedFighters } from '@/features/fighters/hooks/useFighters';
+import { FighterProfileModal } from '../all-fighters/FighterProfileModal';
 
 /**
  * @function getInitials
@@ -48,7 +49,9 @@ const getFlagEmoji = (countryCode?: string): string => {
  * @returns {JSX.Element}
  */
 export default function FeaturedFighters() {
-  const fighters: IFighter[] = mockFighters;
+  const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
+  
+  const { data: fighters, isLoading } = useFeaturedFighters();
 
   return (
     <section className='w-full py-12 md:py-16'>
@@ -74,10 +77,16 @@ export default function FeaturedFighters() {
          * No horizontal scrolling.
          */}
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6'>
-          {fighters.map((fighter) => (
+          {isLoading && (
+            <div className="col-span-1 sm:col-span-2 lg:col-span-4 py-10 text-center text-sm font-medium text-[#857F78]">
+              Loading featured fighters...
+            </div>
+          )}
+          {!isLoading && (fighters || []).map((fighter: any) => (
             <div
               key={fighter.id}
-              className='group flex flex-col overflow-hidden rounded-[8px] border border-[#E8E2D8] bg-surface-white shadow-none transition-colors duration-200 hover:border-text-accent'
+              onClick={() => setSelectedFighterId(fighter.id)}
+              className='group flex flex-col overflow-hidden rounded-[8px] border border-[#E8E2D8] bg-surface-white shadow-none transition-colors duration-200 hover:border-text-accent cursor-pointer'
             >
               {/* * @block Card Upper (Dark Theme)
                * @description Fixed to match Figma layout, using standardized readable typography.
@@ -116,16 +125,16 @@ export default function FeaturedFighters() {
                  */}
                 <div className='mb-5 grid grid-cols-3 gap-2'>
                   <div className='flex h-8 items-center justify-center rounded-[3px] bg-[#E6F5EA] py-1'>
-                    <span className='text-xs font-bold text-[#16A34A]'>{fighter.record.wins}W</span>
+                    <span className='text-xs font-bold text-[#16A34A]'>{fighter.wins || 0}W</span>
                   </div>
                   <div className='flex h-8 items-center justify-center rounded-[3px] bg-[#FCE8E8] py-1'>
                     <span className='text-xs font-bold text-[#D72322]'>
-                      {fighter.record.losses}L
+                      {fighter.losses || 0}L
                     </span>
                   </div>
                   <div className='flex h-8 items-center justify-center rounded-[3px] bg-[#FFF9D6] py-1'>
                     <span className='text-xs font-bold text-[#CA8A04]'>
-                      {fighter.record.draws}D
+                      {fighter.draws || 0}D
                     </span>
                   </div>
                 </div>
@@ -138,13 +147,19 @@ export default function FeaturedFighters() {
                     className='h-1.5 w-1.5 rounded-full bg-text-accent'
                     aria-hidden='true'
                   ></span>
-                  <span className='text-xs font-medium text-[#3D3B38]'>{fighter.division}</span>
+                  <span className='text-xs font-medium text-[#3D3B38]'>{fighter.division || 'Unknown Division'}</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+      
+      {/* Fighter Profile Modal */}
+      <FighterProfileModal
+        fighterId={selectedFighterId}
+        onClose={() => setSelectedFighterId(null)}
+      />
     </section>
   );
 }

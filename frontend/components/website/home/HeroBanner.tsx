@@ -2,6 +2,7 @@
 
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { usePlatformStats } from '@/features/fighters/hooks/useFighters';
 
 /**
  * @constant DUMMY_WEIGHT_CLASSES
@@ -22,19 +23,7 @@ const DUMMY_WEIGHT_CLASSES = [
   'Flyweight',
 ];
 
-/**
- * @constant DUMMY_STATS
- * @description Mock platform statistics for the bottom data bar.
- * Replace with a live metrics endpoint later.
- * @type {Array<{value: string, label: string}>}
- */
-const DUMMY_STATS = [
-  { value: '345,280', label: 'Fighters' },
-  { value: '1.3M+', label: 'Bouts' },
-  { value: '17,400', label: 'Active' },
-  { value: '190+', label: 'Countries' },
-  { value: '240', label: 'Titles Tracked' },
-];
+const STAT_LABELS = ['Fighters', 'Bouts', 'Active', 'Countries', 'Titles Tracked'];
 
 /**
  * @component HeroBanner
@@ -43,6 +32,10 @@ const DUMMY_STATS = [
  * @returns {JSX.Element} The rendered hero banner component.
  */
 export default function HeroBanner() {
+  const { data: dynamicStats, isLoading } = usePlatformStats();
+  
+  const statsToRender = dynamicStats || STAT_LABELS.map(label => ({ value: '...', label }));
+  
   /**
    * @state activeFilter
    * @description Tracks the currently selected weight class pill.
@@ -159,7 +152,7 @@ export default function HeroBanner() {
       <div className='w-full border-t border-[#2A2A2A] bg-card-dark/50'>
         <div className='mx-auto w-full px-4 py-8 sm:px-6 sm:py-10 md:px-8 xl:px-12'>
           <div className='grid grid-cols-2 divide-[#2A2A2A] gap-y-8 md:grid-cols-5 md:divide-x'>
-            {DUMMY_STATS.map((stat, index) => (
+            {statsToRender.map((stat, index) => (
               <div
                 key={stat.label}
                 className={`flex flex-col items-center justify-center text-center ${
@@ -167,7 +160,7 @@ export default function HeroBanner() {
                 }`}
               >
                 <span className='mb-1 text-2xl font-bold tracking-tight text-surface-white sm:text-3xl'>
-                  {stat.value}
+                  {isLoading ? '...' : stat.value}
                 </span>
                 <span className='text-text-placeholder text-[10px] font-semibold uppercase tracking-widest sm:text-xs'>
                   {stat.label}

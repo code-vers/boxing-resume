@@ -148,4 +148,77 @@ export const getRecentResultsApi = async (): Promise<any[]> => {
   }
 };
 
+export const getFeaturedFightersApi = async (): Promise<any[]> => {
+  try {
+    const rankingsRes = await boxingApiInstance.get('/rankings');
+    const rankings = rankingsRes.data?.data || [];
+    
+    const championIds = new Set<string>();
+    rankings.forEach((r: any) => {
+      r.champions?.forEach((c: any) => {
+        if (c.fighter_id && !c.is_vacant) championIds.add(c.fighter_id);
+      });
+    });
+    
+    const topIds = Array.from(championIds).slice(0, 4);
+    
+    const promises = topIds.map(id => 
+      boxingApiInstance.get(`/fighters/${id}`).catch(() => null)
+    );
+    
+    const responses = await Promise.all(promises);
+    
+    const featured = responses
+      .filter(res => res?.data?.data)
+      .map(res => {
+        const f = res!.data.data;
+        return {
+          id: f.id,
+          firstName: f.name?.split(" ")[0] || "",
+          lastName: f.name?.split(" ").slice(1).join(" ") || "",
+          nickname: f.nickname || f.alias || "",
+          nationality: f.nationality || "",
+          division: f.division?.name || "",
+          wins: f.stats?.wins || 0,
+          losses: f.stats?.losses || 0,
+          draws: f.stats?.draws || 0,
+          status: f.stance || "active",
+        };
+      });
+      
+    return featured;
+  } catch (error) {
+    console.error("Error fetching featured fighters:", error);
+    return [];
+  }
+};
+
+
+export const getStatsApi = async () => {
+  try {
+    const [fRes, fightsRes, titlesRes] = await Promise.all([
+      boxingApiInstance.get('/fighters?page_size=1').catch(() => null),
+      boxingApiInstance.get('/fights?page_size=1').catch(() => null),
+      boxingApiInstance.get('/titles').catch(() => null),
+    ]);
+
+    return [
+      { value: fRes?.data?.pagination?.total_items ? fRes.data.pagination.total_items.toLocaleString() : 'N/A', label: 'Fighters' },
+      { value: fightsRes?.data?.pagination?.total_items ? fightsRes.data.pagination.total_items.toLocaleString() : 'N/A', label: 'Bouts' },
+      { value: 'N/A', label: 'Active' },
+      { value: 'N/A', label: 'Countries' },
+      { value: titlesRes?.data?.data?.length ? titlesRes.data.data.length.toString() : 'N/A', label: 'Titles Tracked' },
+    ];
+  } catch (error) {
+    return [
+      { value: 'N/A', label: 'Fighters' },
+      { value: 'N/A', label: 'Bouts' },
+      { value: 'N/A', label: 'Active' },
+      { value: 'N/A', label: 'Countries' },
+      { value: 'N/A', label: 'Titles Tracked' },
+    ];
+  }
+};
+
+
 
