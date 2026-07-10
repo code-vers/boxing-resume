@@ -2,10 +2,11 @@
 
 import { ArrowRight, Trophy } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFighter } from '@/features/rankings/hooks/useRankings';
 import { getRankings } from '@/features/rankings/api/rankings.api';
+import { FighterProfileModal } from '../all-fighters/FighterProfileModal';
 
 // Shadcn UI Imports
 import {
@@ -21,7 +22,7 @@ import {
  * @component ChampionRowItem
  * @description Renders a single row for a champion, handling its own data fetching for the fighter details.
  */
-const ChampionRowItem = ({ championId, isVacant, titleName, division, belts }: { championId: string, isVacant: boolean, titleName: string, division: string, belts: string[] }) => {
+const ChampionRowItem = ({ championId, isVacant, titleName, division, belts, onClick }: { championId: string, isVacant: boolean, titleName: string, division: string, belts: string[], onClick?: () => void }) => {
   const { data: fighterData, isLoading } = useFighter(isVacant ? undefined : championId);
   
   const fighterName = isVacant ? 'VACANT' : (fighterData?.data?.name || 'Loading...');
@@ -32,7 +33,8 @@ const ChampionRowItem = ({ championId, isVacant, titleName, division, belts }: {
 
   return (
     <TableRow
-      className='border-b-[#222222] transition-colors hover:bg-[#1A1A1A] data-[state=selected]:bg-[#1A1A1A]'
+      onClick={!isVacant ? onClick : undefined}
+      className={`border-b-[#222222] transition-colors hover:bg-[#1A1A1A] data-[state=selected]:bg-[#1A1A1A] ${!isVacant ? 'cursor-pointer' : ''}`}
     >
       {/* Left Column: Avatar and Info */}
       <TableCell className='px-6 py-5'>
@@ -87,6 +89,8 @@ const getInitials = (first: string, last: string): string => {
  * @returns {JSX.Element}
  */
 export default function CurrentChampions() {
+  const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
+  
   const { data: rankingsRes, isLoading, error } = useQuery({
     queryKey: ['rapid-rankings-all'],
     queryFn: () => getRankings(),
@@ -191,12 +195,19 @@ export default function CurrentChampions() {
                   titleName={champ.titleName}
                   division={champ.division} 
                   belts={champ.belts} 
+                  onClick={() => setSelectedFighterId(champ.id)}
                 />
               ))}
             </TableBody>
           </Table>
         </div>
       </div>
+      
+      {/* Fighter Profile Modal */}
+      <FighterProfileModal
+        fighterId={selectedFighterId}
+        onClose={() => setSelectedFighterId(null)}
+      />
     </section>
   );
 }

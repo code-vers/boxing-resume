@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getFightersApi, getRapidFightersApi, FetchFightersParams, getRapidFighterProfileApi, getRapidFighterFightsApi } from "../api/fighters.api";
+import { getFightersApi, getRapidFightersApi, FetchFightersParams, getRapidFighterProfileApi, getRapidFighterFightsApi, getRecentResultsApi, getStatsApi, getFeaturedFightersApi } from "../api/fighters.api";
 
 /**
  * Custom hook to fetch fighters list from the local backend using TanStack React Query.
@@ -43,3 +43,23 @@ export const useRapidFighterFights = (id: string) => {
   });
 };
 
+export const useRecentResults = () => {
+  return useQuery({
+    queryKey: ['rapid-recent-results'],
+    queryFn: getRecentResultsApi,
+  });
+};
+
+export const usePlatformStats = () => {
+  return useQuery({
+    queryKey: ['rapid-platform-stats'],
+    queryFn: getStatsApi,
+  });
+};
+
+export const useFeaturedFighters = () => {
+  return useQuery({
+    queryKey: ['rapid-featured-fighters'],
+    queryFn: getFeaturedFightersApi,
+  });
+};

@@ -102,3 +102,123 @@ export const getRapidFighterFightsApi = async (id: string): Promise<any> => {
   return data;
 };
 
+export const getRecentResultsApi = async (): Promise<any[]> => {
+  try {
+    // 1. Get Top 5 champions from rankings
+    const rankingsRes = await boxingApiInstance.get('/rankings');
+    const rankings = rankingsRes.data?.data || [];
+    
+    const championIds = new Set<string>();
+    rankings.forEach((r: any) => {
+      r.champions?.forEach((c: any) => {
+        if (c.fighter_id && !c.is_vacant) championIds.add(c.fighter_id);
+      });
+    });
+    
+    // In sandbox we might only have a few, take up to 8 to ensure we get 5 results
+    const topIds = Array.from(championIds).slice(0, 8);
+    
+    let allFights: any[] = [];
+    
+    // Fetch concurrently to speed up loading
+    const promises = topIds.map(id => 
+      boxingApiInstance.get(`/fights`, {
+        params: { fighter_id: id, date_sort: 'DESC', page_size: 5 }
+      }).catch(() => null)
+    );
+    
+    const responses = await Promise.all(promises);
+    
+    responses.forEach(res => {
+      const fights = res?.data?.data || [];
+      const finished = fights.filter((f: any) => f.status === 'FINISHED' && f.results);
+      if (finished.length > 0) {
+        allFights.push(finished[0]); // get their most recent fight
+      }
+    });
+    
+    // Sort by date descending
+    allFights.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    // Return top 5 recent results
+    return allFights.slice(0, 5);
+  } catch (error) {
+    console.error("Error fetching recent results:", error);
+    return [];
+  }
+};
+
+export const getFeaturedFightersApi = async (): Promise<any[]> => {
+  try {
+    const rankingsRes = await boxingApiInstance.get('/rankings');
+    const rankings = rankingsRes.data?.data || [];
+    
+    const championIds = new Set<string>();
+    rankings.forEach((r: any) => {
+      r.champions?.forEach((c: any) => {
+        if (c.fighter_id && !c.is_vacant) championIds.add(c.fighter_id);
+      });
+    });
+    
+    const topIds = Array.from(championIds).slice(0, 4);
+    
+    const promises = topIds.map(id => 
+      boxingApiInstance.get(`/fighters/${id}`).catch(() => null)
+    );
+    
+    const responses = await Promise.all(promises);
+    
+    const featured = responses
+      .filter(res => res?.data?.data)
+      .map(res => {
+        const f = res!.data.data;
+        return {
+          id: f.id,
+          firstName: f.name?.split(" ")[0] || "",
+          lastName: f.name?.split(" ").slice(1).join(" ") || "",
+          nickname: f.nickname || f.alias || "",
+          nationality: f.nationality || "",
+          division: f.division?.name || "",
+          wins: f.stats?.wins || 0,
+          losses: f.stats?.losses || 0,
+          draws: f.stats?.draws || 0,
+          status: f.stance || "active",
+        };
+      });
+      
+    return featured;
+  } catch (error) {
+    console.error("Error fetching featured fighters:", error);
+    return [];
+  }
+};
+
+
+export const getStatsApi = async () => {
+  try {
+    const [fRes, fightsRes, titlesRes] = await Promise.all([
+      boxingApiInstance.get('/fighters?page_size=1').catch(() => null),
+      boxingApiInstance.get('/fights?page_size=1').catch(() => null),
+      boxingApiInstance.get('/titles').catch(() => null),
+    ]);
+
+    return [
+      { value: fRes?.data?.pagination?.total_items ? fRes.data.pagination.total_items.toLocaleString() : 'N/A', label: 'Fighters' },
+      { value: fightsRes?.data?.pagination?.total_items ? fightsRes.data.pagination.total_items.toLocaleString() : 'N/A', label: 'Bouts' },
+      { value: 'N/A', label: 'Active' },
+      { value: 'N/A', label: 'Countries' },
+      { value: titlesRes?.data?.data?.length ? titlesRes.data.data.length.toString() : 'N/A', label: 'Titles Tracked' },
+    ];
+  } catch (error) {
+    return [
+      { value: 'N/A', label: 'Fighters' },
+      { value: 'N/A', label: 'Bouts' },
+      { value: 'N/A', label: 'Active' },
+      { value: 'N/A', label: 'Countries' },
+      { value: 'N/A', label: 'Titles Tracked' },
+    ];
+  }
+};
+
+
+
