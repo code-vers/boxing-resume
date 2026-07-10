@@ -3,6 +3,10 @@
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { getEvents } from '@/features/rankings/api/rankings.api';
+import { ApiEvent } from '@/features/rankings/types';
+import { useMemo } from 'react';
 
 /**
  * @interface UpcomingEvent
@@ -15,51 +19,27 @@ interface UpcomingEvent {
   location: string;
   division: string;
   status: string;
-  broadcastType: 'PPV' | 'Live';
+  broadcastType: string;
 }
 
-/**
- * @constant mockSchedule
- * @description Pixel-perfect seed data mimicking the exact state of the Figma screenshot.
- */
-const mockSchedule: UpcomingEvent[] = [
-  {
-    id: 'evt_1',
-    date: new Date('2024-06-14T00:00:00'),
-    title: 'Beterbiev vs Bivol II',
-    location: 'Riyadh, Saudi Arabia',
-    division: 'Light Heavyweight',
-    status: 'Undisputed',
-    broadcastType: 'PPV',
-  },
-  {
-    id: 'evt_2',
-    date: new Date('2024-07-03T00:00:00'),
-    title: 'Canelo vs Benavidez',
-    location: 'Las Vegas, Nevada',
-    division: 'Super Middleweight',
-    status: 'WBA, WBC, WBO, IBF',
-    broadcastType: 'PPV',
-  },
-  {
-    id: 'evt_3',
-    date: new Date('2024-07-20T00:00:00'),
-    title: 'Tank vs Shakur',
-    location: 'Atlanta, Georgia',
-    division: 'Lightweight',
-    status: 'WBA',
-    broadcastType: 'Live',
-  },
-  {
-    id: 'evt_4',
-    date: new Date('2024-08-10T00:00:00'),
-    title: 'Inoue vs Tapales',
-    location: 'Tokyo, Japan',
-    division: 'Super Bantamweight',
-    status: 'Undisputed',
-    broadcastType: 'Live',
-  },
-];
+const mapApiEventToUpcomingEvent = (apiEvent: ApiEvent): UpcomingEvent => {
+  const date = new Date(apiEvent.date);
+  
+  let broadcastType = 'N/A';
+  if (apiEvent.broadcast && apiEvent.broadcast.length > 0) {
+     broadcastType = apiEvent.broadcast[0].broadcasters[0] || 'N/A';
+  }
+
+  return {
+    id: apiEvent.id,
+    date,
+    title: apiEvent.title,
+    location: apiEvent.venue ? `${apiEvent.venue}, ${apiEvent.location}` : apiEvent.location || 'TBA',
+    division: 'Event',
+    status: 'Upcoming',
+    broadcastType,
+  };
+};
 
 /**
  * @function formatScheduleDate
@@ -79,6 +59,21 @@ const formatScheduleDate = (date: Date) => {
  * @returns {JSX.Element}
  */
 export default function UpcomingSchedule() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['boxingEvents'],
+    queryFn: getEvents,
+  });
+
+  const events = useMemo(() => {
+    const mapped = (data?.data || []).map(mapApiEventToUpcomingEvent);
+    const now = new Date();
+    // Filter to only upcoming events, sort by date, limit to 4
+    return mapped
+      .filter((e) => e.date >= now)
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(0, 4);
+  }, [data]);
+
   return (
     <section className='w-full bg-page-bg py-12 md:py-16'>
       <div className='mx-auto w-full px-4 sm:px-6 md:px-8 xl:px-12'>
@@ -100,9 +95,24 @@ export default function UpcomingSchedule() {
          * @description White background wrapper with Figma-specified borders and rounded corners.
          */}
         <div className='flex w-full flex-col overflow-hidden rounded-[12px] border border-[#E8E2D8] bg-surface-white shadow-sm'>
-          {mockSchedule.map((event) => {
+          {isLoading && (
+            <div className="px-5 py-8 text-center text-sm font-medium text-[#857F78]">
+              Loading schedule...
+            </div>
+          )}
+          {error && (
+            <div className="px-5 py-8 text-center text-sm font-medium text-red-500">
+              Failed to load schedule.
+            </div>
+          )}
+          {!isLoading && !error && events.length === 0 && (
+            <div className="px-5 py-8 text-center text-sm font-medium text-[#857F78]">
+              No upcoming events.
+            </div>
+          )}
+          {!isLoading && !error && events.map((event) => {
             const { month, day } = formatScheduleDate(event.date);
-            const isPPV = event.broadcastType === 'PPV';
+            const isPPV = event.broadcastType.toUpperCase().includes('PPV');
 
             return (
               <div
