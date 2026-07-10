@@ -18,7 +18,7 @@ interface TitleFiltersProps {
   currentCount?: number;
 }
 
-const TIERS = ['All', 'Intercontinental', 'International', 'Continental', 'National', 'State / Local'];
+const TIERS = ['All', 'World', 'Super', 'Interim', 'Ring'];
 const DIVISIONS = ['All Division', 'Middleweight', 'Welterweight', 'Heavyweight', 'Lightweight'];
 const ORGANIZATIONS = ['All Organization', 'WBC', 'NABF', 'IBF', 'WBO', 'WBA', 'EBU'];
 

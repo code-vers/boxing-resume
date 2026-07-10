@@ -2,17 +2,16 @@
 
 import React from 'react';
 
-const BELT_INFO = [
-  { label: 'Organization', value: 'NABF' },
-  { label: 'Tier Level', value: 'Continental' },
-  { label: 'Weight Class', value: 'Welterweight' },
-  { label: 'First Awarded', value: 'Mar 12, 2023' },
-  { label: 'Total Reigns', value: '2' },
-  { label: 'Active Holder Count', value: '2' },
-  { label: 'Current Status', value: 'Active' },
-];
+import { BeltRow } from '../TitleTable';
 
-export default function TitleBeltInfo() {
+export default function TitleBeltInfo({ selectedBelt }: { selectedBelt: BeltRow }) {
+  const BELT_INFO = [
+    { label: 'Organization', value: selectedBelt.org },
+    { label: 'Tier Level', value: selectedBelt.tier },
+    { label: 'Weight Class', value: selectedBelt.division },
+    { label: 'Current Status', value: selectedBelt.status },
+  ];
+
   return (
     <div className="w-full mx-auto px-6 md:px-12 py-10">
       <div className="bg-white border border-[#e8e2d8] rounded-[10px] p-6 flex flex-col gap-1">

@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { getRapidFightersApi } from '@/features/fighters/api/fighters.api';
+import { useRouter } from 'next/navigation';
 
 interface Fighter {
   id: string;
@@ -13,14 +16,9 @@ interface Fighter {
   weightClass: string;
 }
 
-const RECENT_FIGHTERS: Fighter[] = [
-  { id: '1', name: 'Tyson Fury', initials: 'TF', record: '34-1-1', weightClass: 'Heavyweight' },
-  { id: '2', name: 'Oleksandr Usyk', initials: 'OU', record: '22-0-0', weightClass: 'Heavyweight' },
-  { id: '3', name: 'Dmitry Bivol', initials: 'DB', record: '23-0-0', weightClass: 'Light Heavyweight' },
-];
-
 interface CompareFighterDialogProps {
   currentFighter: {
+    id: string;
     name: string;
     initials: string;
     record: string;
@@ -28,8 +26,43 @@ interface CompareFighterDialogProps {
   trigger: React.ReactNode;
 }
 
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function CompareFighterDialog({ currentFighter, trigger }: CompareFighterDialogProps) {
-  const [selectedFighter, setSelectedFighter] = React.useState<Fighter | null>(RECENT_FIGHTERS[0]);
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [selectedFighter, setSelectedFighter] = useState<Fighter | null>(null);
+
+  const { data: searchResults, isLoading } = useQuery({
+    queryKey: ['fighters-search', debouncedSearchTerm],
+    queryFn: () => getRapidFightersApi({ page: 1, name: debouncedSearchTerm }),
+    enabled: debouncedSearchTerm.length > 2,
+  });
+
+  const displayFighters = searchResults?.data?.map((f: any) => ({
+    id: f.id,
+    name: `${f.firstName} ${f.lastName}`.trim(),
+    initials: `${f.firstName?.[0] || ''}${f.lastName?.[0] || ''}`.toUpperCase(),
+    record: `${f.wins}-${f.losses}-${f.draws}`,
+    weightClass: f.division || 'Unknown',
+  })) || [];
+
+  const handleCompare = () => {
+    if (selectedFighter && currentFighter.id) {
+      router.push(`/compare?f1=${currentFighter.id}&f2=${selectedFighter.id}`);
+    }
+  };
 
   return (
     <Dialog.Root>
@@ -76,18 +109,24 @@ export default function CompareFighterDialog({ currentFighter, trigger }: Compar
             </div>
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-white border border-[#d4cec4] rounded-[6px] py-2.5 pl-10 pr-4 text-[13px] font-['Inter'] text-[#0a0a0a] placeholder:text-[#857f78] focus:outline-none focus:ring-1 focus:ring-[#d72322]"
-              placeholder="Search fighter to compare..."
+              placeholder="Search fighter to compare (e.g. Usyk)..."
             />
           </div>
 
-          {/* Recently Compared */}
-          <div className="flex flex-col gap-2">
+          {/* Search Results */}
+          <div className="flex flex-col gap-2 min-h-[164px]">
             <span className="text-[10px] font-['Inter'] text-[#857f78] tracking-[0.8px] uppercase">
-              RECENTLY COMPARED
+              {debouncedSearchTerm.length > 2 ? 'SEARCH RESULTS' : 'TYPE AT LEAST 3 CHARACTERS TO SEARCH'}
             </span>
             <div className="flex flex-col gap-1 max-h-[164px] overflow-y-auto pr-1">
-              {RECENT_FIGHTERS.map((fighter) => (
+              {isLoading && <div className="text-sm text-center py-4 text-gray-500">Searching...</div>}
+              {!isLoading && displayFighters.length === 0 && debouncedSearchTerm.length > 2 && (
+                <div className="text-sm text-center py-4 text-gray-500">No fighters found.</div>
+              )}
+              {displayFighters.map((fighter: Fighter) => (
                 <button
                   key={fighter.id}
                   onClick={() => setSelectedFighter(fighter)}
@@ -132,9 +171,15 @@ export default function CompareFighterDialog({ currentFighter, trigger }: Compar
                 </div>
               </div>
             )}
-            <button className="w-full bg-[#d72322] text-white py-2.5 rounded-[6px] text-[13px] font-medium font-['Inter'] hover:bg-[#b91c1c] transition-colors">
-              Compare Now
-            </button>
+            <Dialog.Close asChild>
+              <button 
+                onClick={handleCompare}
+                disabled={!selectedFighter}
+                className="w-full bg-[#d72322] text-white py-2.5 rounded-[6px] text-[13px] font-medium font-['Inter'] hover:bg-[#b91c1c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Compare Now
+              </button>
+            </Dialog.Close>
           </div>
 
         </Dialog.Content>

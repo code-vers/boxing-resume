@@ -33,9 +33,10 @@ export default function Page() {
                     holderName={selectedBelt.holderName}
                     holderInitials={selectedBelt.holderInitials}
                     heldSince={selectedBelt.heldSince}
+                    holderId={selectedBelt.holderId}
                 />
-                <TitleHistoryTable />
-                <TitleBeltInfo />
+                <TitleHistoryTable titleId={selectedBelt.id} selectedBelt={selectedBelt} />
+                <TitleBeltInfo selectedBelt={selectedBelt} />
             </main>
         );
     }
@@ -47,7 +48,6 @@ export default function Page() {
             <TitleTable 
                 filters={filters} 
                 onHistoryClick={setSelectedBelt}
-                key={`${filters.search}-${filters.tier}-${filters.division}-${filters.organization}`} 
             />
         </main>
     );
