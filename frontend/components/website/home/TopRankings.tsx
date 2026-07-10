@@ -2,11 +2,12 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { getRapidFightersApi } from '@/features/fighters/api/fighters.api';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { IRanking } from '@/types/Ranking.types';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { FighterProfileModal } from '../all-fighters/FighterProfileModal';
 
 // Shadcn UI Imports
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,8 @@ const formatRecord = (record: { wins: number; losses: number; draws: number }): 
  * @returns {JSX.Element}
  */
 export default function TopRankings() {
+  const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
+  
   const { data: fightersRes, isLoading, error } = useQuery({
     queryKey: ['rapid-fighters-preview'],
     queryFn: () => getRapidFightersApi({ page: 1 }),
@@ -147,7 +150,8 @@ export default function TopRankings() {
                     return (
                       <div
                         key={rankData.id}
-                        className='flex items-center border-b border-[#F0EAE1] py-2.5 last:border-none last:pb-0'
+                        onClick={() => setSelectedFighterId(rankData.id)}
+                        className='flex items-center border-b border-[#F0EAE1] py-2.5 last:border-none last:pb-0 cursor-pointer hover:bg-[#FAFAFA] transition-colors rounded-sm px-1 -mx-1'
                       >
                         {/* Rank Number */}
                         <span
@@ -160,7 +164,7 @@ export default function TopRankings() {
                         </span>
 
                         {/* Fighter Name from rankingGet.fighter */}
-                        <span className='truncate text-[13px] font-medium text-text-primary'>
+                        <span className='truncate text-[13px] font-medium text-text-primary hover:text-[#D72322] transition-colors'>
                           {rankData.fighter.firstName} {rankData.fighter.lastName}
                         </span>
 
@@ -177,6 +181,12 @@ export default function TopRankings() {
           ))}
         </div>
       </div>
+      
+      {/* Fighter Profile Modal */}
+      <FighterProfileModal
+        fighterId={selectedFighterId}
+        onClose={() => setSelectedFighterId(null)}
+      />
     </section>
   );
 }

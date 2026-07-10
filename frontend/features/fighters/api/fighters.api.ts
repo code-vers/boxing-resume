@@ -102,3 +102,50 @@ export const getRapidFighterFightsApi = async (id: string): Promise<any> => {
   return data;
 };
 
+export const getRecentResultsApi = async (): Promise<any[]> => {
+  try {
+    // 1. Get Top 5 champions from rankings
+    const rankingsRes = await boxingApiInstance.get('/rankings');
+    const rankings = rankingsRes.data?.data || [];
+    
+    const championIds = new Set<string>();
+    rankings.forEach((r: any) => {
+      r.champions?.forEach((c: any) => {
+        if (c.fighter_id && !c.is_vacant) championIds.add(c.fighter_id);
+      });
+    });
+    
+    // In sandbox we might only have a few, take up to 8 to ensure we get 5 results
+    const topIds = Array.from(championIds).slice(0, 8);
+    
+    let allFights: any[] = [];
+    
+    // Fetch concurrently to speed up loading
+    const promises = topIds.map(id => 
+      boxingApiInstance.get(`/fights`, {
+        params: { fighter_id: id, date_sort: 'DESC', page_size: 5 }
+      }).catch(() => null)
+    );
+    
+    const responses = await Promise.all(promises);
+    
+    responses.forEach(res => {
+      const fights = res?.data?.data || [];
+      const finished = fights.filter((f: any) => f.status === 'FINISHED' && f.results);
+      if (finished.length > 0) {
+        allFights.push(finished[0]); // get their most recent fight
+      }
+    });
+    
+    // Sort by date descending
+    allFights.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    // Return top 5 recent results
+    return allFights.slice(0, 5);
+  } catch (error) {
+    console.error("Error fetching recent results:", error);
+    return [];
+  }
+};
+
+
