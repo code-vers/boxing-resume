@@ -98,7 +98,7 @@ export default function CurrentChampions() {
 
     const fighterMap = new Map<string, { id: string, division: string, belts: Set<string>, isVacant: boolean, titleName: string }>();
 
-    rankings.forEach((rankingItem) => {
+    rankings.forEach((rankingItem: any) => {
       const orgName = rankingItem.organization?.name?.replace(/\s\(.+\)/, '') || 'ORG';
       const divName = rankingItem.division?.name || 'Unknown Division';
       

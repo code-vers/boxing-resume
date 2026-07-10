@@ -19,7 +19,7 @@ interface DivisionCardData {
   id: string;
   division: string;
   label: string;
-  fighters: IRanking[];
+  fighters: any[];
 }
 
 /**
