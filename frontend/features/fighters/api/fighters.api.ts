@@ -89,3 +89,16 @@ export const getRapidFightersApi = async (params: FetchFightersParams): Promise<
     }
   };
 };
+
+export const getRapidFighterProfileApi = async (id: string): Promise<any> => {
+  const { data } = await boxingApiInstance.get(`/fighters/${id}`);
+  return data;
+};
+
+export const getRapidFighterFightsApi = async (id: string): Promise<any> => {
+  const { data } = await boxingApiInstance.get(`/fights`, {
+    params: { fighter_id: id, date_sort: 'DESC' }
+  });
+  return data;
+};
+
