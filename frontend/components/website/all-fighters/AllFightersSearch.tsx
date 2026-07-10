@@ -66,7 +66,7 @@ const AllFightersSearch = ({
             className="w-full xl:w-[480px] 2xl:w-[582px] shrink-0"
             onSubmit={handleSubmit}
           >
-            <div className="flex h-[38px] w-full items-center gap-2 rounded-[6px] border border-[#d4cec4] bg-white px-3 shadow-sm">
+            <div className="flex h-[38px] w-full max-w-[480px] items-center gap-2 rounded-[6px] border border-[#d4cec4] bg-white px-3 shadow-sm">
               <Search className="h-4 w-4 shrink-0 text-[#857f78]" />
               <Input
                 type="search"

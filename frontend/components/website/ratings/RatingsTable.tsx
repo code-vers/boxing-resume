@@ -252,9 +252,8 @@ export default function RatingsTable() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${
-                  isActive ? 'text-primary' : 'text-[#857F78] hover:text-primary'
-                }`}
+                className={`relative whitespace-nowrap px-4 py-4 text-[12px] font-bold transition-colors ${isActive ? 'text-primary' : 'text-[#857F78] hover:text-primary'
+                  }`}
               >
                 {tab}
                 {isActive && (
