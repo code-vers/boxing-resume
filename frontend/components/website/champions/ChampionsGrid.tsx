@@ -2,8 +2,9 @@
 
 import { ArrowRight, ChevronLeft, ChevronRight, Loader2, ChevronDown } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
-import { useOrganizations, useTitles, useFighter } from '../../../features/rankings/hooks/useRankings';
+import { useOrganizations, useTitles, useFighter, useAllRankings } from '../../../features/rankings/hooks/useRankings';
 import { ApiOrg, ApiTitle } from '../../../features/rankings/types';
+import { FighterProfileModal } from '../all-fighters/FighterProfileModal';
 
 /**
  * @helper Helper to get initials from a name
@@ -18,8 +19,8 @@ const getInitials = (name: string) => {
 /**
  * @component ChampionCard
  */
-const ChampionCard = ({ title, org }: { title: ApiTitle; org: ApiOrg }) => {
-  const championId = title.fighter_id || title.champion_id || title.fighter?.id;
+const ChampionCard = ({ title, org, realChampionId, onViewProfile }: { title: ApiTitle; org: ApiOrg; realChampionId?: string; onViewProfile?: (id: string) => void }) => {
+  const championId = realChampionId || title.fighter_id || title.champion_id || title.fighter?.id;
   const { data: fighterData, isLoading: fighterLoading } = useFighter(championId);
   const fighter = fighterData?.data;
 
@@ -79,6 +80,7 @@ const ChampionCard = ({ title, org }: { title: ApiTitle; org: ApiOrg }) => {
       {!isVacant && (
         <button 
           disabled={fighterLoading}
+          onClick={() => onViewProfile && championId && onViewProfile(championId)}
           className='mt-6 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-page-bg text-[12px] font-bold text-text-primary transition-colors hover:bg-text-accent hover:text-surface-white disabled:opacity-50 disabled:cursor-not-allowed group-hover:bg-text-accent group-hover:text-surface-white'
         >
           View profile <ArrowRight size={14} strokeWidth={2.5} />
@@ -94,12 +96,34 @@ const ChampionCard = ({ title, org }: { title: ApiTitle; org: ApiOrg }) => {
 export default function ChampionsGrid() {
   const [activeOrgTab, setActiveOrgTab] = useState<string>('All');
   const [activeDivision, setActiveDivision] = useState<string>('All');
+  const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
 
   // Fetch Organizations
   const { data: orgsData, isLoading: orgsLoading } = useOrganizations();
 
   // Fetch Titles for selected organization
-  const { data: titlesData, isLoading: titlesLoading, isFetching } = useTitles(activeOrgTab);
+  const { data: titlesData, isLoading: titlesLoading, isFetching: titlesFetching } = useTitles(activeOrgTab);
+
+  // Fetch all rankings to find current holders
+  const { data: allRankings, isLoading: rankingsLoading } = useAllRankings();
+
+  // Create a mapping of title.id to fighter_id
+  const titleToChampionMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!allRankings) return map;
+
+    for (const rankingGroup of allRankings) {
+      const titleIds = rankingGroup.title_ids || {};
+      const champion = rankingGroup.champions?.[0];
+
+      if (champion && !champion.is_vacant && champion.fighter_id) {
+        if (titleIds.full) map.set(titleIds.full, champion.fighter_id);
+        if (titleIds.regular) map.set(titleIds.regular, champion.fighter_id);
+        if (titleIds.interim) map.set(titleIds.interim, champion.fighter_id);
+      }
+    }
+    return map;
+  }, [allRankings]);
 
   // Group titles by division
   const groupedTitles = useMemo(() => {
@@ -236,14 +260,14 @@ export default function ChampionsGrid() {
 
       {/* --- 3. CHAMPIONS DIRECTORY --- */}
       <section className='w-full py-8 md:py-12 relative flex-1'>
-        {isFetching && (
+        {(titlesFetching || rankingsLoading) && (
           <div className="absolute inset-0 bg-page-bg/40 z-10 flex items-start justify-center pt-20 backdrop-blur-[1px]">
             <Loader2 className="animate-spin text-text-accent" size={32} />
           </div>
         )}
 
         <div className='mx-auto flex flex-col gap-12 px-4 sm:px-6 lg:px-8'>
-          {divisionsToRender.length === 0 && !titlesLoading && !isFetching && (
+          {divisionsToRender.length === 0 && !titlesLoading && !titlesFetching && (
             <div className="py-20 flex flex-col items-center justify-center text-center">
               <div className="text-4xl mb-4">🏆</div>
               <h3 className="text-lg font-bold text-text-primary">No Titles Found</h3>
@@ -270,6 +294,8 @@ export default function ChampionsGrid() {
                     key={title.id}
                     title={title}
                     org={title.organization}
+                    realChampionId={titleToChampionMap.get(title.id)}
+                    onViewProfile={setSelectedFighterId}
                   />
                 ))}
               </div>
@@ -277,6 +303,12 @@ export default function ChampionsGrid() {
           ))}
         </div>
       </section>
+
+      {/* Fighter Profile Modal */}
+      <FighterProfileModal
+        fighterId={selectedFighterId}
+        onClose={() => setSelectedFighterId(null)}
+      />
     </div>
   );
 }

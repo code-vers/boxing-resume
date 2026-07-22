@@ -1,9 +1,8 @@
 'use client';
 
-import { recentResults as mockResults } from '@/constants/seed-data';
-import { IMatch, WinMethod } from '@/types/MatchRecords.types';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRecentResults } from '@/features/fighters/hooks/useFighters';
 
 // Shadcn UI Imports
 import { Badge } from '@/components/ui/badge';
@@ -19,25 +18,16 @@ import {
 /**
  * @function formatFighterName
  * @description Converts full names into the abbreviated format shown in the UI (e.g., "O. Usyk")
- * @param {string} firstName - Fighter's first name
- * @param {string} lastName - Fighter's last name
+ * @param {string} fullName - Fighter's full name
  * @returns {string} Formatted string: "F. Lastname"
  */
-const formatFighterName = (firstName: string, lastName: string): string => {
-  if (!firstName || !lastName) return '';
-  return `${firstName.charAt(0)}. ${lastName}`;
-};
-
-/**
- * @function getResultBadgeText
- * @description Maps technical win methods to the UI badge text.
- * Decisions show as "W", stoppages show as their abbreviation (e.g., "TKO").
- * @param {WinMethod} method - The official win method
- * @returns {string} The text to display inside the red badge
- */
-const getResultBadgeText = (method: WinMethod): string => {
-  const decisions = [WinMethod.UD, WinMethod.SD, WinMethod.MD];
-  return decisions.includes(method) ? 'W' : method;
+const formatFighterName = (fullName?: string, shortName?: string): string => {
+  if (!fullName) return shortName || 'Unknown';
+  const parts = fullName.split(' ');
+  if (parts.length > 1) {
+    return `${parts[0].charAt(0)}. ${parts.slice(1).join(' ')}`;
+  }
+  return fullName;
 };
 
 /**
@@ -60,7 +50,8 @@ const formatDate = (date: Date): string => {
  * @returns {JSX.Element}
  */
 export default function RecentResults() {
-  const results: IMatch[] = mockResults;
+  const { data: recentFights, isLoading, error } = useRecentResults();
+  const results = recentFights || [];
 
   return (
     <section className='w-full bg-page-bg py-12 md:py-16'>
@@ -102,45 +93,71 @@ export default function RecentResults() {
             </TableHeader>
 
             <TableBody>
-              {results.map((match) => (
-                <TableRow
-                  key={match.id}
-                  className='border-b-[#E8E2D8] transition-colors hover:bg-page-bg/40 data-[state=selected]:bg-page-bg/40'
-                >
-                  {/* Bout Column */}
-                  <TableCell className='px-6 py-4'>
-                    <div className='flex items-center'>
-                      <span className='text-[14px] font-medium text-text-primary'>
-                        {formatFighterName(match.winner.firstName, match.winner.lastName)}
-                      </span>
-                      <span className='mx-2.5 text-[11px] font-medium text-[#857F78]'>vs</span>
-                      <span className='text-[14px] font-medium text-text-primary'>
-                        {formatFighterName(match.loser.firstName, match.loser.lastName)}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  {/* Result Badge Column */}
-                  <TableCell className='px-6 py-4'>
-                    <Badge
-                      variant='default'
-                      className='inline-flex h-6 min-w-[28px] items-center justify-center rounded-[3px] border-none bg-[#D72322] px-2 font-bold tracking-wide text-surface-white hover:bg-[#D72322]/90'
-                    >
-                      <span className='text-[10px]'>{getResultBadgeText(match.method)}</span>
-                    </Badge>
-                  </TableCell>
-
-                  {/* Rounds Column */}
-                  <TableCell className='px-6 py-4 text-[13px] font-medium text-text-primary'>
-                    {match.round}
-                  </TableCell>
-
-                  {/* Date Column */}
-                  <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
-                    {formatDate(match.date)}
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-10 text-center text-[13px] font-medium text-[#857F78]">
+                    Loading recent results...
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
+              {error && (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-10 text-center text-[13px] font-medium text-red-500">
+                    Failed to load recent results.
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoading && !error && results.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-10 text-center text-[13px] font-medium text-[#857F78]">
+                    No recent results available.
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoading && !error && results.map((match: any) => {
+                const f1 = match.fighters?.fighter_1;
+                const f2 = match.fighters?.fighter_2;
+                
+                return (
+                  <TableRow
+                    key={match.id}
+                    className='border-b-[#E8E2D8] transition-colors hover:bg-page-bg/40 data-[state=selected]:bg-page-bg/40'
+                  >
+                    {/* Bout Column */}
+                    <TableCell className='px-6 py-4'>
+                      <div className='flex items-center'>
+                        <span className={`text-[14px] font-medium text-text-primary ${f1?.winner ? 'font-bold' : ''}`}>
+                          {formatFighterName(f1?.full_name, f1?.name)}
+                        </span>
+                        <span className='mx-2.5 text-[11px] font-medium text-[#857F78]'>vs</span>
+                        <span className={`text-[14px] font-medium text-text-primary ${f2?.winner ? 'font-bold' : ''}`}>
+                          {formatFighterName(f2?.full_name, f2?.name)}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    {/* Result Badge Column */}
+                    <TableCell className='px-6 py-4'>
+                      <Badge
+                        variant='default'
+                        className='inline-flex h-6 min-w-[28px] items-center justify-center rounded-[3px] border-none bg-[#D72322] px-2 font-bold tracking-wide text-surface-white hover:bg-[#D72322]/90'
+                      >
+                        <span className='text-[10px]'>{match.results?.outcome || 'W'}</span>
+                      </Badge>
+                    </TableCell>
+
+                    {/* Rounds Column */}
+                    <TableCell className='px-6 py-4 text-[13px] font-medium text-text-primary'>
+                      {match.results?.round || '12'}
+                    </TableCell>
+
+                    {/* Date Column */}
+                    <TableCell className='px-6 py-4 text-[13px] font-medium text-[#857F78]'>
+                      {formatDate(new Date(match.date))}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
