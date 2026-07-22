@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useQuery, useQueries } from '@tanstack/react-query';
-import { ChevronDown, Search, X, Swords, TrendingUp, Shield } from 'lucide-react';
+import { ChevronDown, Search, X, Swords, TrendingUp, Shield, HandFist } from 'lucide-react';
 import { boxingApiInstance } from '@/features/rankings/api/axios.instance';
 
 // ---------------------------------------------------------------------------
@@ -548,7 +548,7 @@ export default function ComparisonPage() {
         <div className='mx-auto flex w-full max-w-none flex-col gap-5 px-4 sm:px-6 md:px-8 xl:px-12'>
           <div className='flex flex-col gap-3'>
             <div className='flex items-center gap-3'>
-              <Swords className='h-7 w-7 text-text-accent' aria-hidden='true' />
+              <HandFist className='h-10 w-10 text-text-accent' aria-hidden='true' />
               <h1 className='font-heading text-4xl uppercase tracking-tight text-surface-white md:text-5xl'>
                 Fighter Comparison
               </h1>
@@ -603,7 +603,7 @@ export default function ComparisonPage() {
           {!fighter1Id && !fighter2Id && (
             <div className='flex flex-col items-center justify-center gap-4 py-20 text-center'>
               <div className='flex h-20 w-20 items-center justify-center rounded-full border-2 border-dashed border-[#d4cec4] bg-[#faf8f4]'>
-                <Swords className='h-8 w-8 text-text-placeholder' />
+                <HandFist className='h-8 w-8 text-text-placeholder' />
               </div>
               <p className='max-w-[360px] text-[15px] font-medium text-text-placeholder'>
                 Use the selectors above to choose two fighters and start comparing their stats.
