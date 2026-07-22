@@ -77,15 +77,13 @@ const PAGE_SIZE = 50;
 // Shared Column Configuration for Perfect Alignment
 // ---------------------------------------------------------------------------
 const COLUMNS_CONFIG = [
-  { key: 'rank',        label: 'Rank',        flex: '0 0 7.00%',  align: 'left',   className: 'pl-6 pr-4' },
-  { key: 'fighter',     label: 'Fighter',     flex: '0 0 13.41%', align: 'left',   className: 'pl-3 pr-4' },
-  { key: 'nationality', label: 'Nationality', flex: '0 0 13.50%', align: 'center', className: 'px-3' },
-  { key: 'division',    label: 'Division',    flex: '0 0 8.24%',  align: 'center', className: 'px-3' },
-  { key: 'record',      label: 'Record',      flex: '0 0 9.00%',  align: 'center', className: 'px-3' },
-  { key: 'kos',         label: 'KOs',         flex: '0 0 8.00%',  align: 'center', className: 'px-3' },
-  { key: 'lastSix',     label: 'Last 6',      flex: '0 0 13.90%', align: 'center', className: 'px-3' },
-  { key: 'rating',      label: 'Rating',      flex: '0 0 9.00%',  align: 'center', className: 'px-3' },
-  { key: 'status',      label: 'Status',      flex: '0 0 12.95%', align: 'center', className: 'pl-3 pr-6' },
+  { key: 'rank',        label: 'Rank',        flex: '0 0 7%',   align: 'left',   className: 'pl-6 pr-4' },
+  { key: 'fighter',     label: 'Fighter',     flex: '0 0 24%',  align: 'left',   className: 'pl-3 pr-4' },
+  { key: 'nationality', label: 'Nationality', flex: '0 0 18%',  align: 'center', className: 'px-3' },
+  { key: 'division',    label: 'Division',    flex: '0 0 16%',  align: 'center', className: 'px-3' },
+  { key: 'record',      label: 'Record',      flex: '0 0 12%',  align: 'center', className: 'px-3' },
+  { key: 'kos',         label: 'KOs',         flex: '0 0 9%',   align: 'center', className: 'px-3' },
+  { key: 'lastSix',     label: 'Last 6',      flex: '0 0 14%',  align: 'center', className: 'pl-3 pr-6' },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -306,23 +304,6 @@ const DesktopRow = ({ row, displayRank, enriched, onFighterClick }: DesktopRowPr
         <LastSixSquares lastSix={enriched?.lastSix ?? 'N/A'} isLoading={isLoading} />
       </div>
 
-      {/* Rating */}
-      <div
-        className={cn('shrink-0 flex items-center justify-center', COLUMNS_CONFIG[7].className)}
-        style={{ flex: COLUMNS_CONFIG[7].flex }}
-      >
-        <span className="text-sm font-medium text-[#0a0a0a] tabular-nums">
-          {row.rating !== null ? row.rating.toFixed(0) : 'N/A'}
-        </span>
-      </div>
-
-      {/* Status */}
-      <div
-        className={cn('shrink-0 flex items-center justify-center', COLUMNS_CONFIG[8].className)}
-        style={{ flex: COLUMNS_CONFIG[8].flex }}
-      >
-        <StatusPill status={enriched?.status ?? 'N/A'} isLoading={isLoading} />
-      </div>
     </div>
   );
 };
@@ -342,9 +323,8 @@ const MobileCard = ({ row, displayRank, enriched, onFighterClick }: MobileCardPr
 
   return (
     <div className="border border-[#e8e2d8] rounded-lg p-4 bg-white">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center mb-3">
         <span className="font-bold text-base text-[#0a0a0a]">{displayRank > 0 ? `#${displayRank}` : '—'}</span>
-        <StatusPill status={enriched?.status ?? 'N/A'} isLoading={isLoading} />
       </div>
       <div className="flex items-center gap-3 mb-4">
         <div
@@ -381,10 +361,7 @@ const MobileCard = ({ row, displayRank, enriched, onFighterClick }: MobileCardPr
             {isLoading ? '...' : (enriched?.kos !== null ? enriched?.kos : '—')}
           </p>
         </div>
-        <div>
-          <p className="text-[#857f78] font-medium mb-1">Rating</p>
-          <p className="text-sm font-medium text-[#0a0a0a]">{row.rating !== null ? row.rating.toFixed(0) : 'N/A'}</p>
-        </div>
+
         <div className="col-span-2">
           <p className="text-[#857f78] font-medium mb-2">Last 6</p>
           <LastSixSquares lastSix={enriched?.lastSix ?? 'N/A'} isLoading={isLoading} />

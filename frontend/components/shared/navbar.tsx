@@ -15,7 +15,7 @@ import { useState } from 'react';
  */
 const navItems = [
   { label: 'Home', href: '/' },
-  { label: 'Ratings', href: '/ratings' },
+  { label: 'Comparison', href: '/compare' },
   { label: 'Schedule', href: '/schedule' },
   { label: 'Results', href: '/results' },
   { label: 'Champions', href: '/champions' },
