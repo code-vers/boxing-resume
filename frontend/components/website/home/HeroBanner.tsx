@@ -1,7 +1,8 @@
 'use client';
 
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Loader2 } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePlatformStats } from '@/features/fighters/hooks/useFighters';
 
 /**
@@ -47,6 +48,8 @@ export default function HeroBanner() {
    * @description Tracks the input value of the main search bar.
    */
   const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   /**
    * @function handleSearch
@@ -54,8 +57,25 @@ export default function HeroBanner() {
    */
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Integrate search API routing here
-    console.log('Searching for:', searchQuery, 'in category:', activeFilter);
+    startTransition(() => {
+      if (searchQuery.trim()) {
+        router.push(`/fighters?query=${encodeURIComponent(searchQuery.trim())}`);
+      } else {
+        router.push('/fighters');
+      }
+    });
+  };
+
+  /**
+   * @function handleFilterClick
+   * @description Handles clicking a weight class chip and navigating to fighters page.
+   */
+  const handleFilterClick = (weight: string) => {
+    setActiveFilter(weight);
+    startTransition(() => {
+      const divisionParam = weight === 'All' ? 'All Division' : weight;
+      router.push(`/fighters?division=${encodeURIComponent(divisionParam)}`);
+    });
   };
 
   /**
@@ -114,8 +134,10 @@ export default function HeroBanner() {
           </div>
           <button
             type='submit'
-            className='bg-btn-primary hover:bg-btn-primary-hover focus:ring-text-accent focus:ring-offset-card-dark w-full rounded-md px-8 py-3.5 text-sm font-semibold text-surface-white transition-colors sm:w-auto focus:outline-none focus:ring-2 focus:ring-offset-2'
+            disabled={isPending}
+            className='bg-btn-primary hover:bg-btn-primary-hover focus:ring-text-accent focus:ring-offset-card-dark flex w-full items-center justify-center gap-2 rounded-md px-8 py-3.5 text-sm font-semibold text-surface-white transition-colors sm:w-auto focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-70'
           >
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Search
           </button>
         </form>
@@ -130,13 +152,15 @@ export default function HeroBanner() {
             return (
               <button
                 key={weight}
-                onClick={() => setActiveFilter(weight)}
-                className={`whitespace-nowrap rounded-full border px-5 py-1.5 text-xs font-medium transition-all duration-200 sm:text-sm ${
+                onClick={() => handleFilterClick(weight)}
+                disabled={isPending}
+                className={`whitespace-nowrap flex items-center gap-2 rounded-full border px-5 py-1.5 text-xs font-medium transition-all duration-200 sm:text-sm ${
                   isActive
                     ? 'border-btn-primary bg-btn-primary text-surface-white'
                     : 'text-text-placeholder hover:border-text-placeholder hover:text-surface-white border-[#2A2A2A] bg-transparent'
                 }`}
               >
+                {isPending && isActive && <Loader2 className="h-3 w-3 animate-spin" />}
                 {weight}
               </button>
             );

@@ -16,8 +16,9 @@
  *   4. All search, division, country, and status filters are fully wired and functional.
  */
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import { Search, ChevronDown, RefreshCcw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -434,18 +435,31 @@ const Pagination = ({
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
-const AllFightersGrid = ({ externalRatings, divisionFilter }: AllFightersGridProps) => {
+const AllFightersGridContent = ({ externalRatings, divisionFilter }: AllFightersGridProps) => {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('query') || '';
+  const initialDivision = searchParams.get('division') || 'All Division';
 
   // ── States ────────────────────────────────────────────────────────────────
-  const [query,             setQuery]             = useState('');
-  const [inputValue,        setInputValue]        = useState('');
-  const [division,          setDivision]          = useState('All Division');
+  const [query,             setQuery]             = useState(initialQuery);
+  const [inputValue,        setInputValue]        = useState(initialQuery);
+  const [division,          setDivision]          = useState(initialDivision);
   const [country,           setCountry]           = useState('All Countries');
   const [status,            setStatus]            = useState<'all' | 'active' | 'inactive'>('all');
   const [rating,            setRating]            = useState('Ratings');
   const [currentPage,       setCurrentPage]       = useState(1);
   const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
+
+  // Sync state if URL query changes
+  useEffect(() => {
+    const q = searchParams.get('query') || '';
+    const d = searchParams.get('division') || 'All Division';
+    setQuery(q);
+    setInputValue(q);
+    setDivision(d);
+    setCurrentPage(1);
+  }, [searchParams]);
 
   // Background loading state for all filtered profiles
   const [enrichedDataMap, setEnrichedDataMap] = useState<Record<string, EnrichedData>>({});
@@ -905,6 +919,14 @@ const AllFightersGrid = ({ externalRatings, divisionFilter }: AllFightersGridPro
         onClose={() => setSelectedFighterId(null)}
       />
     </div>
+  );
+};
+
+const AllFightersGrid = (props: AllFightersGridProps) => {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-[#857f78]">Loading fighters...</div>}>
+      <AllFightersGridContent {...props} />
+    </Suspense>
   );
 };
 
