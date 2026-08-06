@@ -1,9 +1,32 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, useQueries } from '@tanstack/react-query';
-import { ChevronDown, Search, X, Swords, TrendingUp, Shield, HandFist } from 'lucide-react';
+import { ChevronDown, Search, X, Swords, TrendingUp, Shield, HandFist, Share2, Copy, Check } from 'lucide-react';
 import { boxingApiInstance } from '@/features/rankings/api/axios.instance';
+
+// ---------------------------------------------------------------------------
+// Brand SVG Icons
+// ---------------------------------------------------------------------------
+
+const XIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const FacebookIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+  </svg>
+);
+
+const ThreadsIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12.186 24C5.464 24 0 18.536 0 11.814 0 5.092 5.464 0 12.186 0c6.722 0 12.186 5.464 12.186 11.814 0 4.133-2.074 7.697-5.26 9.712-.472.3-.984.568-1.52.8-1.57.674-3.32.996-5.1.966a1.11 1.11 0 0 1-.954-1.233c.06-.606.574-1.045 1.18-1.002 1.488.026 2.952-.244 4.267-.808.455-.197.89-.425 1.291-.68 2.614-1.65 4.316-4.57 4.316-7.955 0-5.468-4.448-9.916-9.916-9.916-5.468 0-9.916 4.448-9.916 9.916 0 5.468 4.448 9.916 9.916 9.916.618 0 1.12.502 1.12 1.12s-.502 1.12-1.12 1.12zm.23-15.65c-2.316 0-4.202 1.886-4.202 4.202 0 2.316 1.886 4.202 4.202 4.202 1.34 0 2.535-.629 3.308-1.61.343-.437.974-.518 1.41-.174.437.344.518.974.174 1.41-1.168 1.48-2.973 2.428-4.892 2.428-3.469 0-6.292-2.823-6.292-6.292 0-3.469 2.823-6.292 6.292-6.292 3.469 0 6.292 2.823 6.292 6.292 0 .618-.502 1.12-1.12 1.12s-1.12-.502-1.12-1.12c0-2.316-1.886-4.202-4.202-4.202z" />
+  </svg>
+);
 
 // ---------------------------------------------------------------------------
 // Types
@@ -490,8 +513,34 @@ function StatRow({ label, val1, val2, highlight }: StatRowProps) {
  * @returns {JSX.Element}
  */
 export default function ComparisonPage() {
-  const [fighter1Id, setFighter1Id] = useState<string | null>(null);
-  const [fighter2Id, setFighter2Id] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const initialF1 = searchParams.get('f1') || searchParams.get('fighter1');
+  const initialF2 = searchParams.get('f2') || searchParams.get('fighter2');
+
+  const [fighter1Id, setFighter1Id] = useState<string | null>(initialF1);
+  const [fighter2Id, setFighter2Id] = useState<string | null>(initialF2);
+  const [copied, setCopied] = useState(false);
+
+  // Synchronize URL query parameters with active fighter selections
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (fighter1Id) {
+      params.set('f1', fighter1Id);
+    } else {
+      params.delete('f1');
+      params.delete('fighter1');
+    }
+    if (fighter2Id) {
+      params.set('f2', fighter2Id);
+    } else {
+      params.delete('f2');
+      params.delete('fighter2');
+    }
+    const newSearch = params.toString();
+    const newUrl = newSearch ? `${window.location.pathname}?${newSearch}` : window.location.pathname;
+    window.history.replaceState(null, '', newUrl);
+  }, [fighter1Id, fighter2Id]);
 
   /** @query Available weight divisions */
   const divisionsQuery = useQuery({
@@ -537,6 +586,67 @@ export default function ComparisonPage() {
     if (n1 > n2) return 'f1';
     if (n2 > n1) return 'f2';
     return 'equal';
+  };
+
+  /**
+   * @function getShareUrl
+   * @description Constructs the full URL pointing to the active comparison.
+   */
+  const getShareUrl = useCallback(() => {
+    if (typeof window === 'undefined') return '';
+    const url = new URL(window.location.href);
+    if (fighter1Id) url.searchParams.set('f1', fighter1Id);
+    if (fighter2Id) url.searchParams.set('f2', fighter2Id);
+    return url.toString();
+  }, [fighter1Id, fighter2Id]);
+
+  /**
+   * @function getShareText
+   * @description Generates descriptive social media post text for the comparison.
+   */
+  const getShareText = useCallback(() => {
+    if (fighter1 && fighter2) {
+      return `Check out the boxing matchup comparison: ${fighter1.name} vs ${fighter2.name} on Boxing Resume! 🥊`;
+    }
+    if (fighter1) {
+      return `Check out ${fighter1.name}'s boxing record and stats on Boxing Resume! 🥊`;
+    }
+    return `Compare boxing stats, records, and fighter resumes side-by-side on Boxing Resume! 🥊`;
+  }, [fighter1, fighter2]);
+
+  /** @function handleShareX - Share comparison result to X (Twitter) */
+  const handleShareX = () => {
+    const shareUrl = getShareUrl();
+    const text = getShareText();
+    const intentUrl = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+    window.open(intentUrl, '_blank', 'noopener,noreferrer,width=600,height=450');
+  };
+
+  /** @function handleShareFacebook - Share comparison result to Facebook */
+  const handleShareFacebook = () => {
+    const shareUrl = getShareUrl();
+    const intentUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    window.open(intentUrl, '_blank', 'noopener,noreferrer,width=600,height=500');
+  };
+
+  /** @function handleShareThreads - Share comparison result to Threads */
+  const handleShareThreads = () => {
+    const shareUrl = getShareUrl();
+    const text = getShareText();
+    const intentUrl = `https://www.threads.net/intent/post?text=${encodeURIComponent(`${text} ${shareUrl}`)}`;
+    window.open(intentUrl, '_blank', 'noopener,noreferrer,width=600,height=600');
+  };
+
+  /** @function handleCopyLink - Copies generated share URL to clipboard */
+  const handleCopyLink = async () => {
+    const shareUrl = getShareUrl();
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
   };
 
   return (
@@ -660,6 +770,81 @@ export default function ComparisonPage() {
                 {/* Fighter 2 Card */}
                 <div className='rounded-[10px] bg-card-dark p-6 md:p-8'>
                   <FighterCard fighter={fighter2} side='right' />
+                </div>
+              </div>
+
+              {/* ---------------------------------------------------------- */}
+              {/* Social Media Share Bar                                     */}
+              {/* ---------------------------------------------------------- */}
+              <div className='flex flex-col gap-4 rounded-[10px] border border-[#e8e2d8] bg-surface-white p-5 shadow-sm md:flex-row md:items-center md:justify-between md:px-6'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f0ebe1] text-text-accent'>
+                    <Share2 className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <h4 className='font-heading text-lg uppercase tracking-wide text-text-primary'>
+                      Share Comparison Result
+                    </h4>
+                    <p className='text-[12px] text-text-placeholder'>
+                      Share this head-to-head matchup directly to your favorite social networks
+                    </p>
+                  </div>
+                </div>
+
+                {/* Share Action Buttons */}
+                <div className='flex flex-wrap items-center gap-2.5 pt-2 md:pt-0'>
+                  {/* X (Twitter) Button */}
+                  <button
+                    type='button'
+                    onClick={handleShareX}
+                    className='flex items-center gap-2 rounded-[6px] bg-[#000000] px-4 py-2.5 text-[12px] font-bold text-surface-white shadow-sm transition-all duration-200 hover:bg-[#1a1a1a] hover:scale-[1.03] active:scale-[0.97]'
+                    title='Share comparison to X (Twitter)'
+                  >
+                    <XIcon className='h-3.5 w-3.5' />
+                    <span>X (Twitter)</span>
+                  </button>
+
+                  {/* Facebook Button */}
+                  <button
+                    type='button'
+                    onClick={handleShareFacebook}
+                    className='flex items-center gap-2 rounded-[6px] bg-[#1877F2] px-4 py-2.5 text-[12px] font-bold text-surface-white shadow-sm transition-all duration-200 hover:bg-[#166fe5] hover:scale-[1.03] active:scale-[0.97]'
+                    title='Share comparison to Facebook'
+                  >
+                    <FacebookIcon className='h-3.5 w-3.5' />
+                    <span>Facebook</span>
+                  </button>
+
+                  {/* Threads Button */}
+                  <button
+                    type='button'
+                    onClick={handleShareThreads}
+                    className='flex items-center gap-2 rounded-[6px] bg-[#000000] px-4 py-2.5 text-[12px] font-bold text-surface-white shadow-sm transition-all duration-200 hover:bg-[#222222] hover:scale-[1.03] active:scale-[0.97]'
+                    title='Share comparison to Threads'
+                  >
+                    <ThreadsIcon className='h-3.5 w-3.5' />
+                    <span>Threads</span>
+                  </button>
+
+                  {/* Copy Link Button */}
+                  <button
+                    type='button'
+                    onClick={handleCopyLink}
+                    className='flex items-center gap-2 rounded-[6px] border border-[#d4cec4] bg-[#faf8f4] px-4 py-2.5 text-[12px] font-bold text-text-primary shadow-sm transition-all duration-200 hover:border-[#0a0a0a] hover:bg-surface-white hover:scale-[1.03] active:scale-[0.97]'
+                    title='Copy comparison link to clipboard'
+                  >
+                    {copied ? (
+                      <>
+                        <Check className='h-3.5 w-3.5 text-[#16A34A]' />
+                        <span className='text-[#16A34A]'>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className='h-3.5 w-3.5 text-text-placeholder' />
+                        <span>Copy Link</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 
